@@ -43,12 +43,12 @@ luarocks install oil.nvim
 
 ## FAQ
 
-**Q: How do I set up oil.nvim (or migrate from stevearc/oil.nvim)?**
+**Q: How do I migrate from `stevearc/oil.nvim`?**
 
 Change the plugin source and replace `setup()` with `vim.g.oil` in `init`. The
 configuration table is identical — only the entry point changes.
 
-Before (stevearc/oil.nvim):
+Before (`stevearc/oil.nvim`):
 
 ```lua
 {
@@ -60,7 +60,7 @@ Before (stevearc/oil.nvim):
 }
 ```
 
-After (barrettruth/oil.nvim):
+After (`barrettruth/oil.nvim`):
 
 ```lua
 {
