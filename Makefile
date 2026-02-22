@@ -45,4 +45,4 @@ scripts/benchmark.nvim:
 ## clean: reset the repository to a clean state
 .PHONY: clean
 clean:
-	rm -rf scripts/nvim-typecheck-action venv .testenv perf/tmp profile.json
+	rm -rf scripts/nvim-typecheck-action .testenv perf/tmp profile.json
