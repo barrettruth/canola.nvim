@@ -17,7 +17,7 @@ test:
 .PHONY: lint
 lint: scripts/nvim-typecheck-action
 	./scripts/nvim-typecheck-action/typecheck.sh --workdir scripts/nvim-typecheck-action lua
-	luacheck lua tests --formatter plain
+	selene --display-style quiet .
 	stylua --check lua tests
 
 ## profile: use LuaJIT profiler to profile the plugin
