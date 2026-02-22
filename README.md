@@ -46,7 +46,8 @@ luarocks install oil.nvim
 **Q: How do I migrate from `stevearc/oil.nvim`?**
 
 Change the plugin source and replace `setup()` with `vim.g.oil` in `init`. The
-configuration table is identical — only the entry point changes.
+configuration table is identical — only the entry point changes. For example,
+with [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 Before (`stevearc/oil.nvim`):
 
