@@ -850,6 +850,7 @@ M.format_entry_cols = function(entry, column_defs, col_width, adapter, is_hidden
       or lower:match('%.ps1$')
     then
       highlight_as_executable = true
+    -- selene: allow(if_same_then_else)
     elseif is_unix_executable(entry) then
       highlight_as_executable = true
     end

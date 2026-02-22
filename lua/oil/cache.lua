@@ -194,6 +194,7 @@ M.perform_action = function(action)
     local parent_url = util.addslash(scheme .. vim.fn.fnamemodify(path, ':h'))
     local name = vim.fn.fnamemodify(path, ':t')
     M.create_and_store_entry(parent_url, name, action.entry_type)
+  -- selene: allow(empty_if)
   elseif action.type == 'change' then
     -- Cache doesn't need to update
   else

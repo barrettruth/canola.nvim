@@ -19,6 +19,7 @@ local TEST_DIR = 'perf/tmp/test_' .. DIR_SIZE
 vim.fn.mkdir(TEST_DIR, 'p')
 require('benchmark.files').create_files(TEST_DIR, 'file %d.txt', DIR_SIZE)
 
+-- selene: allow(global_usage)
 function _G.jit_profile()
   require('oil').setup(setup_opts)
   local finish = bm.jit_profile({ filename = TEST_DIR .. '/profile.txt' })
@@ -28,6 +29,7 @@ function _G.jit_profile()
   require('oil').open(TEST_DIR)
 end
 
+-- selene: allow(global_usage)
 function _G.flame_profile()
   local start, stop = bm.flame_profile({
     pattern = 'oil*',
@@ -43,6 +45,7 @@ function _G.flame_profile()
   require('oil').open(TEST_DIR)
 end
 
+-- selene: allow(global_usage)
 function _G.benchmark()
   require('oil').setup(setup_opts)
   bm.run({ title = 'oil.nvim', iterations = ITERATIONS, warm_up = WARM_UP }, function(callback)

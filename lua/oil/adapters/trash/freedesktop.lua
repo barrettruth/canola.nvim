@@ -422,6 +422,7 @@ M.filter_action = function(action)
     local src_adapter = assert(config.get_adapter_by_scheme(action.src_url))
     local dest_adapter = assert(config.get_adapter_by_scheme(action.dest_url))
     return src_adapter.name == 'files' or dest_adapter.name == 'files'
+  -- selene: allow(if_same_then_else)
   elseif action.type == 'copy' then
     local src_adapter = assert(config.get_adapter_by_scheme(action.src_url))
     local dest_adapter = assert(config.get_adapter_by_scheme(action.dest_url))

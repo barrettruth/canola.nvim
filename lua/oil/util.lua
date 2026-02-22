@@ -229,6 +229,7 @@ end
 M.cb_collect = function(count, cb)
   return function(err)
     if err then
+      -- selene: allow(mismatched_arg_count)
       cb(err)
       cb = function() end
     else
@@ -933,8 +934,9 @@ end
 M.get_icon_provider = function()
   -- prefer mini.icons
   local _, mini_icons = pcall(require, 'mini.icons')
+  -- selene: allow(global_usage)
   ---@diagnostic disable-next-line: undefined-field
-  if _G.MiniIcons then -- `_G.MiniIcons` is a better check to see if the module is setup
+  if _G.MiniIcons then
     return function(type, name, conf, ft)
       if ft then
         return mini_icons.get('filetype', ft)
@@ -993,6 +995,7 @@ M.read_file_to_scratch_buffer = function(path, preview_method)
   local ft = vim.filetype.match({ filename = path, buf = bufnr })
   if ft and ft ~= '' and vim.treesitter.language.get_lang then
     local lang = vim.treesitter.language.get_lang(ft)
+    -- selene: allow(empty_if)
     if not pcall(vim.treesitter.start, bufnr, lang) then
       vim.bo[bufnr].syntax = ft
     else

@@ -246,6 +246,7 @@ function SSHConnection:_handle_output(start_i)
     local last_line = last_lines[1]
     if last_line:match('^Are you sure you want to continue connecting') then
       self:open_terminal()
+    -- selene: allow(if_same_then_else)
     elseif last_line:match('Password:%s*$') then
       self:open_terminal()
     elseif last_line:match(': Permission denied %(.+%)%.') then
