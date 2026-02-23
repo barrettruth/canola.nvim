@@ -4,3 +4,4 @@ exclude = [".direnv/*"]
 [lints]
 mixed_table = 'allow'
 unused_variable = 'allow'
+bad_string_escape = 'allow'
