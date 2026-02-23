@@ -947,23 +947,26 @@ M.get_icon_provider = function()
 
   local has_nonicons, nonicons = pcall(require, 'nonicons')
   if has_nonicons and nonicons.get_icon then
+    local _, devicons = pcall(require, 'nvim-web-devicons')
     return function(type, name, conf, ft)
       if type == 'directory' then
         local icon = nonicons.get('file-directory')
         return icon or (conf and conf.directory or ''), 'OilDirIcon'
       end
+      local hl = devicons and select(2, devicons.get_icon(name)) or 'OilFileIcon'
       if ft then
         local ft_icon = nonicons.get_icon_by_filetype(ft)
         if ft_icon then
-          return ft_icon, 'OilFileIcon'
+          local ft_hl = devicons and select(2, devicons.get_icon_by_filetype(ft))
+          return ft_icon, ft_hl or hl
         end
       end
       local icon = nonicons.get_icon(name)
       if icon then
-        return icon, 'OilFileIcon'
+        return icon, hl
       end
       local fallback = nonicons.get('file')
-      return fallback or (conf and conf.default_file or ''), 'OilFileIcon'
+      return fallback or (conf and conf.default_file or ''), hl
     end
   end
 
