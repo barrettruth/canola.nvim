@@ -1,5 +1,5 @@
-*oil.txt*
-*Oil* *oil* *oil.nvim*
+*canola.txt*
+*Canola* *canola* *canola.nvim* *Oil* *oil* *oil.nvim*
 --------------------------------------------------------------------------------
 CONTENTS                                                            *oil-contents*
 
