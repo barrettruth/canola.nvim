@@ -38,7 +38,7 @@ luarocks install canola.nvim
 ## Documentation
 
 ```vim
-:help oil.nvim
+:help canola.nvim
 ```
 
 ## FAQ
