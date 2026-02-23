@@ -1,10 +1,8 @@
-# oil.nvim
+# canola.nvim
 
-**A file explorer that lets you edit your filesystem like a buffer**
-
-Browse directories as normal Neovim buffers, then create, rename, move, copy,
-and delete files by editing the listing and saving. Cross-directory operations
-work seamlessly across local, SSH, S3, and trash adapters.
+A refined [oil.nvim](https://github.com/stevearc/oil.nvim) — edit your
+filesystem like a buffer, with bug fixes and community PRs that haven't landed
+upstream.
 
 https://user-images.githubusercontent.com/506791/209727111-6b4a11f4-634a-4efa-9461-80e9717cea94.mp4
 
@@ -29,10 +27,10 @@ https://user-images.githubusercontent.com/506791/209727111-6b4a11f4-634a-4efa-94
 ## Installation
 
 Install with your package manager of choice or via
-[luarocks](https://luarocks.org/modules/barrettruth/oil.nvim):
+[luarocks](https://luarocks.org/modules/barrettruth/canola.nvim):
 
 ```
-luarocks install oil.nvim
+luarocks install canola.nvim
 ```
 
 ## Documentation
@@ -61,11 +59,11 @@ Before (`stevearc/oil.nvim`):
 }
 ```
 
-After (`barrettruth/oil.nvim`):
+After (`barrettruth/canola.nvim`):
 
 ```lua
 {
-  'barrettruth/oil.nvim',
+  'barrettruth/canola.nvim',
   init = function()
     vim.g.oil = { ... }
   end,
@@ -100,6 +98,6 @@ Drew Neil:
 
 ## Acknowledgements
 
-oil.nvim was created by
-[Steven Arcangeli](https://github.com/stevearc/oil.nvim). This fork is
-maintained by [Barrett Ruth](https://github.com/barrettruth).
+canola.nvim is a fork of [oil.nvim](https://github.com/stevearc/oil.nvim),
+created by [Steven Arcangeli](https://github.com/stevearc). Maintained by
+[Barrett Ruth](https://github.com/barrettruth).

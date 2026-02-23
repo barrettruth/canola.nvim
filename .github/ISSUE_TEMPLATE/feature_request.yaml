@@ -9,7 +9,7 @@ body:
       options:
         - label:
             I have searched [existing
-            issues](https://github.com/barrettruth/oil.nvim/issues)
+            issues](https://github.com/barrettruth/canola.nvim/issues)
           required: true
 
   - type: textarea

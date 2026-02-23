@@ -1,14 +1,14 @@
 rockspec_format = '3.0'
-package = 'oil.nvim'
+package = 'canola.nvim'
 version = 'scm-1'
 
 source = {
-  url = 'git+https://github.com/barrettruth/oil.nvim.git',
+  url = 'git+https://github.com/barrettruth/canola.nvim.git',
 }
 
 description = {
   summary = 'Neovim file explorer: edit your filesystem like a buffer',
-  homepage = 'https://github.com/barrettruth/oil.nvim',
+  homepage = 'https://github.com/barrettruth/canola.nvim',
   license = 'MIT',
 }
 

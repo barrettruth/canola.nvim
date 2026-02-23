@@ -9,7 +9,7 @@ body:
       options:
         - label:
             I have searched [existing
-            issues](https://github.com/barrettruth/oil.nvim/issues)
+            issues](https://github.com/barrettruth/canola.nvim/issues)
           required: true
         - label: I have updated to the latest version
           required: true
@@ -69,7 +69,7 @@ body:
         require('lazy.nvim').setup({
           spec = {
             {
-              'barrettruth/oil.nvim',
+              'barrettruth/canola.nvim',
               init = function()
                 vim.g.oil = {}
               end,
