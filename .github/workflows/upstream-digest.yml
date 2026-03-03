@@ -36,6 +36,7 @@ jobs:
           git checkout -b "${BRANCH}"
           git add doc/upstream.md
           git commit -m "docs(upstream): upstream digest $(date +%Y-%m-%d)"
+          git config --unset http.https://github.com/.extraheader
           git remote set-url origin "https://x-access-token:${{ secrets.DIGEST_PAT }}@github.com/barrettruth/canola.nvim.git"
           git push --force origin "${BRANCH}"
           if ! GH_TOKEN="${{ secrets.GITHUB_TOKEN }}" gh pr list --head "${BRANCH}" --state open --json number --jq '.[0].number' | grep -q .; then
