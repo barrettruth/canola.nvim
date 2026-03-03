@@ -947,7 +947,10 @@ M.get_icon_provider = function()
 
   local has_nonicons, nonicons = pcall(require, 'nonicons')
   if has_nonicons and nonicons.get_icon then
-    local _, devicons = pcall(require, 'nvim-web-devicons')
+    local has_devicons, devicons = pcall(require, 'nvim-web-devicons')
+    if not has_devicons then
+      devicons = nil
+    end
     return function(type, name, conf, ft)
       if type == 'directory' then
         local icon = nonicons.get('file-directory-fill')
