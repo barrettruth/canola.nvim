@@ -36,12 +36,14 @@ jobs:
           git checkout -b "${BRANCH}"
           git add doc/upstream.md
           git commit -m "docs(upstream): upstream digest $(date +%Y-%m-%d)"
+          git remote set-url origin "https://x-access-token:${{ secrets.DIGEST_PAT }}@github.com/barrettruth/canola.nvim.git"
           git push --force origin "${BRANCH}"
-          if ! gh pr list --head "${BRANCH}" --state open --json number --jq '.[0].number' | grep -q .; then
-            PR_URL=$(gh pr create \
+          if ! GH_TOKEN="${{ secrets.GITHUB_TOKEN }}" gh pr list --head "${BRANCH}" --state open --json number --jq '.[0].number' | grep -q .; then
+            PR_URL=$(GH_TOKEN="${{ secrets.GITHUB_TOKEN }}" gh pr create \
               --title "docs(upstream): upstream digest" \
               --body "Automated weekly digest of new upstream activity. Triage by updating statuses and notes." \
               --base main \
               --head "${BRANCH}")
-            gh pr merge "${PR_URL}" --auto --squash
+            GH_TOKEN="${{ secrets.DIGEST_PAT }}" gh pr review "${PR_URL}" --approve
+            GH_TOKEN="${{ secrets.GITHUB_TOKEN }}" gh pr merge "${PR_URL}" --auto --squash
           fi
