@@ -38,7 +38,7 @@ jobs:
           git commit -m "docs(upstream): upstream digest $(date +%Y-%m-%d)"
           git push --force origin "${BRANCH}"
           if ! gh pr list --head "${BRANCH}" --state open --json number --jq '.[0].number' | grep -q .; then
-            PR_URL=$(gh pr create \
+            PR_URL=$(GH_TOKEN="${{ secrets.DIGEST_PAT }}" gh pr create \
               --title "docs(upstream): upstream digest" \
               --body "Automated weekly digest of new upstream activity. Triage by updating statuses and notes." \
               --base main \
