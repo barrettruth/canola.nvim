@@ -15,20 +15,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Close existing digest PRs
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh pr list \
-            --repo barrettruth/canola.nvim \
-            --label "upstream/digest" \
-            --state open \
-            --json number \
-            --jq '.[].number' \
-          | xargs -r -I{} gh pr close {} \
-              --repo barrettruth/canola.nvim \
-              --delete-branch
-
       - name: Update upstream tracker
         id: digest
         env:
@@ -39,23 +25,23 @@ jobs:
         if: steps.digest.outputs.changed == 'true'
         run: npx --yes prettier --write doc/upstream.md
 
-      - name: Create PR
+      - name: Push and open PR if needed
         if: steps.digest.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          DATE=$(date +%Y-%m-%d)
-          BRANCH="ci/upstream-digest-${DATE}"
+          BRANCH="ci/upstream-digest"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b "${BRANCH}"
           git add doc/upstream.md
-          git commit -m "docs(upstream): add digest for week of ${DATE}"
-          git push origin "${BRANCH}"
-          PR_URL=$(gh pr create \
-            --title "docs(upstream): add digest for week of ${DATE}" \
-            --body "Automated weekly digest of new upstream activity. Triage by updating statuses and notes." \
-            --base main \
-            --head "${BRANCH}" \
-            --label "upstream/digest")
-          gh pr merge "${PR_URL}" --auto --squash
+          git commit -m "docs(upstream): upstream digest $(date +%Y-%m-%d)"
+          git push --force origin "${BRANCH}"
+          if ! gh pr list --head "${BRANCH}" --state open --json number --jq '.[0].number' | grep -q .; then
+            PR_URL=$(gh pr create \
+              --title "docs(upstream): upstream digest" \
+              --body "Automated weekly digest of new upstream activity. Triage by updating statuses and notes." \
+              --base main \
+              --head "${BRANCH}")
+            gh pr merge "${PR_URL}" --auto --squash
+          fi
