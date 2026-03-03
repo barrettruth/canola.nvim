@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  issues: write
-  contents: read
+  contents: write
+  pull-requests: write
 
 jobs:
   digest:
@@ -15,7 +15,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Create upstream digest issue
+      - name: Update upstream tracker
+        id: digest
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 .github/scripts/upstream_digest.py
+
+      - name: Format doc/upstream.md
+        if: steps.digest.outputs.changed == 'true'
+        run: npx --yes prettier --write doc/upstream.md
+
+      - name: Create PR
+        if: steps.digest.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          BRANCH="ci/upstream-digest-${DATE}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "${BRANCH}"
+          git add doc/upstream.md
+          git commit -m "docs(upstream): add digest for week of ${DATE}"
+          git push origin "${BRANCH}"
+          PR_URL=$(gh pr create \
+            --title "docs(upstream): add digest for week of ${DATE}" \
+            --body "Automated weekly digest of new upstream activity. Triage by updating statuses and notes." \
+            --base main \
+            --head "${BRANCH}")
+          gh pr merge "${PR_URL}" --auto --squash
