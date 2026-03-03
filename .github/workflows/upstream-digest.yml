@@ -45,6 +45,5 @@ jobs:
               --body "Automated weekly digest of new upstream activity. Triage by updating statuses and notes." \
               --base main \
               --head "${BRANCH}")
-            gh pr review "${PR_URL}" --approve
-            GH_TOKEN="${{ secrets.GITHUB_TOKEN }}" gh pr merge "${PR_URL}" --auto --squash
+            gh pr merge "${PR_URL}" --auto --squash
           fi
