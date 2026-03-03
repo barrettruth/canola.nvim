@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import os
 import re
 import subprocess
 import sys
@@ -7,9 +8,10 @@ from datetime import date, timedelta
 
 
 UPSTREAM = "stevearc/oil.nvim"
-TARGET = "barrettruth/canola.nvim"
 UPSTREAM_MD = "doc/upstream.md"
-LABEL = "upstream/digest"
+
+PRS_HEADING = "## Open upstream PRs"
+ISSUES_HEADING = "## Upstream issues"
 
 
 def get_last_tracked_number():
@@ -43,10 +45,18 @@ def fetch_items(last_number, since_date):
             "--repo", UPSTREAM,
             "--state", "merged",
             "--limit", "100",
-            "--json", "number,title,mergedAt,url",
+            "--json", "number,title,url",
         )
     )
-
+    open_prs = json.loads(
+        gh(
+            "pr", "list",
+            "--repo", UPSTREAM,
+            "--state", "open",
+            "--limit", "100",
+            "--json", "number,title,createdAt,url",
+        )
+    )
     open_issues = json.loads(
         gh(
             "issue", "list",
@@ -57,95 +67,87 @@ def fetch_items(last_number, since_date):
         )
     )
 
-    open_prs = json.loads(
-        gh(
-            "pr", "list",
-            "--repo", UPSTREAM,
-            "--state", "open",
-            "--limit", "100",
-            "--json", "number,title,createdAt,url",
-        )
-    )
-
     if last_number is not None:
         merged_prs = [x for x in merged_prs if x["number"] > last_number]
-        open_issues = [x for x in open_issues if x["number"] > last_number]
         open_prs = [x for x in open_prs if x["number"] > last_number]
+        open_issues = [x for x in open_issues if x["number"] > last_number]
     else:
         cutoff = since_date.isoformat()
-        merged_prs = [x for x in merged_prs if x.get("mergedAt", "") >= cutoff]
-        open_issues = [x for x in open_issues if x.get("createdAt", "") >= cutoff]
+        merged_prs = []
         open_prs = [x for x in open_prs if x.get("createdAt", "") >= cutoff]
+        open_issues = [x for x in open_issues if x.get("createdAt", "") >= cutoff]
 
     merged_prs.sort(key=lambda x: x["number"])
-    open_issues.sort(key=lambda x: x["number"])
     open_prs.sort(key=lambda x: x["number"])
+    open_issues.sort(key=lambda x: x["number"])
 
-    return merged_prs, open_issues, open_prs
-
-
-def format_row(item):
-    num = item["number"]
-    title = item["title"]
-    url = item["url"]
-    return f"- [#{num}]({url}) — {title}"
+    return merged_prs, open_prs, open_issues
 
 
-def build_body(merged_prs, open_issues, open_prs, last_number):
-    if last_number is not None:
-        summary = f"Items with number > #{last_number} (last entry in `doc/upstream.md`)."
-    else:
-        summary = "Last 30 days (could not parse `doc/upstream.md` for a baseline)."
+def append_to_section(content, heading, new_rows):
+    lines = content.split("\n")
+    in_section = False
+    last_table_row = -1
 
-    sections = [summary, ""]
+    for i, line in enumerate(lines):
+        if line.startswith("## "):
+            in_section = line.strip() == heading
+        if in_section and line.startswith("|"):
+            last_table_row = i
 
-    sections.append("## Merged PRs")
-    if merged_prs:
-        sections.extend(format_row(x) for x in merged_prs)
-    else:
-        sections.append("_None_")
+    if last_table_row == -1:
+        return content
 
-    sections.append("")
-    sections.append("## New open issues")
-    if open_issues:
-        sections.extend(format_row(x) for x in open_issues)
-    else:
-        sections.append("_None_")
-
-    sections.append("")
-    sections.append("## New open PRs")
-    if open_prs:
-        sections.extend(format_row(x) for x in open_prs)
-    else:
-        sections.append("_None_")
-
-    return "\n".join(sections)
+    return "\n".join(
+        lines[: last_table_row + 1] + new_rows + lines[last_table_row + 1 :]
+    )
 
 
 def main():
     last_number = get_last_tracked_number()
     since_date = date.today() - timedelta(days=30)
 
-    merged_prs, open_issues, open_prs = fetch_items(last_number, since_date)
+    merged_prs, open_prs, open_issues = fetch_items(last_number, since_date)
 
-    total = len(merged_prs) + len(open_issues) + len(open_prs)
+    total = len(merged_prs) + len(open_prs) + len(open_issues)
     if total == 0:
-        print("No new upstream activity. Skipping issue creation.")
+        print("No new upstream activity.")
         return
 
-    today = date.today().isoformat()
-    title = f"upstream digest: week of {today}"
-    body = build_body(merged_prs, open_issues, open_prs, last_number)
+    with open(UPSTREAM_MD) as f:
+        content = f.read()
 
-    gh(
-        "issue", "create",
-        "--repo", TARGET,
-        "--title", title,
-        "--label", LABEL,
-        "--body", body,
+    pr_rows = []
+    for pr in open_prs:
+        pr_rows.append(f"| [#{pr['number']}]({pr['url']}) | {pr['title']} | open |")
+    for pr in merged_prs:
+        pr_rows.append(
+            f"| [#{pr['number']}]({pr['url']}) | {pr['title']} | merged — not cherry-picked |"
+        )
+
+    issue_rows = []
+    for issue in open_issues:
+        issue_rows.append(
+            f"| [#{issue['number']}]({issue['url']}) | open | {issue['title']} |"
+        )
+
+    if pr_rows:
+        content = append_to_section(content, PRS_HEADING, pr_rows)
+    if issue_rows:
+        content = append_to_section(content, ISSUES_HEADING, issue_rows)
+
+    with open(UPSTREAM_MD, "w") as f:
+        f.write(content)
+
+    github_output = os.environ.get("GITHUB_OUTPUT")
+    if github_output:
+        with open(github_output, "a") as f:
+            f.write("changed=true\n")
+
+    print(
+        f"Added {len(open_prs)} open PR(s), {len(merged_prs)} merged PR(s), "
+        f"{len(open_issues)} issue(s) to {UPSTREAM_MD}"
     )
-
-    print(f"Created digest issue: {title} ({total} items)")
 
 
 if __name__ == "__main__":
