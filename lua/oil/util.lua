@@ -953,23 +953,21 @@ M.get_icon_provider = function()
     end
     return function(type, name, conf, ft)
       if type == 'directory' then
-        local icon = nonicons.get('file-directory-fill')
-        return icon or (conf and conf.directory or ''), 'OilDirIcon'
+        local icon, hl = nonicons.get('file-directory-fill')
+        return icon or (conf and conf.directory or ''), hl or 'OilDirIcon'
       end
-      local hl = devicons and select(2, devicons.get_icon(name)) or 'OilFileIcon'
       if ft then
-        local ft_icon = nonicons.get_icon_by_filetype(ft)
+        local ft_icon, ft_hl = nonicons.get_icon_by_filetype(ft)
         if ft_icon then
-          local ft_hl = devicons and select(2, devicons.get_icon_by_filetype(ft))
-          return ft_icon, ft_hl or hl
+          return ft_icon, ft_hl or 'OilFileIcon'
         end
       end
-      local icon = nonicons.get_icon(name)
+      local icon, hl = nonicons.get_icon(name)
       if icon then
-        return icon, hl
+        return icon, hl or 'OilFileIcon'
       end
-      local fallback = nonicons.get('file')
-      return fallback or (conf and conf.default_file or ''), hl
+      local fallback, fallback_hl = nonicons.get('file')
+      return fallback or (conf and conf.default_file or ''), fallback_hl or 'OilFileIcon'
     end
   end
 
