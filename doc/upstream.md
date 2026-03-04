@@ -36,16 +36,16 @@ Bugs fixed in this fork that remain open upstream.
 
 ## Open upstream PRs
 
-| PR                                                    | Description                                 | Status                                                                               |
-| ----------------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------ |
-| [#488](https://github.com/stevearc/oil.nvim/pull/488) | Parent directory in a split                 | not actionable — empty PR                                                            |
-| [#493](https://github.com/stevearc/oil.nvim/pull/493) | UNC paths on Windows                        | not actionable — superseded by [#686](https://github.com/stevearc/oil.nvim/pull/686) |
-| [#591](https://github.com/stevearc/oil.nvim/pull/591) | release-please changelog                    | not applicable                                                                       |
-| [#667](https://github.com/stevearc/oil.nvim/pull/667) | Virtual text columns + headers              | deferred — WIP, conflicting                                                          |
-| [#686](https://github.com/stevearc/oil.nvim/pull/686) | Windows path conversion fix                 | not actionable — Windows-only                                                        |
-| [#708](https://github.com/stevearc/oil.nvim/pull/708) | Move file into new dir by renaming          | deferred — needs rewrite                                                             |
-| [#721](https://github.com/stevearc/oil.nvim/pull/721) | `create_hook` to populate file contents     | open                                                                                 |
-| [#728](https://github.com/stevearc/oil.nvim/pull/728) | `open_split` for opening oil in a split     | tracked — [#2](https://github.com/barrettruth/canola.nvim/issues/2)                  |
+| PR                                                    | Description                             | Status                                                                               |
+| ----------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------ |
+| [#488](https://github.com/stevearc/oil.nvim/pull/488) | Parent directory in a split             | not actionable — empty PR                                                            |
+| [#493](https://github.com/stevearc/oil.nvim/pull/493) | UNC paths on Windows                    | not actionable — superseded by [#686](https://github.com/stevearc/oil.nvim/pull/686) |
+| [#591](https://github.com/stevearc/oil.nvim/pull/591) | release-please changelog                | not applicable                                                                       |
+| [#667](https://github.com/stevearc/oil.nvim/pull/667) | Virtual text columns + headers          | deferred — WIP, conflicting                                                          |
+| [#686](https://github.com/stevearc/oil.nvim/pull/686) | Windows path conversion fix             | not actionable — Windows-only                                                        |
+| [#708](https://github.com/stevearc/oil.nvim/pull/708) | Move file into new dir by renaming      | deferred — needs rewrite                                                             |
+| [#721](https://github.com/stevearc/oil.nvim/pull/721) | `create_hook` to populate file contents | open                                                                                 |
+| [#728](https://github.com/stevearc/oil.nvim/pull/728) | `open_split` for opening oil in a split | tracked — [#2](https://github.com/barrettruth/canola.nvim/issues/2)                  |
 
 ## Upstream issues
 

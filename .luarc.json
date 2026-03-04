@@ -4,7 +4,8 @@
     "pathStrict": true
   },
   "workspace": {
-    "checkThirdParty": false
+    "checkThirdParty": false,
+    "ignoreDir": [".direnv"]
   },
   "type": {
     "checkTableShape": true
