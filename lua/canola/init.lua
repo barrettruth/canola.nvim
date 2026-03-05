@@ -1217,16 +1217,12 @@ M.setup = function(opts)
     end
     M[method](path, open_opts)
   end
-  vim.api.nvim_create_user_command(
-    'Canola',
-    callback,
-    {
-      desc = 'Open canola file browser on a directory',
-      nargs = '*',
-      complete = 'dir',
-      count = true,
-    }
-  )
+  vim.api.nvim_create_user_command('Canola', callback, {
+    desc = 'Open canola file browser on a directory',
+    nargs = '*',
+    complete = 'dir',
+    count = true,
+  })
   local aug = vim.api.nvim_create_augroup('Canola', {})
 
   if config.default_file_explorer then
