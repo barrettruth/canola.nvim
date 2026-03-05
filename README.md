@@ -100,6 +100,4 @@ Drew Neil:
 
 ## Acknowledgements
 
-canola.nvim is a fork of [oil.nvim](https://github.com/stevearc/oil.nvim),
-created by [Steven Arcangeli](https://github.com/stevearc). Maintained by
-[Barrett Ruth](https://github.com/barrettruth).
+-  [stevearc](https://github.com/stevearc): [oil.nvim](https://github.com/stevearc/oil.nvim)
