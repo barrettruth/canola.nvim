@@ -46,9 +46,9 @@ luarocks install canola.nvim
 
 **Q: How do I migrate from `stevearc/oil.nvim`?**
 
-Change the plugin source and replace `setup()` with `vim.g.oil` in `init`. The
-configuration table is identical — only the entry point changes. For example,
-with [lazy.nvim](https://github.com/folke/lazy.nvim):
+Change the plugin source and replace `setup()` with `vim.g.canola` in `init`.
+The configuration table is identical — only the entry point changes. For
+example, with [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 Before (`stevearc/oil.nvim`):
 
@@ -57,7 +57,7 @@ Before (`stevearc/oil.nvim`):
   'stevearc/oil.nvim',
   opts = { ... },
   config = function(_, opts)
-    require('oil').setup(opts)
+    require('canola').setup(opts)
   end,
 }
 ```
@@ -68,16 +68,16 @@ After (`barrettruth/canola.nvim`):
 {
   'barrettruth/canola.nvim',
   init = function()
-    vim.g.oil = { ... }
+    vim.g.canola = { ... }
   end,
 }
 ```
 
 `init` runs before the plugin loads; `config` runs after. oil.nvim reads
-`vim.g.oil` at load time, so `init` is the correct hook. Do not use `config`,
+`vim.g.canola` at load time, so `init` is the correct hook. Do not use `config`,
 `opts`, or `lazy` — oil.nvim loads itself when you open a directory.
 
-**Q: Why "oil"?**
+**Q: Why "canola"?**
 
 From the [vim-vinegar](https://github.com/tpope/vim-vinegar) README, a quote by
 Drew Neil:
@@ -100,4 +100,5 @@ Drew Neil:
 
 ## Acknowledgements
 
--  [stevearc](https://github.com/stevearc): [oil.nvim](https://github.com/stevearc/oil.nvim)
+- [stevearc](https://github.com/stevearc):
+  [oil.nvim](https://github.com/stevearc/oil.nvim)

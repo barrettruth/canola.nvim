@@ -1,5 +1,5 @@
 local TmpDir = require('spec.tmpdir')
-local files = require('oil.adapters.files')
+local files = require('canola.adapters.files')
 local test_util = require('spec.test_util')
 
 describe('files adapter', function()
@@ -26,7 +26,7 @@ describe('files adapter', function()
 
   it('Creates files', function()
     local err = test_util.await(files.perform_action, 2, {
-      url = 'oil://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a.txt',
+      url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a.txt',
       entry_type = 'file',
       type = 'create',
     })
@@ -38,7 +38,7 @@ describe('files adapter', function()
 
   it('Creates directories', function()
     local err = test_util.await(files.perform_action, 2, {
-      url = 'oil://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a',
+      url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a',
       entry_type = 'directory',
       type = 'create',
     })
@@ -50,7 +50,7 @@ describe('files adapter', function()
 
   it('Deletes files', function()
     tmpdir:create({ 'a.txt' })
-    local url = 'oil://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a.txt'
+    local url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a.txt'
     local err = test_util.await(files.perform_action, 2, {
       url = url,
       entry_type = 'file',
@@ -62,7 +62,7 @@ describe('files adapter', function()
 
   it('Deletes directories', function()
     tmpdir:create({ 'a/' })
-    local url = 'oil://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a'
+    local url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a'
     local err = test_util.await(files.perform_action, 2, {
       url = url,
       entry_type = 'directory',
@@ -74,8 +74,8 @@ describe('files adapter', function()
 
   it('Moves files', function()
     tmpdir:create({ 'a.txt' })
-    local src_url = 'oil://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a.txt'
-    local dest_url = 'oil://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'b.txt'
+    local src_url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a.txt'
+    local dest_url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'b.txt'
     local err = test_util.await(files.perform_action, 2, {
       src_url = src_url,
       dest_url = dest_url,
@@ -90,8 +90,8 @@ describe('files adapter', function()
 
   it('Moves directories', function()
     tmpdir:create({ 'a/a.txt' })
-    local src_url = 'oil://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a'
-    local dest_url = 'oil://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'b'
+    local src_url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a'
+    local dest_url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'b'
     local err = test_util.await(files.perform_action, 2, {
       src_url = src_url,
       dest_url = dest_url,
@@ -107,8 +107,8 @@ describe('files adapter', function()
 
   it('Copies files', function()
     tmpdir:create({ 'a.txt' })
-    local src_url = 'oil://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a.txt'
-    local dest_url = 'oil://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'b.txt'
+    local src_url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a.txt'
+    local dest_url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'b.txt'
     local err = test_util.await(files.perform_action, 2, {
       src_url = src_url,
       dest_url = dest_url,
@@ -124,8 +124,8 @@ describe('files adapter', function()
 
   it('Recursively copies directories', function()
     tmpdir:create({ 'a/a.txt' })
-    local src_url = 'oil://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a'
-    local dest_url = 'oil://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'b'
+    local src_url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a'
+    local dest_url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'b'
     local err = test_util.await(files.perform_action, 2, {
       src_url = src_url,
       dest_url = dest_url,
@@ -141,22 +141,22 @@ describe('files adapter', function()
     })
   end)
 
-  it('Editing a new oil://path/ creates an oil buffer', function()
-    local tmpdir_url = 'oil://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. '/'
+  it('Editing a new canola://path/ creates an canola buffer', function()
+    local tmpdir_url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. '/'
     vim.cmd.edit({ args = { tmpdir_url } })
-    test_util.wait_oil_ready()
-    local new_url = 'oil://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'newdir'
+    test_util.wait_canola_ready()
+    local new_url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'newdir'
     vim.cmd.edit({ args = { new_url } })
-    test_util.wait_oil_ready()
-    assert.equals('oil', vim.bo.filetype)
+    test_util.wait_canola_ready()
+    assert.equals('canola', vim.bo.filetype)
     assert.equals(new_url .. '/', vim.api.nvim_buf_get_name(0))
   end)
 
-  it('Editing a new oil://file.rb creates a normal buffer', function()
-    local tmpdir_url = 'oil://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. '/'
+  it('Editing a new canola://file.rb creates a normal buffer', function()
+    local tmpdir_url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. '/'
     vim.cmd.edit({ args = { tmpdir_url } })
     test_util.wait_for_autocmd('BufReadPost')
-    local new_url = 'oil://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'file.rb'
+    local new_url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'file.rb'
     vim.cmd.edit({ args = { new_url } })
     test_util.wait_for_autocmd('BufReadPost')
     assert.equals('ruby', vim.bo.filetype)

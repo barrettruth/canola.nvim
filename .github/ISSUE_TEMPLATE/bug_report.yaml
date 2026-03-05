@@ -50,7 +50,7 @@ body:
   - type: textarea
     attributes:
       label: 'Health check'
-      description: 'Output of `:checkhealth oil`'
+      description: 'Output of `:checkhealth canola`'
       render: text
 
   - type: textarea
@@ -71,7 +71,7 @@ body:
             {
               'barrettruth/canola.nvim',
               init = function()
-                vim.g.oil = {}
+                vim.g.canola = {}
               end,
             },
           },
