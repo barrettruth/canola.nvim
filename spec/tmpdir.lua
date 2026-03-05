@@ -1,4 +1,4 @@
-local fs = require('oil.fs')
+local fs = require('canola.fs')
 local test_util = require('spec.test_util')
 
 ---@param path string
@@ -25,7 +25,7 @@ end
 local TmpDir = {}
 
 TmpDir.new = function()
-  local path, err = vim.loop.fs_mkdtemp('oil_test_XXXXXXXXX')
+  local path, err = vim.loop.fs_mkdtemp('canola_test_XXXXXXXXX')
   if not path then
     error(err)
   end

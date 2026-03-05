@@ -1,38 +1,38 @@
 *canola.txt*
-*Canola* *canola* *canola.nvim* *Oil* *oil* *oil.nvim*
+*Canola* *canola* *canola.nvim*
 --------------------------------------------------------------------------------
-CONTENTS                                                            *oil-contents*
+CONTENTS                                                            *canola-contents*
 
-  1. Introduction                                            |oil-introduction|
-  2. Requirements                                            |oil-requirements|
-  3. Config                                                       |oil-config|
-  4. Options                                                     |oil-options|
-  5. Api                                                             |oil-api|
-  6. Columns                                                     |oil-columns|
-  7. Actions                                                     |oil-actions|
-  8. Highlights                                               |oil-highlights|
-  9. Adapters                                                   |oil-adapters|
-  10. Recipes                                                    |oil-recipes|
-  11. Events                                                      |oil-events|
-  12. Trash                                                        |oil-trash|
+  1. Introduction                                            |canola-introduction|
+  2. Requirements                                            |canola-requirements|
+  3. Config                                                       |canola-config|
+  4. Options                                                     |canola-options|
+  5. Api                                                             |canola-api|
+  6. Columns                                                     |canola-columns|
+  7. Actions                                                     |canola-actions|
+  8. Highlights                                               |canola-highlights|
+  9. Adapters                                                   |canola-adapters|
+  10. Recipes                                                    |canola-recipes|
+  11. Events                                                      |canola-events|
+  12. Trash                                                        |canola-trash|
 
 --------------------------------------------------------------------------------
-INTRODUCTION                                                    *oil-introduction*
+INTRODUCTION                                                    *canola-introduction*
 
-oil.nvim is a file explorer for Neovim in the style of vim-vinegar. It lets
+canola.nvim is a file explorer for Neovim in the style of vim-vinegar. It lets
 you edit your filesystem like a normal buffer: create files and directories by
 typing new lines, delete them by removing lines, rename or move them by
-changing the text. When you save the buffer, oil diffs it against the original
+changing the text. When you save the buffer, canola diffs it against the original
 listing and performs the corresponding filesystem operations.
 
-Open a directory with `nvim .`, `:edit <path>`, or `:Oil <path>`. Use `<CR>`
+Open a directory with `nvim .`, `:edit <path>`, or `:Canola <path>`. Use `<CR>`
 to open a file or descend into a directory, and `-` to go up. Treat the
 listing like any other buffer — edit freely, then `:w` to apply changes.
 
-To open oil in a floating window, use `:Oil --float <path>`.
+To open canola in a floating window, use `:Canola --float <path>`.
 
 To mimic vim-vinegar's parent-directory keymap: >lua
-    vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+    vim.keymap.set("n", "-", "<CMD>Canola<CR>", { desc = "Open parent directory" })
 <
 
 File operations work across adapters. You can copy files between your local
@@ -40,54 +40,54 @@ machine and a remote server over SSH, or between local directories and S3
 buckets, using the same buffer-editing workflow.
 
 --------------------------------------------------------------------------------
-REQUIREMENTS                                                    *oil-requirements*
+REQUIREMENTS                                                    *canola-requirements*
 
 - Neovim 0.8+
 - (optional) mini.icons or nvim-web-devicons for file icons
 
 --------------------------------------------------------------------------------
-CONFIG                                                                *oil-config*
+CONFIG                                                                *canola-config*
 
-Oil can be configured in two ways:
+Canola can be configured in two ways:
 
 1. The traditional `setup()` call: >lua
-    require("oil").setup({
+    require("canola").setup({
       -- your opts here
     })
 <
 
-2. Declarative configuration via `vim.g.oil`, which does not require calling
+2. Declarative configuration via `vim.g.canola`, which does not require calling
    `setup()`: >lua
-    vim.g.oil = {
+    vim.g.canola = {
       -- your opts here
     }
 <
 
-   When `vim.g.oil` is set, oil initializes automatically during plugin
+   When `vim.g.canola` is set, canola initializes automatically during plugin
    loading. If `setup()` is called with explicit opts, those take precedence
-   over `vim.g.oil`.
+   over `vim.g.canola`.
 
 The full list of options with their defaults:
 
 >lua
-    require("oil").setup({
-      -- Oil will take over directory buffers (e.g. `vim .` or `:e src/`)
+    require("canola").setup({
+      -- Canola will take over directory buffers (e.g. `vim .` or `:e src/`)
       -- Set to false if you want some other plugin (e.g. netrw) to open when you edit directories.
       default_file_explorer = true,
       -- Id is automatically added at the beginning, and name at the end
-      -- See :help oil-columns
+      -- See :help canola-columns
       columns = {
         "icon",
         -- "permissions",
         -- "size",
         -- "mtime",
       },
-      -- Buffer-local options to use for oil buffers
+      -- Buffer-local options to use for canola buffers
       buf_options = {
         buflisted = false,
         bufhidden = "hide",
       },
-      -- Window-local options to use for oil buffers
+      -- Window-local options to use for canola buffers
       win_options = {
         wrap = false,
         signcolumn = "no",
@@ -98,16 +98,16 @@ The full list of options with their defaults:
         conceallevel = 3,
         concealcursor = "nvic",
       },
-      -- Send deleted files to the trash instead of permanently deleting them (:help oil-trash)
+      -- Send deleted files to the trash instead of permanently deleting them (:help canola-trash)
       delete_to_trash = false,
-      -- Skip the confirmation popup for simple operations (:help oil.skip_confirm_for_simple_edits)
+      -- Skip the confirmation popup for simple operations (:help canola.skip_confirm_for_simple_edits)
       skip_confirm_for_simple_edits = false,
       -- Selecting a new/moved/renamed file or directory will prompt you to save changes first
       -- (:help prompt_save_on_select_new_entry)
       prompt_save_on_select_new_entry = true,
-      -- Oil will automatically delete hidden buffers after this delay
+      -- Canola will automatically delete hidden buffers after this delay
       -- You can set the delay to false to disable cleanup entirely
-      -- Note that the cleanup process only starts when none of the oil buffers are currently displayed
+      -- Note that the cleanup process only starts when none of the canola buffers are currently displayed
       cleanup_delay_ms = 2000,
       lsp_file_methods = {
         -- Enable or disable LSP file operations
@@ -118,17 +118,17 @@ The full list of options with their defaults:
         -- Set to "unmodified" to only save unmodified buffers
         autosave_changes = false,
       },
-      -- Constrain the cursor to the editable parts of the oil buffer
+      -- Constrain the cursor to the editable parts of the canola buffer
       -- Set to `false` to disable, or "name" to keep it on the file names
       constrain_cursor = "editable",
-      -- Set to true to watch the filesystem for changes and reload oil
+      -- Set to true to watch the filesystem for changes and reload canola
       watch_for_changes = false,
-      -- Keymaps in oil buffer. Can be any value that `vim.keymap.set` accepts OR a table of keymap
+      -- Keymaps in canola buffer. Can be any value that `vim.keymap.set` accepts OR a table of keymap
       -- options with a `callback` (e.g. { callback = function() ... end, desc = "", mode = "n" })
       -- Additionally, if it is a string that matches "actions.<name>",
-      -- it will use the mapping at require("oil.actions").<name>
+      -- it will use the mapping at require("canola.actions").<name>
       -- Set to `false` to remove a keymap
-      -- See :help oil-actions for a list of all available actions
+      -- See :help canola-actions for a list of all available actions
       keymaps = {
         ["g?"] = { "actions.show_help", mode = "n" },
         ["<CR>"] = "actions.select",
@@ -168,7 +168,7 @@ The full list of options with their defaults:
         case_insensitive = false,
         sort = {
           -- sort order can be "asc" or "desc"
-          -- see :help oil-columns to see which columns are sortable
+          -- see :help canola-columns to see which columns are sortable
           { "type", "asc" },
           { "name", "asc" },
         },
@@ -196,7 +196,7 @@ The full list of options with their defaults:
           return false
         end,
       },
-      -- Configuration for the floating window in oil.open_float
+      -- Configuration for the floating window in canola.open_float
       float = {
         -- Padding around the floating window
         padding = 2,
@@ -207,7 +207,7 @@ The full list of options with their defaults:
         win_options = {
           winblend = 0,
         },
-        -- optionally override the oil buffers window title with custom function: fun(winid: integer): string
+        -- optionally override the canola buffers window title with custom function: fun(winid: integer): string
         get_win_title = nil,
         -- preview_split: Split direction: "auto", "left", "right", "above", "below".
         preview_split = "auto",
@@ -279,12 +279,12 @@ The full list of options with their defaults:
 <
 
 --------------------------------------------------------------------------------
-OPTIONS                                                              *oil-options*
+OPTIONS                                                              *canola-options*
 
 
-skip_confirm_for_simple_edits                  *oil.skip_confirm_for_simple_edits*
+skip_confirm_for_simple_edits                  *canola.skip_confirm_for_simple_edits*
     type: `boolean` default: `false`
-    Before performing filesystem operations, Oil displays a confirmation popup to ensure
+    Before performing filesystem operations, Canola displays a confirmation popup to ensure
     that all operations are intentional. When this option is `true`, the popup will be
     skipped if the operations:
         * contain no deletes
@@ -292,7 +292,7 @@ skip_confirm_for_simple_edits                  *oil.skip_confirm_for_simple_edit
         * contain at most one copy or move
         * contain at most five creates
 
-prompt_save_on_select_new_entry              *oil.prompt_save_on_select_new_entry*
+prompt_save_on_select_new_entry              *canola.prompt_save_on_select_new_entry*
     type: `boolean` default: `true`
     There are two cases where this option is relevant:
     1. You copy a file to a new location, then you select it and make edits before
@@ -301,126 +301,126 @@ prompt_save_on_select_new_entry              *oil.prompt_save_on_select_new_entr
        changes before saving.
 
     In case 1, when you edit the file you are actually editing the original file because
-    oil has not yet moved/copied it to its new location. This means that the original
+    canola has not yet moved/copied it to its new location. This means that the original
     file will, perhaps unexpectedly, also be changed by any edits you make.
 
     Case 2 is similar; when you edit the directory you are again actually editing the
     original location of the directory. If you add new files, those files will be
     created in both the original location and the copied directory.
 
-    When this option is `true`, Oil will prompt you to save before entering a file or
-    directory that is pending within oil, but does not exist on disk.
+    When this option is `true`, Canola will prompt you to save before entering a file or
+    directory that is pending within canola, but does not exist on disk.
 
 --------------------------------------------------------------------------------
-API                                                                      *oil-api*
+API                                                                      *canola-api*
 
-get_entry_on_line({bufnr}, {lnum}): nil|oil.Entry          *oil.get_entry_on_line*
+get_entry_on_line({bufnr}, {lnum}): nil|canola.Entry          *canola.get_entry_on_line*
     Get the entry on a specific line (1-indexed)
 
     Parameters:
       {bufnr} `integer`
       {lnum}  `integer`
 
-get_cursor_entry(): nil|oil.Entry                           *oil.get_cursor_entry*
+get_cursor_entry(): nil|canola.Entry                           *canola.get_cursor_entry*
     Get the entry currently under the cursor
 
 
-discard_all_changes()                                    *oil.discard_all_changes*
-    Discard all changes made to oil buffers
+discard_all_changes()                                    *canola.discard_all_changes*
+    Discard all changes made to canola buffers
 
 
-set_columns({cols})                                              *oil.set_columns*
-    Change the display columns for oil
-
-    Parameters:
-      {cols} `oil.ColumnSpec[]`
-
-set_sort({sort})                                                    *oil.set_sort*
-    Change the sort order for oil
+set_columns({cols})                                              *canola.set_columns*
+    Change the display columns for canola
 
     Parameters:
-      {sort} `oil.SortSpec[]` List of columns plus direction. See :help oil-
+      {cols} `canola.ColumnSpec[]`
+
+set_sort({sort})                                                    *canola.set_sort*
+    Change the sort order for canola
+
+    Parameters:
+      {sort} `canola.SortSpec[]` List of columns plus direction. See :help canola-
              columns to see which ones are sortable.
 
     Examples: >lua
-      require("oil").set_sort({ { "type", "asc" }, { "size", "desc" } })
+      require("canola").set_sort({ { "type", "asc" }, { "size", "desc" } })
 <
 
-set_is_hidden_file({is_hidden_file})                      *oil.set_is_hidden_file*
-    Change how oil determines if the file is hidden
+set_is_hidden_file({is_hidden_file})                      *canola.set_is_hidden_file*
+    Change how canola determines if the file is hidden
 
     Parameters:
-      {is_hidden_file} `fun(filename: string, bufnr: integer, entry: oil.Entry): boolean`
+      {is_hidden_file} `fun(filename: string, bufnr: integer, entry: canola.Entry): boolean`
                        Return true if the file/dir should be hidden
 
-toggle_hidden()                                                *oil.toggle_hidden*
+toggle_hidden()                                                *canola.toggle_hidden*
     Toggle hidden files and directories
 
 
-get_current_dir({bufnr}): nil|string                         *oil.get_current_dir*
+get_current_dir({bufnr}): nil|string                         *canola.get_current_dir*
     Get the current directory
 
     Parameters:
       {bufnr} `nil|integer`
 
-open_float({dir}, {opts}, {cb})                                   *oil.open_float*
-    Open oil browser in a floating window
+open_float({dir}, {opts}, {cb})                                   *canola.open_float*
+    Open canola browser in a floating window
 
     Parameters:
       {dir}  `nil|string` When nil, open the parent of the current buffer, or
              the cwd if current buffer is not a file
-      {opts} `nil|oil.OpenOpts`
-          {preview} `nil|oil.OpenPreviewOpts` When present, open the preview
-                    window after opening oil
+      {opts} `nil|canola.OpenOpts`
+          {preview} `nil|canola.OpenPreviewOpts` When present, open the preview
+                    window after opening canola
               {vertical}   `nil|boolean` Open the buffer in a vertical split
               {horizontal} `nil|boolean` Open the buffer in a horizontal split
               {split}      `nil|"aboveleft"|"belowright"|"topleft"|"botright"` S
                            plit modifier
-      {cb}   `nil|fun()` Called after the oil buffer is ready
+      {cb}   `nil|fun()` Called after the canola buffer is ready
 
-toggle_float({dir}, {opts}, {cb})                               *oil.toggle_float*
-    Open oil browser in a floating window, or close it if open
+toggle_float({dir}, {opts}, {cb})                               *canola.toggle_float*
+    Open canola browser in a floating window, or close it if open
 
     Parameters:
       {dir}  `nil|string` When nil, open the parent of the current buffer, or
              the cwd if current buffer is not a file
-      {opts} `nil|oil.OpenOpts`
-          {preview} `nil|oil.OpenPreviewOpts` When present, open the preview
-                    window after opening oil
+      {opts} `nil|canola.OpenOpts`
+          {preview} `nil|canola.OpenPreviewOpts` When present, open the preview
+                    window after opening canola
               {vertical}   `nil|boolean` Open the buffer in a vertical split
               {horizontal} `nil|boolean` Open the buffer in a horizontal split
               {split}      `nil|"aboveleft"|"belowright"|"topleft"|"botright"` S
                            plit modifier
-      {cb}   `nil|fun()` Called after the oil buffer is ready
+      {cb}   `nil|fun()` Called after the canola buffer is ready
 
-open({dir}, {opts}, {cb})                                               *oil.open*
-    Open oil browser for a directory
+open({dir}, {opts}, {cb})                                               *canola.open*
+    Open canola browser for a directory
 
     Parameters:
       {dir}  `nil|string` When nil, open the parent of the current buffer, or
              the cwd if current buffer is not a file
-      {opts} `nil|oil.OpenOpts`
-          {preview} `nil|oil.OpenPreviewOpts` When present, open the preview
-                    window after opening oil
+      {opts} `nil|canola.OpenOpts`
+          {preview} `nil|canola.OpenPreviewOpts` When present, open the preview
+                    window after opening canola
               {vertical}   `nil|boolean` Open the buffer in a vertical split
               {horizontal} `nil|boolean` Open the buffer in a horizontal split
               {split}      `nil|"aboveleft"|"belowright"|"topleft"|"botright"` S
                            plit modifier
-      {cb}   `nil|fun()` Called after the oil buffer is ready
+      {cb}   `nil|fun()` Called after the canola buffer is ready
 
-close({opts})                                                          *oil.close*
-    Restore the buffer that was present when oil was opened
+close({opts})                                                          *canola.close*
+    Restore the buffer that was present when canola was opened
 
     Parameters:
-      {opts} `nil|oil.CloseOpts`
-          {exit_if_last_buf} `nil|boolean` Exit vim if this oil buffer is the
+      {opts} `nil|canola.CloseOpts`
+          {exit_if_last_buf} `nil|boolean` Exit vim if this canola buffer is the
                              last open buffer
 
-open_preview({opts}, {callback})                                *oil.open_preview*
+open_preview({opts}, {callback})                                *canola.open_preview*
     Preview the entry under the cursor in a split
 
     Parameters:
-      {opts}     `nil|oil.OpenPreviewOpts`
+      {opts}     `nil|canola.OpenPreviewOpts`
           {vertical}   `nil|boolean` Open the buffer in a vertical split
           {horizontal} `nil|boolean` Open the buffer in a horizontal split
           {split}      `nil|"aboveleft"|"belowright"|"topleft"|"botright"` Split
@@ -428,17 +428,17 @@ open_preview({opts}, {callback})                                *oil.open_previe
       {callback} `nil|fun(err: nil|string)` Called once the preview window has
                  been opened
 
-select({opts}, {callback})                                            *oil.select*
+select({opts}, {callback})                                            *canola.select*
     Select the entry under the cursor
 
     Parameters:
-      {opts}     `nil|oil.SelectOpts`
+      {opts}     `nil|canola.SelectOpts`
           {vertical}   `nil|boolean` Open the buffer in a vertical split
           {horizontal} `nil|boolean` Open the buffer in a horizontal split
           {split}      `nil|"aboveleft"|"belowright"|"topleft"|"botright"` Split
                        modifier
           {tab}        `nil|boolean` Open the buffer in a new tab
-          {close}      `nil|boolean` Close the original oil buffer once
+          {close}      `nil|boolean` Close the original canola buffer once
                        selection is made
           {handle_buffer_callback} `nil|fun(buf_id: integer)` If defined, all
                        other buffer related options here would be ignored. This
@@ -447,7 +447,7 @@ select({opts}, {callback})                                            *oil.selec
       {callback} `nil|fun(err: nil|string)` Called once all entries have been
                  opened
 
-save({opts}, {cb})                                                      *oil.save*
+save({opts}, {cb})                                                      *canola.save*
     Save all changes
 
     Parameters:
@@ -459,14 +459,14 @@ save({opts}, {cb})                                                      *oil.sav
     Note:
       If you provide your own callback function, there will be no notification for errors.
 
-setup({opts})                                                          *oil.setup*
-    Initialize oil
+setup({opts})                                                          *canola.setup*
+    Initialize canola
 
     Parameters:
-      {opts} `oil.setupOpts|nil`
+      {opts} `canola.setupOpts|nil`
 
 --------------------------------------------------------------------------------
-COLUMNS                                                              *oil-columns*
+COLUMNS                                                              *canola-columns*
 
 Columns can be specified as a string to use default arguments (e.g. `"icon"`),
 or as a table to pass parameters (e.g. `{"size", highlight = "Special"}`)
@@ -563,23 +563,23 @@ birthtime                                                       *column-birthtim
       {format}    `string` Format string (see :help strftime)
 
 --------------------------------------------------------------------------------
-ACTIONS                                                              *oil-actions*
+ACTIONS                                                              *canola-actions*
 
-The `keymaps` option in `oil.setup` allow you to create mappings using all the same parameters as |vim.keymap.set|.
+The `keymaps` option in `canola.setup` allow you to create mappings using all the same parameters as |vim.keymap.set|.
 >lua
     keymaps = {
         -- Mappings can be a string
         ["~"] = "<cmd>edit $HOME<CR>",
         -- Mappings can be a function
         ["gd"] = function()
-            require("oil").set_columns({ "icon", "permissions", "size", "mtime" })
+            require("canola").set_columns({ "icon", "permissions", "size", "mtime" })
         end,
         -- You can pass additional opts to vim.keymap.set by using
         -- a table with the mapping as the first element.
         ["<leader>ff"] = {
             function()
                 require("telescope.builtin").find_files({
-                    cwd = require("oil").get_current_dir()
+                    cwd = require("canola").get_current_dir()
                 })
             end,
             mode = "n",
@@ -603,10 +603,10 @@ The `keymaps` option in `oil.setup` allow you to create mappings using all the s
 Below are the actions that can be used in the `keymaps` section of config
 options. You can refer to them as strings (e.g. "actions.<action_name>") or you
 can use the functions directly with
-`require("oil.actions").action_name.callback()`
+`require("canola.actions").action_name.callback()`
 
 cd                                                                    *actions.cd*
-    :cd to the current oil directory
+    :cd to the current canola directory
 
     Parameters:
       {scope}  `nil|"tab"|"win"` Scope of the directory change (e.g. use |:tcd|
@@ -617,20 +617,20 @@ change_sort                                                  *actions.change_sor
     Change the sort order
 
     Parameters:
-      {sort} `oil.SortSpec[]` List of columns plus direction (see
-             |oil.set_sort|) instead of interactive selection
+      {sort} `canola.SortSpec[]` List of columns plus direction (see
+             |canola.set_sort|) instead of interactive selection
 
 close                                                              *actions.close*
-    Close oil and restore original buffer
+    Close canola and restore original buffer
 
     Parameters:
-      {exit_if_last_buf} `boolean` Exit vim if oil is closed as the last buffer
+      {exit_if_last_buf} `boolean` Exit vim if canola is closed as the last buffer
 
 close_float                                                  *actions.close_float*
-    Close oil if the window is floating, otherwise do nothing
+    Close canola if the window is floating, otherwise do nothing
 
     Parameters:
-      {exit_if_last_buf} `boolean` Exit vim if oil is closed as the last buffer
+      {exit_if_last_buf} `boolean` Exit vim if canola is closed as the last buffer
 
 copy_to_system_clipboard                        *actions.copy_to_system_clipboard*
     Copy the entry under the cursor to the system clipboard
@@ -644,7 +644,7 @@ open_cmdline                                                *actions.open_cmdlin
       {shorten_path} `boolean` Use relative paths when possible
 
 open_cwd                                                        *actions.open_cwd*
-    Open oil in Neovim's current working directory
+    Open canola in Neovim's current working directory
 
 open_external                                              *actions.open_external*
     Open the entry under the cursor in an external program
@@ -656,7 +656,7 @@ parent                                                            *actions.paren
     Navigate to the parent path
 
 paste_from_system_clipboard                  *actions.paste_from_system_clipboard*
-    Paste the system clipboard into the current oil directory
+    Paste the system clipboard into the current canola directory
 
     Parameters:
       {delete_original} `boolean` Delete the original file after copying
@@ -694,7 +694,7 @@ select                                                            *actions.selec
     Open the entry under the cursor
 
     Parameters:
-      {close}      `boolean` Close the original oil buffer once selection is
+      {close}      `boolean` Close the original canola buffer once selection is
                    made
       {horizontal} `boolean` Open the buffer in a horizontal split
       {split}      `"aboveleft"|"belowright"|"topleft"|"botright"` Split
@@ -703,7 +703,7 @@ select                                                            *actions.selec
       {vertical}   `boolean` Open the buffer in a vertical split
 
 send_to_qflist                                            *actions.send_to_qflist*
-    Sends files in the current oil directory to the quickfix list, replacing the
+    Sends files in the current canola directory to the quickfix list, replacing the
     previous entries.
 
     Parameters:
@@ -731,109 +731,109 @@ yank_entry                                                    *actions.yank_entr
                mods argument
 
 --------------------------------------------------------------------------------
-HIGHLIGHTS                                                        *oil-highlights*
+HIGHLIGHTS                                                        *canola-highlights*
 
-OilEmpty                                                             *hl-OilEmpty*
+CanolaEmpty                                                             *hl-CanolaEmpty*
     Empty column values
 
-OilHidden                                                           *hl-OilHidden*
-    Hidden entry in an oil buffer
+CanolaHidden                                                           *hl-CanolaHidden*
+    Hidden entry in an canola buffer
 
-OilDir                                                                 *hl-OilDir*
-    Directory names in an oil buffer
+CanolaDir                                                                 *hl-CanolaDir*
+    Directory names in an canola buffer
 
-OilDirHidden                                                     *hl-OilDirHidden*
-    Hidden directory names in an oil buffer
+CanolaDirHidden                                                     *hl-CanolaDirHidden*
+    Hidden directory names in an canola buffer
 
-OilDirIcon                                                         *hl-OilDirIcon*
+CanolaDirIcon                                                         *hl-CanolaDirIcon*
     Icon for directories
 
-OilFileIcon                                                       *hl-OilFileIcon*
+CanolaFileIcon                                                       *hl-CanolaFileIcon*
     Icon for files
 
-OilSocket                                                           *hl-OilSocket*
-    Socket files in an oil buffer
+CanolaSocket                                                           *hl-CanolaSocket*
+    Socket files in an canola buffer
 
-OilSocketHidden                                               *hl-OilSocketHidden*
-    Hidden socket files in an oil buffer
+CanolaSocketHidden                                               *hl-CanolaSocketHidden*
+    Hidden socket files in an canola buffer
 
-OilLink                                                               *hl-OilLink*
-    Soft links in an oil buffer
+CanolaLink                                                               *hl-CanolaLink*
+    Soft links in an canola buffer
 
-OilOrphanLink                                                   *hl-OilOrphanLink*
-    Orphaned soft links in an oil buffer
+CanolaOrphanLink                                                   *hl-CanolaOrphanLink*
+    Orphaned soft links in an canola buffer
 
-OilLinkHidden                                                   *hl-OilLinkHidden*
-    Hidden soft links in an oil buffer
+CanolaLinkHidden                                                   *hl-CanolaLinkHidden*
+    Hidden soft links in an canola buffer
 
-OilOrphanLinkHidden                                       *hl-OilOrphanLinkHidden*
-    Hidden orphaned soft links in an oil buffer
+CanolaOrphanLinkHidden                                       *hl-CanolaOrphanLinkHidden*
+    Hidden orphaned soft links in an canola buffer
 
-OilLinkTarget                                                   *hl-OilLinkTarget*
+CanolaLinkTarget                                                   *hl-CanolaLinkTarget*
     The target of a soft link
 
-OilOrphanLinkTarget                                       *hl-OilOrphanLinkTarget*
+CanolaOrphanLinkTarget                                       *hl-CanolaOrphanLinkTarget*
     The target of an orphaned soft link
 
-OilLinkTargetHidden                                       *hl-OilLinkTargetHidden*
+CanolaLinkTargetHidden                                       *hl-CanolaLinkTargetHidden*
     The target of a hidden soft link
 
-OilOrphanLinkTargetHidden                           *hl-OilOrphanLinkTargetHidden*
+CanolaOrphanLinkTargetHidden                           *hl-CanolaOrphanLinkTargetHidden*
     The target of an hidden orphaned soft link
 
-OilFile                                                               *hl-OilFile*
-    Normal files in an oil buffer
+CanolaFile                                                               *hl-CanolaFile*
+    Normal files in an canola buffer
 
-OilFileHidden                                                   *hl-OilFileHidden*
-    Hidden normal files in an oil buffer
+CanolaFileHidden                                                   *hl-CanolaFileHidden*
+    Hidden normal files in an canola buffer
 
-OilExecutable                                                   *hl-OilExecutable*
-    Executable files in an oil buffer
+CanolaExecutable                                                   *hl-CanolaExecutable*
+    Executable files in an canola buffer
 
-OilExecutableHidden                                       *hl-OilExecutableHidden*
-    Hidden executable files in an oil buffer
+CanolaExecutableHidden                                       *hl-CanolaExecutableHidden*
+    Hidden executable files in an canola buffer
 
-OilCreate                                                           *hl-OilCreate*
-    Create action in the oil preview window
+CanolaCreate                                                           *hl-CanolaCreate*
+    Create action in the canola preview window
 
-OilDelete                                                           *hl-OilDelete*
-    Delete action in the oil preview window
+CanolaDelete                                                           *hl-CanolaDelete*
+    Delete action in the canola preview window
 
-OilMove                                                               *hl-OilMove*
-    Move action in the oil preview window
+CanolaMove                                                               *hl-CanolaMove*
+    Move action in the canola preview window
 
-OilCopy                                                               *hl-OilCopy*
-    Copy action in the oil preview window
+CanolaCopy                                                               *hl-CanolaCopy*
+    Copy action in the canola preview window
 
-OilChange                                                           *hl-OilChange*
-    Change action in the oil preview window
+CanolaChange                                                           *hl-CanolaChange*
+    Change action in the canola preview window
 
-OilRestore                                                         *hl-OilRestore*
-    Restore (from the trash) action in the oil preview window
+CanolaRestore                                                         *hl-CanolaRestore*
+    Restore (from the trash) action in the canola preview window
 
-OilPurge                                                             *hl-OilPurge*
-    Purge (Permanently delete a file from trash) action in the oil preview
+CanolaPurge                                                             *hl-CanolaPurge*
+    Purge (Permanently delete a file from trash) action in the canola preview
     window
 
-OilTrash                                                             *hl-OilTrash*
-    Trash (delete a file to trash) action in the oil preview window
+CanolaTrash                                                             *hl-CanolaTrash*
+    Trash (delete a file to trash) action in the canola preview window
 
-OilTrashSourcePath                                         *hl-OilTrashSourcePath*
+CanolaTrashSourcePath                                         *hl-CanolaTrashSourcePath*
     Virtual text that shows the original path of file in the trash
 
 --------------------------------------------------------------------------------
-ADAPTERS                                                            *oil-adapters*
+ADAPTERS                                                            *canola-adapters*
 
-Oil performs all filesystem interaction through an adapter abstraction. This
-means oil can view and modify files in places beyond the local filesystem, as
+Canola performs all filesystem interaction through an adapter abstraction. This
+means canola can view and modify files in places beyond the local filesystem, as
 long as the destination has an adapter implementation. File operations work
 across adapters — you can copy files between local and remote with the same
 buffer-editing workflow.
 
-SSH                                                              *oil-adapter-ssh*
+SSH                                                              *canola-adapter-ssh*
 
     Browse files over SSH, much like netrw. Open a buffer with: >
-        nvim oil-ssh://[username@]hostname[:port]/[path]
+        nvim canola-ssh://[username@]hostname[:port]/[path]
 <
     This is the same URL format that netrw uses.
 
@@ -841,36 +841,36 @@ SSH                                                              *oil-adapter-ss
     server to have `/bin/sh` as well as standard unix commands (`ls`, `rm`,
     `mv`, `mkdir`, `chmod`, `cp`, `touch`, `ln`, `echo`).
 
-S3                                                                *oil-adapter-s3*
+S3                                                                *canola-adapter-s3*
 
     Browse files stored in AWS S3. Make sure `aws` is configured correctly,
     then open a buffer with: >
-        nvim oil-s3://[bucket]/[path]
+        nvim canola-s3://[bucket]/[path]
 <
     Older versions of Neovim (0.11 and earlier) don't support numbers in the
-    URL scheme, so use `oil-sss` instead of `oil-s3`.
+    URL scheme, so use `canola-sss` instead of `canola-s3`.
 
-Trash                                                        *oil-adapter-trash*
+Trash                                                        *canola-adapter-trash*
 
-    See |oil-trash| for details on the built-in trash adapter.
+    See |canola-trash| for details on the built-in trash adapter.
 
 --------------------------------------------------------------------------------
-RECIPES                                                              *oil-recipes*
+RECIPES                                                              *canola-recipes*
 
 Toggle file detail view ~
-                                                    *oil-recipe-toggle-detail-view*
+                                                    *canola-recipe-toggle-detail-view*
 >lua
     local detail = false
-    require("oil").setup({
+    require("canola").setup({
       keymaps = {
         ["gd"] = {
           desc = "Toggle file detail view",
           callback = function()
             detail = not detail
             if detail then
-              require("oil").set_columns({ "icon", "permissions", "size", "mtime" })
+              require("canola").set_columns({ "icon", "permissions", "size", "mtime" })
             else
-              require("oil").set_columns({ "icon" })
+              require("canola").set_columns({ "icon" })
             end
           end,
         },
@@ -879,11 +879,11 @@ Toggle file detail view ~
 <
 
 Show CWD in the winbar ~
-                                                          *oil-recipe-cwd-winbar*
+                                                          *canola-recipe-cwd-winbar*
 >lua
-    function _G.get_oil_winbar()
+    function _G.get_canola_winbar()
       local bufnr = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
-      local dir = require("oil").get_current_dir(bufnr)
+      local dir = require("canola").get_current_dir(bufnr)
       if dir then
         return vim.fn.fnamemodify(dir, ":~")
       else
@@ -891,15 +891,15 @@ Show CWD in the winbar ~
       end
     end
 
-    require("oil").setup({
+    require("canola").setup({
       win_options = {
-        winbar = "%!v:lua.get_oil_winbar()",
+        winbar = "%!v:lua.get_canola_winbar()",
       },
     })
 <
 
 Hide gitignored files and show git tracked hidden files ~
-                                                       *oil-recipe-git-is-hidden*
+                                                       *canola-recipe-git-is-hidden*
 >lua
     local function parse_output(proc)
       local result = proc:wait()
@@ -939,17 +939,17 @@ Hide gitignored files and show git tracked hidden files ~
     end
     local git_status = new_git_status()
 
-    local refresh = require("oil.actions").refresh
+    local refresh = require("canola.actions").refresh
     local orig_refresh = refresh.callback
     refresh.callback = function(...)
       git_status = new_git_status()
       orig_refresh(...)
     end
 
-    require("oil").setup({
+    require("canola").setup({
       view_options = {
         is_hidden_file = function(name, bufnr)
-          local dir = require("oil").get_current_dir(bufnr)
+          local dir = require("canola").get_current_dir(bufnr)
           local is_dotfile = vim.startswith(name, ".") and name ~= ".."
           if not dir then
             return is_dotfile
@@ -964,21 +964,21 @@ Hide gitignored files and show git tracked hidden files ~
     })
 <
 
-Open Telescope file finder in the current oil directory ~
-                                                        *oil-recipe-telescope*
+Open Telescope file finder in the current canola directory ~
+                                                        *canola-recipe-telescope*
 
 When using `get_current_dir()` in a keymap that also opens another plugin's UI
 (like Telescope), capture the directory in a local variable before the call
 that changes the buffer context.
 >lua
-    require("oil").setup({
+    require("canola").setup({
       keymaps = {
         ["<leader>ff"] = {
           desc = "Find files in the current directory",
           callback = function()
-            local dir = require("oil").get_current_dir()
+            local dir = require("canola").get_current_dir()
             if not dir then
-              vim.notify("Could not get oil directory", vim.log.levels.WARN)
+              vim.notify("Could not get canola directory", vim.log.levels.WARN)
               return
             end
             require("telescope.builtin").find_files({ cwd = dir })
@@ -987,9 +987,9 @@ that changes the buffer context.
         ["<leader>fg"] = {
           desc = "Live grep in the current directory",
           callback = function()
-            local dir = require("oil").get_current_dir()
+            local dir = require("canola").get_current_dir()
             if not dir then
-              vim.notify("Could not get oil directory", vim.log.levels.WARN)
+              vim.notify("Could not get canola directory", vim.log.levels.WARN)
               return
             end
             require("telescope.builtin").live_grep({ cwd = dir })
@@ -1003,18 +1003,18 @@ If you need the directory after an operation that might change the current
 buffer, pass the buffer number explicitly: >lua
     local bufnr = vim.api.nvim_get_current_buf()
     -- ... some operation that changes the current buffer ...
-    local dir = require("oil").get_current_dir(bufnr)
+    local dir = require("canola").get_current_dir(bufnr)
 <
 
 Add custom column for file extension ~
-                                                     *oil-recipe-extension-column*
+                                                     *canola-recipe-extension-column*
 >lua
-    local oil_cfg = require "oil.config"
-    local oil_constant = require "oil.constants"
-    local oil_column = require "oil.columns"
+    local canola_cfg = require "canola.config"
+    local canola_constant = require "canola.constants"
+    local canola_column = require "canola.columns"
 
-    local FIELD_TYPE = oil_constant.FIELD_TYPE
-    local FIELD_NAME = oil_constant.FIELD_NAME
+    local FIELD_TYPE = canola_constant.FIELD_TYPE
+    local FIELD_NAME = canola_constant.FIELD_NAME
 
     local function adjust_number(int)
       return string.format("%03d%s", #int, int)
@@ -1024,7 +1024,7 @@ Add custom column for file extension ~
       return vim.fn.fnamemodify(output, ":e")
     end
 
-    oil_column.register("extension", {
+    canola_column.register("extension", {
       render = function(entry, _)
         local field_type = entry[FIELD_TYPE]
         local name = entry[FIELD_NAME]
@@ -1044,8 +1044,8 @@ Add custom column for file extension ~
       end,
       create_sort_value_factory = function(num_entries)
         if
-          oil_cfg.view_options.natural_order == false
-          or (oil_cfg.view_options.natural_order == "fast" and num_entries > 5000)
+          canola_cfg.view_options.natural_order == false
+          or (canola_cfg.view_options.natural_order == "fast" and num_entries > 5000)
         then
           return function(entry)
             return format(entry[FIELD_NAME]:lower())
@@ -1066,7 +1066,7 @@ Add custom column for file extension ~
       end,
     })
 
-    require("oil").setup({
+    require("canola").setup({
       columns = {
         "size",
         "extension",
@@ -1083,15 +1083,15 @@ Add custom column for file extension ~
 <
 
 Disable dimming of hidden files ~
-                                                     *oil-recipe-no-hidden-dimming*
+                                                     *canola-recipe-no-hidden-dimming*
 
-By default, hidden files (toggled with `g.`) are dimmed via the `OilHidden`
+By default, hidden files (toggled with `g.`) are dimmed via the `CanolaHidden`
 highlight group, which links to `Comment`. To make hidden files look identical
 to their visible counterparts, relink each hidden group to its non-hidden
 variant after calling `setup()`:
 >lua
-    for _, hl in ipairs(require("oil")._get_highlights()) do
-      local base = hl.name:match("^(Oil.+)Hidden$")
+    for _, hl in ipairs(require("canola")._get_highlights()) do
+      local base = hl.name:match("^(Canola.+)Hidden$")
       if base then
         vim.api.nvim_set_hl(0, hl.name, { link = base })
       end
@@ -1099,62 +1099,62 @@ variant after calling `setup()`:
 <
 
 --------------------------------------------------------------------------------
-EVENTS                                                                *oil-events*
+EVENTS                                                                *canola-events*
 
-Oil emits the following |User| autocmd events. Listen for them with
+Canola emits the following |User| autocmd events. Listen for them with
 |nvim_create_autocmd|: >lua
     vim.api.nvim_create_autocmd("User", {
-      pattern = "OilEnter",
+      pattern = "CanolaEnter",
       callback = function(args)
-        vim.print("Entered oil buffer: " .. args.data.buf)
+        vim.print("Entered canola buffer: " .. args.data.buf)
       end,
     })
 <
 
-OilEnter                                                             *OilEnter*
-    Fired once per oil buffer, after the initial directory listing has been
+CanolaEnter                                                             *CanolaEnter*
+    Fired once per canola buffer, after the initial directory listing has been
     rendered and the buffer is ready. The `args.data.buf` field contains the
     buffer number. Use this event for one-time buffer setup such as setting
     keymaps or window options.
 
-OilReadPost                                                       *OilReadPost*
+CanolaReadPost                                                       *CanolaReadPost*
     Fired after every successful buffer render, including the initial render
     and all subsequent re-renders (e.g. after directory changes, refreshes, or
     mutations). The `args.data.buf` field contains the buffer number. Use this
     event for logic that must run each time the directory listing updates.
 
-OilMutationComplete                                       *OilMutationComplete*
+CanolaMutationComplete                                       *CanolaMutationComplete*
     Fired after all pending mutations (create, delete, rename, move, copy)
     have been executed and the affected buffers have been re-rendered. No
     additional data fields. Use this event for post-mutation side effects such
     as refreshing external status indicators.
 
 --------------------------------------------------------------------------------
-TRASH                                                                  *oil-trash*
+TRASH                                                                  *canola-trash*
 
 
-Oil has built-in support for using the system trash. When
+Canola has built-in support for using the system trash. When
 `delete_to_trash = true`, any deleted files will be sent to the trash instead
 of being permanently deleted. You can browse the trash for a directory using
 the `toggle_trash` action (bound to `g\` by default). You can view all files
-in the trash with `:Oil --trash /`.
+in the trash with `:Canola --trash /`.
 
 To restore files, simply move them from the trash to the desired destination,
 the same as any other file operation. If you delete files from the trash they
 will be permanently deleted (purged).
 
 Linux:
-    Oil supports the FreeDesktop trash specification.
+    Canola supports the FreeDesktop trash specification.
     https://specifications.freedesktop.org/trash/1.0/
     All features should work.
 
 Mac:
-    Oil has limited support for MacOS due to the proprietary nature of the
+    Canola has limited support for MacOS due to the proprietary nature of the
     implementation. The trash bin can only be viewed as a single dir
     (instead of being able to see files that were trashed from a directory).
 
 Windows:
-    Oil supports the Windows Recycle Bin. All features should work.
+    Canola supports the Windows Recycle Bin. All features should work.
 
 ================================================================================
 vim:tw=80:ts=2:ft=help:norl:syntax=help:

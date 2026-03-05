@@ -1,5 +1,5 @@
 {
-  description = "oil.nvim — Neovim file explorer: edit your filesystem like a buffer";
+  description = "canola.nvim — refined fork of oil.nvim";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
