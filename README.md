@@ -79,6 +79,10 @@ After (`barrettruth/canola.nvim`):
 
 **Q: Why "canola"?**
 
+Canola oil! But...
+
+**Q: Why "oil"?**
+
 From the [vim-vinegar](https://github.com/tpope/vim-vinegar) README, a quote by
 Drew Neil:
 
