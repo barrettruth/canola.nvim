@@ -67,6 +67,19 @@ M.show = vim.schedule_wrap(function(actions, should_confirm, cb)
     cb(true)
     return
   end
+  if should_confirm == nil and config.skip_confirm_for_delete then
+    local all_deletes = true
+    for _, action in ipairs(actions) do
+      if action.type ~= 'delete' then
+        all_deletes = false
+        break
+      end
+    end
+    if all_deletes then
+      cb(true)
+      return
+    end
+  end
 
   -- Create the buffer
   local bufnr = vim.api.nvim_create_buf(false, true)

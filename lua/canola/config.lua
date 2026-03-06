@@ -32,6 +32,7 @@ local default_config = {
   cleanup_buffers_on_delete = false,
   -- Skip the confirmation popup for simple operations (:help canola.skip_confirm_for_simple_edits)
   skip_confirm_for_simple_edits = false,
+  skip_confirm_for_delete = false,
   -- Selecting a new/moved/renamed file or directory will prompt you to save changes first
   -- (:help prompt_save_on_select_new_entry)
   prompt_save_on_select_new_entry = true,
@@ -236,6 +237,7 @@ default_config.view_options.highlight_filename = nil
 ---@field delete_to_trash boolean
 ---@field cleanup_buffers_on_delete boolean
 ---@field skip_confirm_for_simple_edits boolean
+---@field skip_confirm_for_delete boolean
 ---@field prompt_save_on_select_new_entry boolean
 ---@field cleanup_delay_ms integer
 ---@field lsp_file_methods canola.LspFileMethods
@@ -268,6 +270,7 @@ local M = {}
 ---@field delete_to_trash? boolean Send deleted files to the trash instead of permanently deleting them (:help canola-trash).
 ---@field cleanup_buffers_on_delete? boolean Wipe open buffers for files deleted via canola (:help canola.cleanup_buffers_on_delete).
 ---@field skip_confirm_for_simple_edits? boolean Skip the confirmation popup for simple operations (:help canola.skip_confirm_for_simple_edits).
+---@field skip_confirm_for_delete? boolean Skip the confirmation popup when all pending actions are deletes (:help canola.skip_confirm_for_delete).
 ---@field prompt_save_on_select_new_entry? boolean Selecting a new/moved/renamed file or directory will prompt you to save changes first (:help prompt_save_on_select_new_entry).
 ---@field cleanup_delay_ms? integer Canola will automatically delete hidden buffers after this delay. You can set the delay to false to disable cleanup entirely. Note that the cleanup process only starts when none of the canola buffers are currently displayed.
 ---@field lsp_file_methods? canola.SetupLspFileMethods Configure LSP file operation integration.
