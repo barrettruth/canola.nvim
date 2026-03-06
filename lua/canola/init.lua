@@ -1343,6 +1343,9 @@ M.setup = function(opts)
           vim.fn.setreg('#', orig_buffer)
         end
         view.set_win_options()
+        if config.buf_options.buflisted ~= nil then
+          vim.api.nvim_set_option_value('buflisted', config.buf_options.buflisted, { buf = 0 })
+        end
         vim.w.canola_did_enter = true
       elseif vim.fn.isdirectory(bufname) == 0 then
         -- Only run this logic if we are *not* in an canola buffer (and it's not a directory, which
