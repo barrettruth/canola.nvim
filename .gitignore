@@ -11,3 +11,4 @@ venv/
 perf/tmp/
 scripts/benchmark.nvim
 profile.json
+.worktrees/
