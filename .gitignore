@@ -1,4 +1,5 @@
 doc/tags
+doc/upstream.html
 *.log
 .*cache*
 CLAUDE.md
