@@ -45,7 +45,7 @@ Bugs fixed in this fork that remain open upstream.
 | [#667](https://github.com/stevearc/oil.nvim/pull/667) | Virtual text columns + headers              | deferred — WIP, conflicting                                                          |
 | [#686](https://github.com/stevearc/oil.nvim/pull/686) | Windows path conversion fix                 | not actionable — Windows-only                                                        |
 | [#708](https://github.com/stevearc/oil.nvim/pull/708) | Move file into new dir by renaming          | deferred — needs rewrite                                                             |
-| [#721](https://github.com/stevearc/oil.nvim/pull/721) | `create_hook` to populate file contents     | not actionable — wrong approach; emit an autocmd on file create instead              |
+| [#721](https://github.com/stevearc/oil.nvim/pull/721) | `create_hook` to populate file contents     | deferred — addressing via autocmd event on file create                               |
 | [#728](https://github.com/stevearc/oil.nvim/pull/728) | `open_split` for opening oil in a split     | tracked — [#2](https://github.com/barrettruth/canola.nvim/issues/2)                  |
 | [#735](https://github.com/stevearc/oil.nvim/pull/735) | gX opens external program with selection    | not actionable — hardcoded Linux-only program list, no config surface, author-acknowledged incomplete |
 
