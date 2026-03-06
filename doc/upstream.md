@@ -33,6 +33,7 @@ Bugs fixed in this fork that remain open upstream.
 | [#642](https://github.com/stevearc/oil.nvim/issues/642) | W10 warning under `nvim -R`          | [`ca834cf`](https://github.com/barrettruth/canola.nvim/commit/ca834cf)                                                             |
 | [#670](https://github.com/stevearc/oil.nvim/issues/670) | Multi-directory cmdline args ignored | [#11](https://github.com/barrettruth/canola.nvim/pull/11) ([`70861e5`](https://github.com/barrettruth/canola.nvim/commit/70861e5)) |
 | [#673](https://github.com/stevearc/oil.nvim/issues/673) | Symlink newlines crash               | [`9110a1a`](https://github.com/barrettruth/canola.nvim/commit/9110a1a)                                                             |
+| [#612](https://github.com/stevearc/oil.nvim/issues/612) | Delete buffers on file delete        | [#73](https://github.com/barrettruth/canola.nvim/pull/73) ([`047338a`](https://github.com/barrettruth/canola.nvim/commit/047338a)) |
 | [#710](https://github.com/stevearc/oil.nvim/issues/710) | buftype empty on BufEnter            | [#10](https://github.com/barrettruth/canola.nvim/pull/10) ([`01b860e`](https://github.com/barrettruth/canola.nvim/commit/01b860e)) |
 
 ## Open upstream PRs
