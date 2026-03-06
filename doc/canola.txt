@@ -311,6 +311,12 @@ prompt_save_on_select_new_entry              *canola.prompt_save_on_select_new_e
     When this option is `true`, Canola will prompt you to save before entering a file or
     directory that is pending within canola, but does not exist on disk.
 
+cleanup_buffers_on_delete                          *canola.cleanup_buffers_on_delete*
+    type: `boolean` default: `false`
+    When `true`, canola will wipe any open buffer whose path matches a file that
+    was successfully deleted via canola. This prevents stale buffers from
+    appearing in the jumplist after a deletion.
+
 --------------------------------------------------------------------------------
 API                                                                      *canola-api*
 

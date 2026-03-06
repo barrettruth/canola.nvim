@@ -163,4 +163,47 @@ describe('files adapter', function()
     assert.equals(vim.fn.fnamemodify(tmpdir.path, ':p') .. 'file.rb', vim.api.nvim_buf_get_name(0))
     assert.equals(tmpdir.path .. '/file.rb', vim.fn.bufname())
   end)
+
+  describe('cleanup_buffers_on_delete', function()
+    local cache = require('canola.cache')
+    local config = require('canola.config')
+    local mutator = require('canola.mutator')
+
+    before_each(function()
+      config.cleanup_buffers_on_delete = true
+    end)
+
+    after_each(function()
+      config.cleanup_buffers_on_delete = false
+    end)
+
+    it('wipes the buffer for a deleted file', function()
+      tmpdir:create({ 'a.txt' })
+      local dirurl = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p')
+      local filepath = vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a.txt'
+      cache.create_and_store_entry(dirurl, 'a.txt', 'file')
+      vim.cmd.edit({ args = { filepath } })
+      local bufnr = vim.api.nvim_get_current_buf()
+      local url = 'canola://' .. filepath
+      test_util.await(mutator.process_actions, 2, {
+        { type = 'delete', url = url, entry_type = 'file' },
+      })
+      assert.is_false(vim.api.nvim_buf_is_valid(bufnr))
+    end)
+
+    it('does not wipe the buffer when disabled', function()
+      config.cleanup_buffers_on_delete = false
+      tmpdir:create({ 'b.txt' })
+      local dirurl = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p')
+      local filepath = vim.fn.fnamemodify(tmpdir.path, ':p') .. 'b.txt'
+      cache.create_and_store_entry(dirurl, 'b.txt', 'file')
+      vim.cmd.edit({ args = { filepath } })
+      local bufnr = vim.api.nvim_get_current_buf()
+      local url = 'canola://' .. filepath
+      test_util.await(mutator.process_actions, 2, {
+        { type = 'delete', url = url, entry_type = 'file' },
+      })
+      assert.is_true(vim.api.nvim_buf_is_valid(bufnr))
+    end)
+  end)
 end)
