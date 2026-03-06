@@ -305,11 +305,7 @@ M.open_float = function(dir, opts, cb)
           vim.api.nvim_set_option_value(k, v, { scope = 'local', win = winid })
         end
 
-        if
-          vim.fn.has('nvim-0.9') == 1
-          and config.float.border ~= nil
-          and config.float.border ~= 'none'
-        then
+        if config.float.border ~= nil and config.float.border ~= 'none' then
           local cur_win_opts = vim.api.nvim_win_get_config(winid)
           vim.api.nvim_win_set_config(winid, {
             relative = 'editor',
@@ -340,7 +336,7 @@ M.open_float = function(dir, opts, cb)
     end
   end)
 
-  if vim.fn.has('nvim-0.9') == 0 or config.float.border == nil or config.float.border == 'none' then
+  if config.float.border == nil or config.float.border == 'none' then
     util.add_title_to_win(winid)
   end
 end
