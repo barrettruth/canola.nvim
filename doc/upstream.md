@@ -37,17 +37,17 @@ Bugs fixed in this fork that remain open upstream.
 
 ## Open upstream PRs
 
-| PR                                                    | Description                                 | Status                                                                                          |
-| ----------------------------------------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| [#488](https://github.com/stevearc/oil.nvim/pull/488) | Parent directory in a split                 | not actionable — empty PR                                                                       |
-| [#493](https://github.com/stevearc/oil.nvim/pull/493) | UNC paths on Windows                        | not actionable — superseded by [#686](https://github.com/stevearc/oil.nvim/pull/686)            |
-| [#591](https://github.com/stevearc/oil.nvim/pull/591) | release-please changelog                    | not applicable                                                                                  |
-| [#667](https://github.com/stevearc/oil.nvim/pull/667) | Virtual text columns + headers              | deferred — WIP, conflicting                                                                     |
-| [#686](https://github.com/stevearc/oil.nvim/pull/686) | Windows path conversion fix                 | not actionable — Windows-only                                                                   |
-| [#708](https://github.com/stevearc/oil.nvim/pull/708) | Move file into new dir by renaming          | deferred — needs rewrite                                                                        |
-| [#721](https://github.com/stevearc/oil.nvim/pull/721) | `create_hook` to populate file contents     | fixed — `CanolaFileCreated` autocmd — [#75](https://github.com/barrettruth/canola.nvim/pull/75) |
-| [#728](https://github.com/stevearc/oil.nvim/pull/728) | `open_split` for opening oil in a split     | tracked — [#2](https://github.com/barrettruth/canola.nvim/issues/2)                             |
-| [#735](https://github.com/stevearc/oil.nvim/pull/735) | gX opens external program with a selection. | not actionable — wrong abstraction layer                                                        |
+| PR                                                    | Description                              | Status                                                                                                |
+| ----------------------------------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| [#488](https://github.com/stevearc/oil.nvim/pull/488) | Parent directory in a split              | not actionable — empty PR                                                                             |
+| [#493](https://github.com/stevearc/oil.nvim/pull/493) | UNC paths on Windows                     | not actionable — superseded by [#686](https://github.com/stevearc/oil.nvim/pull/686)                  |
+| [#591](https://github.com/stevearc/oil.nvim/pull/591) | release-please changelog                 | not applicable                                                                                        |
+| [#667](https://github.com/stevearc/oil.nvim/pull/667) | Virtual text columns + headers           | deferred — WIP, conflicting                                                                           |
+| [#686](https://github.com/stevearc/oil.nvim/pull/686) | Windows path conversion fix              | not actionable — Windows-only                                                                         |
+| [#708](https://github.com/stevearc/oil.nvim/pull/708) | Move file into new dir by renaming       | deferred — needs rewrite                                                                              |
+| [#721](https://github.com/stevearc/oil.nvim/pull/721) | `create_hook` to populate file contents  | deferred — fixing via autocmd event on file create                                                    |
+| [#728](https://github.com/stevearc/oil.nvim/pull/728) | `open_split` for opening oil in a split  | tracked — [#2](https://github.com/barrettruth/canola.nvim/issues/2)                                   |
+| [#735](https://github.com/stevearc/oil.nvim/pull/735) | gX opens external program with selection | not actionable — hardcoded Linux-only program list, no config surface, author-acknowledged incomplete |
 
 ## Upstream issues
 
@@ -82,13 +82,13 @@ Bugs fixed in this fork that remain open upstream.
 | [#359](https://github.com/stevearc/oil.nvim/issues/359) | open           | Parse error on filenames differing by space (P1)                                                                                                                         |
 | [#360](https://github.com/stevearc/oil.nvim/issues/360) | open           | Pick window to open file into                                                                                                                                            |
 | [#362](https://github.com/stevearc/oil.nvim/issues/362) | open           | "Could not find oil adapter for scheme" error                                                                                                                            |
-| [#363](https://github.com/stevearc/oil.nvim/issues/363) | open           | `prompt_save_on_select_new_entry` uses wrong prompt                                                                                                                      |
+| [#363](https://github.com/stevearc/oil.nvim/issues/363) | fixed          | `prompt_save_on_select_new_entry` uses wrong prompt — escape now cancels select                                                                                          |
 | [#371](https://github.com/stevearc/oil.nvim/issues/371) | open           | Constrain cursor in insert mode                                                                                                                                          |
 | [#373](https://github.com/stevearc/oil.nvim/issues/373) | open           | Dir from quickfix with bqf/trouble broken (P1)                                                                                                                           |
 | [#375](https://github.com/stevearc/oil.nvim/issues/375) | open           | Highlights for file types and permissions (P2)                                                                                                                           |
 | [#380](https://github.com/stevearc/oil.nvim/issues/380) | open           | Show file in oil when editing hidden file                                                                                                                                |
 | [#382](https://github.com/stevearc/oil.nvim/issues/382) | open           | Relative path in window title (P2)                                                                                                                                       |
-| [#392](https://github.com/stevearc/oil.nvim/issues/392) | open           | Option to skip delete prompt                                                                                                                                             |
+| [#392](https://github.com/stevearc/oil.nvim/issues/392) | fixed          | Option to skip delete prompt — fixed — `skip_confirm_for_delete` option                                                                                                  |
 | [#393](https://github.com/stevearc/oil.nvim/issues/393) | open           | Auto-save new buffer on entry                                                                                                                                            |
 | [#396](https://github.com/stevearc/oil.nvim/issues/396) | open           | Customize preview content (P2)                                                                                                                                           |
 | [#399](https://github.com/stevearc/oil.nvim/issues/399) | open           | Open file without closing Oil (P1)                                                                                                                                       |
