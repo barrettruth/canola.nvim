@@ -1,0 +1,1231 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
+    <title>upstream</title>
+    <style>
+      code {
+        white-space: pre-wrap;
+      }
+      span.smallcaps {
+        font-variant: small-caps;
+      }
+      div.columns {
+        display: flex;
+        gap: min(4vw, 1.5em);
+      }
+      div.column {
+        flex: auto;
+        overflow-x: auto;
+      }
+      div.hanging-indent {
+        margin-left: 1.5em;
+        text-indent: -1.5em;
+      }
+      /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+      ul.task-list[class] {
+        list-style: none;
+      }
+      ul.task-list li input[type='checkbox'] {
+        font-size: inherit;
+        width: 0.8em;
+        margin: 0 0.8em 0.2em -1.6em;
+        vertical-align: middle;
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/pixelbrackets/gfm-stylesheet@master/dist/gfm.css"
+    />
+  </head>
+  <body>
+    <h1 id="upstream-tracker">Upstream Tracker</h1>
+    <p>
+      Triage of
+      <a href="https://github.com/stevearc/oil.nvim">stevearc/oil.nvim</a> PRs
+      and issues against this fork.
+    </p>
+    <h2 id="cherry-picked-prs">Cherry-picked PRs</h2>
+    <p>Upstream PRs cherry-picked or adapted into this fork.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>PR</th>
+          <th>Description</th>
+          <th>Commit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/495">#495</a>
+          </td>
+          <td>Cancel visual/operator-pending mode on close</td>
+          <td>
+            <a href="https://github.com/barrettruth/canola.nvim/commit/16f3d7b"
+              ><code>16f3d7b</code></a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/537">#537</a>
+          </td>
+          <td>Configurable file/directory creation permissions</td>
+          <td>
+            <a href="https://github.com/barrettruth/canola.nvim/commit/c6b4a7a"
+              ><code>c6b4a7a</code></a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/618">#618</a>
+          </td>
+          <td>Opt-in filetype detection for icons</td>
+          <td>
+            <a href="https://github.com/barrettruth/canola.nvim/commit/ded1725"
+              ><code>ded1725</code></a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/644">#644</a>
+          </td>
+          <td>
+            Pass entry to <code>is_hidden_file</code>/<code
+              >is_always_hidden</code
+            >
+          </td>
+          <td>
+            <a href="https://github.com/barrettruth/canola.nvim/commit/4ab4765"
+              ><code>4ab4765</code></a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/697">#697</a>
+          </td>
+          <td>Recipe for file extension column</td>
+          <td>
+            <a href="https://github.com/barrettruth/canola.nvim/commit/dcb3a08"
+              ><code>dcb3a08</code></a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/698">#698</a>
+          </td>
+          <td>Executable file highlighting</td>
+          <td>
+            <a href="https://github.com/barrettruth/canola.nvim/commit/41556ec"
+              ><code>41556ec</code></a
+            >,
+            <a href="https://github.com/barrettruth/canola.nvim/commit/85ed9b8"
+              ><code>85ed9b8</code></a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/717">#717</a>
+          </td>
+          <td>Add oil-git.nvim to extensions</td>
+          <td>
+            <a href="https://github.com/barrettruth/canola.nvim/commit/582d9fc"
+              ><code>582d9fc</code></a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/720">#720</a>
+          </td>
+          <td>Gate <code>BufAdd</code> autocmd behind config check</td>
+          <td>
+            <a href="https://github.com/barrettruth/canola.nvim/commit/2228f80"
+              ><code>2228f80</code></a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/722">#722</a>
+          </td>
+          <td>Fix freedesktop trash URL</td>
+          <td>
+            <a href="https://github.com/barrettruth/canola.nvim/commit/b92ecb0"
+              ><code>b92ecb0</code></a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/723">#723</a>
+          </td>
+          <td>Emit <code>OilReadPost</code> event after render</td>
+          <td>
+            <a href="https://github.com/barrettruth/canola.nvim/commit/29239d5"
+              ><code>29239d5</code></a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/725">#725</a>
+          </td>
+          <td>Normalize keymap keys before config merge</td>
+          <td>
+            <a href="https://github.com/barrettruth/canola.nvim/commit/723145c"
+              ><code>723145c</code></a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/727">#727</a>
+          </td>
+          <td>Clarify <code>get_current_dir</code> nil + Telescope recipe</td>
+          <td>
+            <a href="https://github.com/barrettruth/canola.nvim/commit/eed6697"
+              ><code>eed6697</code></a
+            >
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <h2 id="original-fixes">Original fixes</h2>
+    <p>Bugs fixed in this fork that remain open upstream.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Upstream issue</th>
+          <th>Description</th>
+          <th>PR</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/302">#302</a>
+          </td>
+          <td><code>buflisted=true</code> after jumplist nav</td>
+          <td>
+            <a href="https://github.com/barrettruth/canola.nvim/pull/71">#71</a>
+            (<a href="https://github.com/barrettruth/canola.nvim/commit/a078bcf"
+              ><code>a078bcf</code></a
+            >)
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/632">#632</a>
+          </td>
+          <td>Preview + move = copy</td>
+          <td>
+            <a href="https://github.com/barrettruth/canola.nvim/pull/12">#12</a>
+            (<a href="https://github.com/barrettruth/canola.nvim/commit/fe16993"
+              ><code>fe16993</code></a
+            >)
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/642">#642</a>
+          </td>
+          <td>W10 warning under <code>nvim -R</code></td>
+          <td>
+            <a href="https://github.com/barrettruth/canola.nvim/commit/ca834cf"
+              ><code>ca834cf</code></a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/670">#670</a>
+          </td>
+          <td>Multi-directory cmdline args ignored</td>
+          <td>
+            <a href="https://github.com/barrettruth/canola.nvim/pull/11">#11</a>
+            (<a href="https://github.com/barrettruth/canola.nvim/commit/70861e5"
+              ><code>70861e5</code></a
+            >)
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/673">#673</a>
+          </td>
+          <td>Symlink newlines crash</td>
+          <td>
+            <a href="https://github.com/barrettruth/canola.nvim/commit/9110a1a"
+              ><code>9110a1a</code></a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/710">#710</a>
+          </td>
+          <td>buftype empty on BufEnter</td>
+          <td>
+            <a href="https://github.com/barrettruth/canola.nvim/pull/10">#10</a>
+            (<a href="https://github.com/barrettruth/canola.nvim/commit/01b860e"
+              ><code>01b860e</code></a
+            >)
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <h2 id="open-upstream-prs">Open upstream PRs</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>PR</th>
+          <th>Description</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/488">#488</a>
+          </td>
+          <td>Parent directory in a split</td>
+          <td>not actionable — empty PR</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/493">#493</a>
+          </td>
+          <td>UNC paths on Windows</td>
+          <td>
+            not actionable — superseded by
+            <a href="https://github.com/stevearc/oil.nvim/pull/686">#686</a>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/591">#591</a>
+          </td>
+          <td>release-please changelog</td>
+          <td>not applicable</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/667">#667</a>
+          </td>
+          <td>Virtual text columns + headers</td>
+          <td>deferred — WIP, conflicting</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/686">#686</a>
+          </td>
+          <td>Windows path conversion fix</td>
+          <td>not actionable — Windows-only</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/708">#708</a>
+          </td>
+          <td>Move file into new dir by renaming</td>
+          <td>deferred — needs rewrite</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/721">#721</a>
+          </td>
+          <td><code>create_hook</code> to populate file contents</td>
+          <td>deferred — addressing via autocmd event on file create</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/728">#728</a>
+          </td>
+          <td><code>open_split</code> for opening oil in a split</td>
+          <td>
+            tracked —
+            <a href="https://github.com/barrettruth/canola.nvim/issues/2">#2</a>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/pull/735">#735</a>
+          </td>
+          <td>gX opens external program with selection</td>
+          <td>
+            not actionable — hardcoded Linux-only program list, no config
+            surface, author-acknowledged incomplete
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <h2 id="upstream-issues">Upstream issues</h2>
+    <p>
+      <strong>Status key:</strong> <code>fixed</code> = original fix in fork,
+      <code>resolved</code> = addressed by cherry-picked PR,
+      <code>not actionable</code> = can't/won't fix, <code>tracking</code> =
+      known/not yet addressed, <code>open</code> = not yet triaged.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Issue</th>
+          <th>Status</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/85">#85</a>
+          </td>
+          <td>open</td>
+          <td>Git status column (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/95">#95</a>
+          </td>
+          <td>open</td>
+          <td>Undo after renaming files (P1)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/117">#117</a>
+          </td>
+          <td>open</td>
+          <td>
+            Move file into new dir via slash in name (P1, related to
+            <a href="https://github.com/stevearc/oil.nvim/pull/708">#708</a>)
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/156">#156</a>
+          </td>
+          <td>open</td>
+          <td>Paste path of files into oil buffer (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/200">#200</a>
+          </td>
+          <td>open</td>
+          <td>Highlights not working when opening a file (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/207">#207</a>
+          </td>
+          <td>open</td>
+          <td>Suppress "no longer available" message (P1)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/210">#210</a>
+          </td>
+          <td>open</td>
+          <td>FTP support (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/213">#213</a>
+          </td>
+          <td>open</td>
+          <td>Disable preview for large files (P1)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/226">#226</a>
+          </td>
+          <td>open</td>
+          <td>K8s/Docker adapter (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/232">#232</a>
+          </td>
+          <td>open</td>
+          <td>Cannot close last window (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/254">#254</a>
+          </td>
+          <td>open</td>
+          <td>Buffer modified highlight group (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/263">#263</a>
+          </td>
+          <td>open</td>
+          <td>Diff mode (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/276">#276</a>
+          </td>
+          <td>open</td>
+          <td>Archives manipulation (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/280">#280</a>
+          </td>
+          <td>open</td>
+          <td>vim-projectionist support (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/288">#288</a>
+          </td>
+          <td>open</td>
+          <td>Oil failing to load (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/289">#289</a>
+          </td>
+          <td>open</td>
+          <td>Show absolute path toggle (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/294">#294</a>
+          </td>
+          <td>open</td>
+          <td>Can't handle emojis in filenames (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/298">#298</a>
+          </td>
+          <td>open</td>
+          <td>Open float on neovim directory startup (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/302">#302</a>
+          </td>
+          <td>fixed</td>
+          <td>
+            <code>buflisted=true</code> after jumplist nav —
+            <a href="https://github.com/barrettruth/canola.nvim/pull/71">#71</a>
+            (<a href="https://github.com/barrettruth/canola.nvim/commit/a078bcf"
+              ><code>a078bcf</code></a
+            >)
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/303">#303</a>
+          </td>
+          <td>open</td>
+          <td>Preview in float window mode (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/325">#325</a>
+          </td>
+          <td>open</td>
+          <td>oil-ssh error from command line (P0)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/330">#330</a>
+          </td>
+          <td>open</td>
+          <td>File opens in floating modal</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/332">#332</a>
+          </td>
+          <td>open</td>
+          <td>Buffer not fixed to floating window (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/335">#335</a>
+          </td>
+          <td>open</td>
+          <td>Disable editing outside root dir</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/349">#349</a>
+          </td>
+          <td>open</td>
+          <td>Parent directory as column/vsplit (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/351">#351</a>
+          </td>
+          <td>open</td>
+          <td>Paste deleted file from register</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/359">#359</a>
+          </td>
+          <td>open</td>
+          <td>Parse error on filenames differing by space (P1)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/360">#360</a>
+          </td>
+          <td>open</td>
+          <td>Pick window to open file into</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/362">#362</a>
+          </td>
+          <td>open</td>
+          <td>"Could not find oil adapter for scheme" error</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/363">#363</a>
+          </td>
+          <td>open</td>
+          <td>
+            <code>prompt_save_on_select_new_entry</code> uses wrong prompt
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/371">#371</a>
+          </td>
+          <td>open</td>
+          <td>Constrain cursor in insert mode</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/373">#373</a>
+          </td>
+          <td>open</td>
+          <td>Dir from quickfix with bqf/trouble broken (P1)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/375">#375</a>
+          </td>
+          <td>open</td>
+          <td>Highlights for file types and permissions (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/380">#380</a>
+          </td>
+          <td>open</td>
+          <td>Show file in oil when editing hidden file</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/382">#382</a>
+          </td>
+          <td>open</td>
+          <td>Relative path in window title (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/392">#392</a>
+          </td>
+          <td>open</td>
+          <td>Option to skip delete prompt</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/393">#393</a>
+          </td>
+          <td>open</td>
+          <td>Auto-save new buffer on entry</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/396">#396</a>
+          </td>
+          <td>open</td>
+          <td>Customize preview content (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/399">#399</a>
+          </td>
+          <td>open</td>
+          <td>Open file without closing Oil (P1)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/404">#404</a>
+          </td>
+          <td>not actionable</td>
+          <td>Restricted UNC paths — Windows-only (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/416">#416</a>
+          </td>
+          <td>open</td>
+          <td>Cannot remap key to open split</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/431">#431</a>
+          </td>
+          <td>open</td>
+          <td>More SSH adapter documentation</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/435">#435</a>
+          </td>
+          <td>open</td>
+          <td>Error previewing with semantic tokens LSP</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/436">#436</a>
+          </td>
+          <td>open</td>
+          <td>Owner and group columns (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/444">#444</a>
+          </td>
+          <td>open</td>
+          <td>Opening behaviour customization</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/446">#446</a>
+          </td>
+          <td>resolved</td>
+          <td>
+            Executable highlighting — PR
+            <a href="https://github.com/stevearc/oil.nvim/pull/698">#698</a>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/449">#449</a>
+          </td>
+          <td>open</td>
+          <td>Renaming TypeScript files stopped working</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/450">#450</a>
+          </td>
+          <td>open</td>
+          <td>Highlight opened file in directory listing</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/457">#457</a>
+          </td>
+          <td>open</td>
+          <td>Custom column API</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/466">#466</a>
+          </td>
+          <td>open</td>
+          <td>Select into window on right</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/473">#473</a>
+          </td>
+          <td>open</td>
+          <td>Show all hidden files if dir only has hidden</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/479">#479</a>
+          </td>
+          <td>open</td>
+          <td>Harpoon integration recipe</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/483">#483</a>
+          </td>
+          <td>not actionable</td>
+          <td>
+            Spell downloads depend on netrw — fixed in
+            <a href="https://github.com/neovim/neovim/pull/34940"
+              >neovim#34940</a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/486">#486</a>
+          </td>
+          <td>open</td>
+          <td>All directory sizes show 4.1k</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/492">#492</a>
+          </td>
+          <td>not actionable</td>
+          <td>j/k remapping question — answered in comments</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/507">#507</a>
+          </td>
+          <td>open</td>
+          <td>lacasitos.nvim conflict (P1)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/521">#521</a>
+          </td>
+          <td>open</td>
+          <td>oil-ssh connection issues</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/525">#525</a>
+          </td>
+          <td>open</td>
+          <td>SSH adapter documentation (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/531">#531</a>
+          </td>
+          <td>not actionable</td>
+          <td>Windows — incomplete drive letters (P1)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/533">#533</a>
+          </td>
+          <td>not actionable</td>
+          <td><code>constrain_cursor</code> — needs repro</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/570">#570</a>
+          </td>
+          <td>open</td>
+          <td>Improve c0/d0 for renaming</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/571">#571</a>
+          </td>
+          <td>open</td>
+          <td>Callback before <code>highlight_filename</code> (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/578">#578</a>
+          </td>
+          <td>resolved</td>
+          <td>
+            Hidden file dimming recipe —
+            <a href="https://github.com/barrettruth/canola.nvim/commit/38db6cf"
+              ><code>38db6cf</code></a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/587">#587</a>
+          </td>
+          <td>not actionable</td>
+          <td>Alt+h keymap — user config issue</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/599">#599</a>
+          </td>
+          <td>open</td>
+          <td>user:group display and manipulation (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/607">#607</a>
+          </td>
+          <td>open</td>
+          <td>Per-host SCP args (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/609">#609</a>
+          </td>
+          <td>open</td>
+          <td>Cursor placement via Snacks picker</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/612">#612</a>
+          </td>
+          <td>fixed</td>
+          <td>
+            Delete buffers on file delete —
+            <code>cleanup_buffers_on_delete</code> option
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/615">#615</a>
+          </td>
+          <td>open</td>
+          <td>Cursor at name column on o/O (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/617">#617</a>
+          </td>
+          <td>open</td>
+          <td>Filetype by actual filetype (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/621">#621</a>
+          </td>
+          <td>open</td>
+          <td>Toggle function for regular windows (P2)</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/623">#623</a>
+          </td>
+          <td>not actionable</td>
+          <td>bufferline.nvim interaction — cross-plugin</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/624">#624</a>
+          </td>
+          <td>not actionable</td>
+          <td>Mutation race — no reliable repro</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/625">#625</a>
+          </td>
+          <td>not actionable</td>
+          <td>
+            E19 mark invalid line — intractable without neovim API changes
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/632">#632</a>
+          </td>
+          <td>fixed</td>
+          <td>
+            Preview + move = copy —
+            <a href="https://github.com/barrettruth/canola.nvim/pull/12">#12</a>
+            (<a href="https://github.com/barrettruth/canola.nvim/commit/fe16993"
+              ><code>fe16993</code></a
+            >)
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/636">#636</a>
+          </td>
+          <td>open</td>
+          <td>Telescope picker opens in active buffer</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/637">#637</a>
+          </td>
+          <td>open</td>
+          <td>Inconsistent symlink resolution</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/641">#641</a>
+          </td>
+          <td>open</td>
+          <td>Flicker on <code>actions.parent</code></td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/642">#642</a>
+          </td>
+          <td>fixed</td>
+          <td>
+            W10 warning under <code>nvim -R</code> —
+            <a href="https://github.com/barrettruth/canola.nvim/commit/ca834cf"
+              ><code>ca834cf</code></a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/645">#645</a>
+          </td>
+          <td>resolved</td>
+          <td>
+            <code>close_float</code> action —
+            <a href="https://github.com/barrettruth/canola.nvim/commit/f6bcdda"
+              ><code>f6bcdda</code></a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/646">#646</a>
+          </td>
+          <td>open</td>
+          <td><code>get_current_dir</code> nil on SSH</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/650">#650</a>
+          </td>
+          <td>open</td>
+          <td>Emit LSP <code>workspace.fileOperations</code> events</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/655">#655</a>
+          </td>
+          <td>open</td>
+          <td>File statistics as virtual text</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/659">#659</a>
+          </td>
+          <td>open</td>
+          <td>Mark and diff files in buffer</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/664">#664</a>
+          </td>
+          <td>not actionable</td>
+          <td>Session reload extra buffer — no repro</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/665">#665</a>
+          </td>
+          <td>open</td>
+          <td>Hot load preview fast-scratch buffers</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/668">#668</a>
+          </td>
+          <td>open</td>
+          <td>Custom yes/no confirmation</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/670">#670</a>
+          </td>
+          <td>fixed</td>
+          <td>
+            Multi-directory cmdline —
+            <a href="https://github.com/barrettruth/canola.nvim/pull/11">#11</a>
+            (<a href="https://github.com/barrettruth/canola.nvim/commit/70861e5"
+              ><code>70861e5</code></a
+            >)
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/671">#671</a>
+          </td>
+          <td>open</td>
+          <td>Yanking between nvim instances</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/673">#673</a>
+          </td>
+          <td>fixed</td>
+          <td>
+            Symlink newlines crash —
+            <a href="https://github.com/barrettruth/canola.nvim/commit/9110a1a"
+              ><code>9110a1a</code></a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/675">#675</a>
+          </td>
+          <td>open</td>
+          <td>
+            Move file into folder by renaming (related to
+            <a href="https://github.com/stevearc/oil.nvim/pull/708">#708</a>)
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/676">#676</a>
+          </td>
+          <td>not actionable</td>
+          <td>Windows — path conversion</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/678">#678</a>
+          </td>
+          <td>tracking</td>
+          <td>
+            <code>buftype='acwrite'</code> causes <code>mksession</code> to skip
+            oil windows
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/679">#679</a>
+          </td>
+          <td>resolved</td>
+          <td>
+            Executable file sign — PR
+            <a href="https://github.com/stevearc/oil.nvim/pull/698">#698</a>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/682">#682</a>
+          </td>
+          <td>open</td>
+          <td><code>get_current_dir()</code> nil in non-telescope context</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/683">#683</a>
+          </td>
+          <td>open</td>
+          <td>Path not shown in floating mode</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/684">#684</a>
+          </td>
+          <td>open</td>
+          <td>User and group columns</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/685">#685</a>
+          </td>
+          <td>open</td>
+          <td>Plain directory paths in buffer names</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/690">#690</a>
+          </td>
+          <td>resolved</td>
+          <td>
+            <code>OilFileIcon</code> highlight group —
+            <a href="https://github.com/barrettruth/canola.nvim/commit/ce64ae1"
+              ><code>ce64ae1</code></a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/692">#692</a>
+          </td>
+          <td>resolved</td>
+          <td>
+            Keymap normalization — PR
+            <a href="https://github.com/stevearc/oil.nvim/pull/725">#725</a>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/699">#699</a>
+          </td>
+          <td>open</td>
+          <td><code>select</code> blocks UI with slow FileType autocmd</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/707">#707</a>
+          </td>
+          <td>open</td>
+          <td>
+            Move file/dir into new dir by renaming (related to
+            <a href="https://github.com/stevearc/oil.nvim/pull/708">#708</a>)
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/710">#710</a>
+          </td>
+          <td>fixed</td>
+          <td>
+            buftype empty on BufEnter —
+            <a href="https://github.com/barrettruth/canola.nvim/pull/10">#10</a>
+            (<a href="https://github.com/barrettruth/canola.nvim/commit/01b860e"
+              ><code>01b860e</code></a
+            >)
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/714">#714</a>
+          </td>
+          <td>not actionable</td>
+          <td>Support question — answered</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/719">#719</a>
+          </td>
+          <td>not actionable</td>
+          <td>Neovim crash on node_modules — libuv/neovim bug</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/726">#726</a>
+          </td>
+          <td>not actionable</td>
+          <td>Meta discussion/roadmap</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="https://github.com/stevearc/oil.nvim/issues/736">#736</a>
+          </td>
+          <td>open</td>
+          <td>feature request: make icons virtual text</td>
+        </tr>
+      </tbody>
+    </table>
+    <script>
+      ;(function () {
+        var es = new EventSource('http://localhost:33913/__live/events')
+        es.addEventListener('reload', function () {
+          location.reload()
+        })
+      })()
+    </script>
+  </body>
+</html>
