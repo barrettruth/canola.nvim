@@ -51,9 +51,6 @@ Bugs fixed in this fork that remain open upstream.
 
 ## Upstream issues
 
-**Status key:** `fixed` = original fix in fork, `resolved` = addressed by
-cherry-picked PR, `not actionable` = can't/won't fix, `tracking` = known/not yet
-addressed, `open` = not yet triaged.
 
 | Issue                                                   | Status         | Notes                                                                                                                                                                    |
 | ------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
