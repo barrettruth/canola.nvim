@@ -420,6 +420,21 @@ M.process_actions = function(actions, cb)
       finished = true
       progress:close()
       progress = nil
+      if config.cleanup_buffers_on_delete and not err then
+        for _, action in ipairs(actions) do
+          if action.type == 'delete' then
+            local scheme, path = util.parse_url(action.url)
+            if config.adapters[scheme] == 'files' then
+              assert(path)
+              local os_path = fs.posix_to_os_path(path)
+              local bufnr = vim.fn.bufnr(os_path)
+              if bufnr ~= -1 then
+                vim.api.nvim_buf_delete(bufnr, { force = true })
+              end
+            end
+          end
+        end
+      end
       vim.api.nvim_exec_autocmds(
         'User',
         { pattern = 'CanolaActionsPost', modeline = false, data = { err = err, actions = actions } }

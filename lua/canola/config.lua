@@ -28,6 +28,8 @@ local default_config = {
   },
   -- Send deleted files to the trash instead of permanently deleting them (:help canola-trash)
   delete_to_trash = false,
+  -- Wipe open buffers for files deleted via canola (:help canola.cleanup_buffers_on_delete)
+  cleanup_buffers_on_delete = false,
   -- Skip the confirmation popup for simple operations (:help canola.skip_confirm_for_simple_edits)
   skip_confirm_for_simple_edits = false,
   -- Selecting a new/moved/renamed file or directory will prompt you to save changes first
@@ -232,6 +234,7 @@ default_config.view_options.highlight_filename = nil
 ---@field buf_options table<string, any>
 ---@field win_options table<string, any>
 ---@field delete_to_trash boolean
+---@field cleanup_buffers_on_delete boolean
 ---@field skip_confirm_for_simple_edits boolean
 ---@field prompt_save_on_select_new_entry boolean
 ---@field cleanup_delay_ms integer
@@ -263,6 +266,7 @@ local M = {}
 ---@field buf_options? table<string, any> Buffer-local options to use for canola buffers
 ---@field win_options? table<string, any> Window-local options to use for canola buffers
 ---@field delete_to_trash? boolean Send deleted files to the trash instead of permanently deleting them (:help canola-trash).
+---@field cleanup_buffers_on_delete? boolean Wipe open buffers for files deleted via canola (:help canola.cleanup_buffers_on_delete).
 ---@field skip_confirm_for_simple_edits? boolean Skip the confirmation popup for simple operations (:help canola.skip_confirm_for_simple_edits).
 ---@field prompt_save_on_select_new_entry? boolean Selecting a new/moved/renamed file or directory will prompt you to save changes first (:help prompt_save_on_select_new_entry).
 ---@field cleanup_delay_ms? integer Canola will automatically delete hidden buffers after this delay. You can set the delay to false to disable cleanup entirely. Note that the cleanup process only starts when none of the canola buffers are currently displayed.
