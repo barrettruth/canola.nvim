@@ -340,6 +340,84 @@ local function constrain_cursor(bufnr, mode)
   end
 end
 
+---@param bufnr integer
+local function show_insert_guide(bufnr)
+  if not config.constrain_cursor then
+    return
+  end
+  if bufnr ~= vim.api.nvim_get_current_buf() then
+    return
+  end
+  local adapter = util.get_adapter(bufnr, true)
+  if not adapter then
+    return
+  end
+
+  local cur = vim.api.nvim_win_get_cursor(0)
+  local current_line = vim.api.nvim_buf_get_lines(bufnr, cur[1] - 1, cur[1], true)[1]
+  if current_line ~= '' then
+    return
+  end
+
+  local all_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
+  local ref_line
+  if cur[1] > 1 and all_lines[cur[1] - 1] ~= '' then
+    ref_line = all_lines[cur[1] - 1]
+  elseif cur[1] < #all_lines and all_lines[cur[1] + 1] ~= '' then
+    ref_line = all_lines[cur[1] + 1]
+  else
+    for i, line in ipairs(all_lines) do
+      if line ~= '' and i ~= cur[1] then
+        ref_line = line
+        break
+      end
+    end
+  end
+  if not ref_line then
+    return
+  end
+
+  local parser = require('canola.mutator.parser')
+  local column_defs = columns.get_supported_columns(adapter)
+  local result = parser.parse_line(adapter, ref_line, column_defs)
+  if not result or not result.ranges then
+    return
+  end
+
+  local id_end = result.ranges.id[2] + 1
+  local col_prefix = ref_line:sub(id_end + 1, result.ranges.name[1])
+  local col_width = vim.api.nvim_strwidth(col_prefix)
+  local id_width
+  local cole = vim.wo.conceallevel
+  if cole >= 2 then
+    id_width = 0
+  elseif cole == 1 then
+    id_width = 1
+  else
+    id_width = vim.api.nvim_strwidth(ref_line:sub(1, id_end))
+  end
+  local virtual_col = id_width + col_width
+  if virtual_col <= 0 then
+    return
+  end
+
+  vim.w.canola_saved_ve = vim.wo.virtualedit
+  vim.wo.virtualedit = 'all'
+  vim.api.nvim_win_set_cursor(0, { cur[1], virtual_col })
+
+  vim.api.nvim_create_autocmd('TextChangedI', {
+    group = 'Canola',
+    buffer = bufnr,
+    once = true,
+    callback = function()
+      if vim.w.canola_saved_ve ~= nil then
+        vim.wo.virtualedit = vim.w.canola_saved_ve
+        vim.w.canola_saved_ve = nil
+      end
+    end,
+  })
+end
+
 ---Redraw original path virtual text for trash buffer
 ---@param bufnr integer
 local function redraw_trash_virtual_text(bufnr)
@@ -458,7 +536,20 @@ M.initialize = function(bufnr)
     callback = function()
       -- For some reason the cursor bounces back to its original position,
       -- so we have to defer the call
-      vim.schedule_wrap(constrain_cursor)(bufnr, config.constrain_cursor)
+      vim.schedule(function()
+        constrain_cursor(bufnr, config.constrain_cursor)
+        show_insert_guide(bufnr)
+      end)
+    end,
+  })
+  vim.api.nvim_create_autocmd('InsertLeave', {
+    group = 'Canola',
+    buffer = bufnr,
+    callback = function()
+      if vim.w.canola_saved_ve ~= nil then
+        vim.wo.virtualedit = vim.w.canola_saved_ve
+        vim.w.canola_saved_ve = nil
+      end
     end,
   })
   vim.api.nvim_create_autocmd({ 'CursorMoved', 'ModeChanged' }, {
