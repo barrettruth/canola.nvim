@@ -1135,6 +1135,22 @@ CanolaMutationComplete                                       *CanolaMutationComp
     additional data fields. Use this event for post-mutation side effects such
     as refreshing external status indicators.
 
+CanolaFileCreated                                             *CanolaFileCreated*
+    Fired after a new file is successfully created on the local filesystem.
+    The `args.data.path` field contains the absolute path of the created file.
+    Use this event to populate initial file contents, run formatters, or
+    perform any other setup on newly created files. >lua
+        vim.api.nvim_create_autocmd("User", {
+          pattern = "CanolaFileCreated",
+          callback = function(args)
+            local path = args.data.path
+            if path:match("%.sh$") then
+              vim.fn.writefile({ "#!/usr/bin/env bash" }, path)
+            end
+          end,
+        })
+<
+
 --------------------------------------------------------------------------------
 TRASH                                                                  *canola-trash*
 

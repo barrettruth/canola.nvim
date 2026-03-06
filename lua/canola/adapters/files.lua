@@ -600,7 +600,19 @@ M.perform_action = function(action, cb)
       ---@diagnostic disable-next-line: param-type-mismatch
       uv.fs_symlink(target, path, flags, cb)
     else
-      fs.touch(path, config.new_file_mode, cb)
+      fs.touch(
+        path,
+        config.new_file_mode,
+        vim.schedule_wrap(function(err)
+          if not err then
+            vim.api.nvim_exec_autocmds(
+              'User',
+              { pattern = 'CanolaFileCreated', modeline = false, data = { path = path } }
+            )
+          end
+          cb(err)
+        end)
+      )
     end
   elseif action.type == 'delete' then
     local _, path = util.parse_url(action.url)
