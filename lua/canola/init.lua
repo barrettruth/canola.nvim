@@ -716,6 +716,8 @@ M.select = function(opts, callback)
     local ok, choice = pcall(vim.fn.confirm, 'Save changes?', 'Yes\nNo', 1)
     if not ok then
       return finish()
+    elseif choice == 0 then
+      return
     elseif choice == 1 then
       M.save()
       return finish()
