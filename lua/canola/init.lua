@@ -525,15 +525,13 @@ M.open_preview = function(opts, callback)
         style = 'minimal',
       }
 
-      if vim.fn.has('nvim-0.9') == 1 then
-        win_opts.title = entry_title
-      end
+      win_opts.title = entry_title
 
       preview_win = vim.api.nvim_open_win(bufnr, true, win_opts)
       vim.api.nvim_set_option_value('previewwindow', true, { scope = 'local', win = preview_win })
       vim.api.nvim_win_set_var(preview_win, 'canola_preview', true)
       vim.api.nvim_set_current_win(prev_win)
-    elseif vim.fn.has('nvim-0.9') == 1 then
+    else
       vim.api.nvim_win_set_config(preview_win, { title = entry_title })
     end
   end
@@ -994,20 +992,6 @@ local function set_colors()
     if conf.link then
       vim.api.nvim_set_hl(0, conf.name, { default = true, link = conf.link })
     end
-  end
-  -- TODO can remove this call once we drop support for Neovim 0.8. FloatTitle was introduced as a
-  -- built-in highlight group in 0.9, and we can start to rely on colorschemes setting it.
-  ---@diagnostic disable-next-line: deprecated
-  if vim.fn.has('nvim-0.9') == 0 and not pcall(vim.api.nvim_get_hl_by_name, 'FloatTitle', true) then
-    ---@diagnostic disable-next-line: deprecated
-    local border = vim.api.nvim_get_hl_by_name('FloatBorder', true)
-    ---@diagnostic disable-next-line: deprecated
-    local normal = vim.api.nvim_get_hl_by_name('Normal', true)
-    vim.api.nvim_set_hl(
-      0,
-      'FloatTitle',
-      { fg = normal.foreground, bg = border.background or normal.background }
-    )
   end
 end
 
