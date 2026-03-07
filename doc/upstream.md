@@ -35,8 +35,8 @@ Bugs fixed in this fork that remain open upstream.
 | [#670](https://github.com/stevearc/oil.nvim/issues/670) | Multi-directory cmdline args ignored | [#11](https://github.com/barrettruth/canola.nvim/pull/11) ([`70861e5`](https://github.com/barrettruth/canola.nvim/commit/70861e5)) |
 | [#673](https://github.com/stevearc/oil.nvim/issues/673) | Symlink newlines crash               | [`9110a1a`](https://github.com/barrettruth/canola.nvim/commit/9110a1a)                                                             |
 | [#710](https://github.com/stevearc/oil.nvim/issues/710) | buftype empty on BufEnter            | [#10](https://github.com/barrettruth/canola.nvim/pull/10) ([`01b860e`](https://github.com/barrettruth/canola.nvim/commit/01b860e)) |
-| [#213](https://github.com/stevearc/oil.nvim/issues/213) | Max file size for preview            | pending PR                                                                                                                         |
-| [#473](https://github.com/stevearc/oil.nvim/issues/473) | Show hidden when dir is all-hidden   | pending PR                                                                                                                         |
+| [#213](https://github.com/stevearc/oil.nvim/issues/213) | Max file size for preview            | [#85](https://github.com/barrettruth/canola.nvim/pull/85) ([`4b32ada`](https://github.com/barrettruth/canola.nvim/commit/4b32ada)) |
+| [#473](https://github.com/stevearc/oil.nvim/issues/473) | Show hidden when dir is all-hidden   | [#85](https://github.com/barrettruth/canola.nvim/pull/85) ([`2fe4e78`](https://github.com/barrettruth/canola.nvim/commit/2fe4e78)) |
 
 ## Open upstream PRs
 
