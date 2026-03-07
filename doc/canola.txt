@@ -404,6 +404,32 @@ toggle_float({dir}, {opts}, {cb})                               *canola.toggle_f
                            plit modifier
       {cb}   `nil|fun()` Called after the canola buffer is ready
 
+open_split({dir}, {opts}, {cb})                                   *canola.open_split*
+    Open canola browser in a split window
+
+    Parameters:
+      {dir}  `nil|string` When nil, open the parent of the current buffer, or
+             the cwd if current buffer is not a file
+      {opts} `nil|canola.OpenSplitOpts`
+          {vertical}   `nil|boolean` Open the buffer in a vertical split
+          {horizontal} `nil|boolean` Open the buffer in a horizontal split
+          {split}      `nil|"aboveleft"|"belowright"|"topleft"|"botright"` Split
+                       modifier
+      {cb}   `nil|fun()` Called after the canola buffer is ready
+
+toggle_split({dir}, {opts}, {cb})                               *canola.toggle_split*
+    Open canola browser in a split window, or close it if open
+
+    Parameters:
+      {dir}  `nil|string` When nil, open the parent of the current buffer, or
+             the cwd if current buffer is not a file
+      {opts} `nil|canola.OpenSplitOpts`
+          {vertical}   `nil|boolean` Open the buffer in a vertical split
+          {horizontal} `nil|boolean` Open the buffer in a horizontal split
+          {split}      `nil|"aboveleft"|"belowright"|"topleft"|"botright"` Split
+                       modifier
+      {cb}   `nil|fun()` Called after the canola buffer is ready
+
 open({dir}, {opts}, {cb})                                               *canola.open*
     Open canola browser for a directory
 
@@ -1107,6 +1133,15 @@ variant after calling `setup()`:
         vim.api.nvim_set_hl(0, hl.name, { link = base })
       end
     end
+<
+
+Use FreeDesktop trash on macOS ~
+                                               *canola-recipe-macos-freedesktop-trash*
+
+For full FreeDesktop spec compliance on macOS (list, restore operations), or
+for compatibility with FreeDesktop-compliant trash programs like gtrash:
+>lua
+    package.loaded["canola.adapters.trash.mac"] = require("canola.adapters.trash.freedesktop")
 <
 
 --------------------------------------------------------------------------------
