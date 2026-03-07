@@ -356,6 +356,79 @@ M.toggle_float = function(dir, opts, cb)
   end
 end
 
+---@class (exact) canola.OpenSplitOpts : canola.OpenOpts
+---@field vertical? boolean Open the buffer in a vertical split
+---@field horizontal? boolean Open the buffer in a horizontal split
+---@field split? "aboveleft"|"belowright"|"topleft"|"botright" Split modifier
+
+---Open canola browser in a split window
+---@param dir? string When nil, open the parent of the current buffer, or the cwd if current buffer is not a file
+---@param opts? canola.OpenSplitOpts
+---@param cb? fun() Called after the canola buffer is ready
+M.open_split = function(dir, opts, cb)
+  opts = opts or {}
+  local config = require('canola.config')
+  local util = require('canola.util')
+  local view = require('canola.view')
+
+  local parent_url, basename = M.get_url_for_path(dir)
+  if basename then
+    view.set_last_cursor(parent_url, basename)
+  end
+
+  if not opts.vertical and opts.horizontal == nil then
+    opts.horizontal = true
+  end
+  if not opts.split then
+    if opts.horizontal then
+      opts.split = vim.o.splitbelow and 'belowright' or 'aboveleft'
+    else
+      opts.split = vim.o.splitright and 'belowright' or 'aboveleft'
+    end
+  end
+
+  local mods = {
+    vertical = opts.vertical,
+    horizontal = opts.horizontal,
+    split = opts.split,
+  }
+
+  local original_winid = vim.api.nvim_get_current_win()
+  vim.cmd.split({ mods = mods })
+  local winid = vim.api.nvim_get_current_win()
+
+  vim.w[winid].is_canola_win = true
+  vim.w[winid].canola_original_win = original_winid
+
+  vim.cmd.edit({ args = { util.escape_filename(parent_url) }, mods = { keepalt = true } })
+  if config.buf_options.buflisted ~= nil then
+    vim.api.nvim_set_option_value('buflisted', config.buf_options.buflisted, { buf = 0 })
+  end
+
+  util.run_after_load(0, function()
+    if opts.preview then
+      M.open_preview(opts.preview, cb)
+    elseif cb then
+      cb()
+    end
+  end)
+end
+
+---Open canola browser in a split window, or close it if open
+---@param dir nil|string When nil, open the parent of the current buffer, or the cwd if current buffer is not a file
+---@param opts? canola.OpenSplitOpts
+---@param cb? fun() Called after the canola buffer is ready
+M.toggle_split = function(dir, opts, cb)
+  if vim.w.is_canola_win then
+    M.close()
+    if cb then
+      cb()
+    end
+  else
+    M.open_split(dir, opts, cb)
+  end
+end
+
 ---@param canola_bufnr? integer
 local function update_preview_window(canola_bufnr)
   canola_bufnr = canola_bufnr or 0
@@ -419,7 +492,10 @@ M.close = function(opts)
   -- If we're in a floating canola window, close it and try to restore focus to the original window
   if vim.w.is_canola_win then
     local original_winid = vim.w.canola_original_win
-    vim.api.nvim_win_close(0, true)
+    local ok, _ = pcall(vim.api.nvim_win_close, 0, true)
+    if not ok then
+      vim.cmd.enew()
+    end
     if original_winid and vim.api.nvim_win_is_valid(original_winid) then
       vim.api.nvim_set_current_win(original_winid)
     end
