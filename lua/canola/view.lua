@@ -807,6 +807,21 @@ local function render_buffer(bufnr, opts)
     end
   end
 
+  if config.view_options.show_hidden_when_empty and #line_table <= 1 then
+    for _, entry in ipairs(entry_list) do
+      local name = entry[FIELD_NAME]
+      local public_entry = util.export_entry(entry)
+      if not config.view_options.is_always_hidden(name, bufnr, public_entry) then
+        local cols = M.format_entry_cols(entry, column_defs, col_width, adapter, true, bufnr)
+        table.insert(line_table, cols)
+        if seek_after_render == name then
+          seek_after_render_found = true
+          jump_idx = #line_table
+        end
+      end
+    end
+  end
+
   local lines, highlights = util.render_table(line_table, col_width, col_align)
 
   vim.bo[bufnr].modifiable = true
