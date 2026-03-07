@@ -642,7 +642,23 @@ M.open_preview = function(opts, callback)
     local entry_is_file = not vim.endswith(normalized_url, '/')
     local filebufnr
     if entry_is_file then
-      if config.preview_win.disable_preview(normalized_url) then
+      local max_mb = config.preview_win.max_file_size
+      local _size = entry.meta and entry.meta.stat and entry.meta.stat.size
+      if not _size then
+        local _st = vim.uv.fs_stat(normalized_url)
+        _size = _st and _st.size
+      end
+      if max_mb and _size and _size > max_mb * 1024 * 1024 then
+        if preview_win then
+          filebufnr = vim.api.nvim_create_buf(false, true)
+          vim.bo[filebufnr].bufhidden = 'wipe'
+          vim.bo[filebufnr].buftype = 'nofile'
+          util.render_text(filebufnr, 'File too large to preview', { winid = preview_win })
+        else
+          vim.notify('File too large to preview', vim.log.levels.WARN)
+          return finish()
+        end
+      elseif config.preview_win.disable_preview(normalized_url) then
         filebufnr = vim.api.nvim_create_buf(false, true)
         vim.bo[filebufnr].bufhidden = 'wipe'
         vim.bo[filebufnr].buftype = 'nofile'
