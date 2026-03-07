@@ -84,6 +84,7 @@ local default_config = {
   view_options = {
     -- Show files and directories that start with "."
     show_hidden = false,
+    show_hidden_when_empty = false,
     -- This function defines what is considered a "hidden" file
     is_hidden_file = function(name, bufnr)
       local m = name:match('^%.')
@@ -159,6 +160,7 @@ local default_config = {
     disable_preview = function(filename)
       return false
     end,
+    max_file_size = 10,
     -- Window-local options to use for preview window buffers
     win_options = {},
   },
@@ -306,6 +308,7 @@ local M = {}
 
 ---@class (exact) canola.ViewOptions
 ---@field show_hidden boolean
+---@field show_hidden_when_empty boolean
 ---@field is_hidden_file fun(name: string, bufnr: integer, entry: canola.Entry): boolean
 ---@field is_always_hidden fun(name: string, bufnr: integer, entry: canola.Entry): boolean
 ---@field natural_order boolean|"fast"
@@ -315,6 +318,7 @@ local M = {}
 
 ---@class (exact) canola.SetupViewOptions
 ---@field show_hidden? boolean Show files and directories that start with "."
+---@field show_hidden_when_empty? boolean When true and the directory has no visible entries, show hidden entries instead of an empty listing (:help canola.show_hidden_when_empty).
 ---@field is_hidden_file? fun(name: string, bufnr: integer): boolean This function defines what is considered a "hidden" file
 ---@field is_always_hidden? fun(name: string, bufnr: integer): boolean This function defines what will never be shown, even when `show_hidden` is set
 ---@field natural_order? boolean|"fast" Sort file names with numbers in a more intuitive order for humans. Can be slow for large directories.
@@ -371,6 +375,7 @@ local M = {}
 ---@field update_on_cursor_moved boolean
 ---@field preview_method canola.PreviewMethod
 ---@field disable_preview fun(filename: string): boolean
+---@field max_file_size number Maximum file size (in MB) to preview. Files larger than this will show a placeholder.
 ---@field win_options table<string, any>
 
 ---@class (exact) canola.ConfirmationWindowConfig : canola.WindowConfig
@@ -378,6 +383,7 @@ local M = {}
 ---@class (exact) canola.SetupPreviewWindowConfig
 ---@field update_on_cursor_moved? boolean Whether the preview window is automatically updated when the cursor is moved
 ---@field disable_preview? fun(filename: string): boolean A function that returns true to disable preview on a file e.g. to avoid lag
+---@field max_file_size? number Maximum file size in MB to show in preview. Files exceeding this will not be loaded (:help canola.preview_win). Set to nil to disable the limit.
 ---@field preview_method? canola.PreviewMethod How to open the preview window
 ---@field win_options? table<string, any> Window-local options to use for preview window buffers
 

@@ -152,6 +152,9 @@ The full list of options with their defaults:
       view_options = {
         -- Show files and directories that start with "."
         show_hidden = false,
+        -- When true and a directory has no visible entries, show hidden entries
+        -- instead of an empty listing. is_always_hidden entries are never shown.
+        show_hidden_when_empty = false,
         -- This function defines what is considered a "hidden" file
         is_hidden_file = function(name, bufnr)
           local m = name:match("^%.")
@@ -227,6 +230,10 @@ The full list of options with their defaults:
         disable_preview = function(filename)
           return false
         end,
+        -- Maximum file size in MB to load into the preview window. Files larger
+        -- than this limit will show a placeholder message instead of being loaded.
+        -- Set to nil to disable the limit.
+        max_file_size = 10,
         -- Window-local options to use for preview window buffers
         win_options = {},
       },
@@ -327,6 +334,19 @@ cleanup_buffers_on_delete                          *canola.cleanup_buffers_on_de
     When `true`, canola will wipe any open buffer whose path matches a file that
     was successfully deleted via canola. This prevents stale buffers from
     appearing in the jumplist after a deletion.
+
+show_hidden_when_empty                          *canola.show_hidden_when_empty*
+    type: `boolean` default: `false`
+    When `true` and a directory contains no visible entries (because all
+    entries are hidden), canola will display the hidden entries anyway.
+    Entries matching `is_always_hidden` are never shown. Hidden entries
+    are still rendered with the dimmed hidden style.
+
+preview_win.max_file_size                          *canola.preview_win*
+    type: `number` default: `10`
+    Maximum file size in MB to load into the preview window. Files larger
+    than this limit will show a placeholder message instead of being loaded.
+    Set to `nil` to disable the limit.
 
 --------------------------------------------------------------------------------
 API                                                                      *canola-api*
