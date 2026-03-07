@@ -35,8 +35,8 @@ Bugs fixed in this fork that remain open upstream.
 | [#670](https://github.com/stevearc/oil.nvim/issues/670) | Multi-directory cmdline args ignored | [#11](https://github.com/barrettruth/canola.nvim/pull/11) ([`70861e5`](https://github.com/barrettruth/canola.nvim/commit/70861e5)) |
 | [#673](https://github.com/stevearc/oil.nvim/issues/673) | Symlink newlines crash               | [`9110a1a`](https://github.com/barrettruth/canola.nvim/commit/9110a1a)                                                             |
 | [#710](https://github.com/stevearc/oil.nvim/issues/710) | buftype empty on BufEnter            | [#10](https://github.com/barrettruth/canola.nvim/pull/10) ([`01b860e`](https://github.com/barrettruth/canola.nvim/commit/01b860e)) |
-| [#213](https://github.com/stevearc/oil.nvim/issues/213) | Max file size for preview            | pending PR                                                                                                                          |
-| [#473](https://github.com/stevearc/oil.nvim/issues/473) | Show hidden when dir is all-hidden   | pending PR                                                                                                                          |
+| [#213](https://github.com/stevearc/oil.nvim/issues/213) | Max file size for preview            | pending PR                                                                                                                         |
+| [#473](https://github.com/stevearc/oil.nvim/issues/473) | Show hidden when dir is all-hidden   | pending PR                                                                                                                         |
 
 ## Open upstream PRs
 
@@ -63,7 +63,7 @@ Bugs fixed in this fork that remain open upstream.
 | [#200](https://github.com/stevearc/oil.nvim/issues/200) | open           | Highlights not working when opening a file (P2)                                                                                                                                       |
 | [#207](https://github.com/stevearc/oil.nvim/issues/207) | open           | Suppress "no longer available" message (P1)                                                                                                                                           |
 | [#210](https://github.com/stevearc/oil.nvim/issues/210) | open           | FTP support (P2)                                                                                                                                                                      |
-| [#213](https://github.com/stevearc/oil.nvim/issues/213) | fixed          | Disable preview for large files — `preview_win.max_file_size` (P1)                                                                                                                   |
+| [#213](https://github.com/stevearc/oil.nvim/issues/213) | fixed          | Disable preview for large files — `preview_win.max_file_size` (P1)                                                                                                                    |
 | [#226](https://github.com/stevearc/oil.nvim/issues/226) | open           | K8s/Docker adapter (P2)                                                                                                                                                               |
 | [#232](https://github.com/stevearc/oil.nvim/issues/232) | open           | Cannot close last window (P2)                                                                                                                                                         |
 | [#254](https://github.com/stevearc/oil.nvim/issues/254) | open           | Buffer modified highlight group (P2)                                                                                                                                                  |
