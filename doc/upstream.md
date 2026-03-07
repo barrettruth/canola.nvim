@@ -21,7 +21,7 @@ Upstream PRs cherry-picked or adapted into this fork.
 | [#723](https://github.com/stevearc/oil.nvim/pull/723) | Emit `OilReadPost` event after render             | [`29239d5`](https://github.com/barrettruth/canola.nvim/commit/29239d5)                                                                         |
 | [#725](https://github.com/stevearc/oil.nvim/pull/725) | Normalize keymap keys before config merge         | [`723145c`](https://github.com/barrettruth/canola.nvim/commit/723145c)                                                                         |
 | [#727](https://github.com/stevearc/oil.nvim/pull/727) | Clarify `get_current_dir` nil + Telescope recipe  | [`eed6697`](https://github.com/barrettruth/canola.nvim/commit/eed6697)                                                                         |
-| [#739](https://github.com/stevearc/oil.nvim/pull/739) | macOS FreeDesktop trash recipe                    | `doc/canola.txt` (`canola-recipe-macos-freedesktop-trash`)                                                                                      |
+| [#739](https://github.com/stevearc/oil.nvim/pull/739) | macOS FreeDesktop trash recipe                    | `doc/canola.txt` (`canola-recipe-macos-freedesktop-trash`)                                                                                     |
 
 ## Original fixes
 
@@ -90,7 +90,7 @@ Bugs fixed in this fork that remain open upstream.
 | [#380](https://github.com/stevearc/oil.nvim/issues/380) | open           | Show currently-edited hidden files in listing even when `show_hidden = false`; no upstream response, nice to have                                                                     |
 | [#382](https://github.com/stevearc/oil.nvim/issues/382) | open           | Relative path in window title (P2)                                                                                                                                                    |
 | [#392](https://github.com/stevearc/oil.nvim/issues/392) | fixed          | Option to skip delete prompt — fixed — `skip_confirm_for_delete` option                                                                                                               |
-| [#393](https://github.com/stevearc/oil.nvim/issues/393) | open           | Auto-save new buffer on entry; no upstream design yet, possible interaction gap with `prompt_save_on_select_new_entry` + `skip_confirm_for_simple_edits`                               |
+| [#393](https://github.com/stevearc/oil.nvim/issues/393) | open           | Auto-save new buffer on entry; no upstream design yet, possible interaction gap with `prompt_save_on_select_new_entry` + `skip_confirm_for_simple_edits`                              |
 | [#396](https://github.com/stevearc/oil.nvim/issues/396) | open           | Customize preview content (P2)                                                                                                                                                        |
 | [#399](https://github.com/stevearc/oil.nvim/issues/399) | open           | Open file without closing Oil (P1)                                                                                                                                                    |
 | [#404](https://github.com/stevearc/oil.nvim/issues/404) | not actionable | Restricted UNC paths — Windows-only (P2)                                                                                                                                              |
