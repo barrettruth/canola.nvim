@@ -36,6 +36,7 @@ local default_config = {
   -- Selecting a new/moved/renamed file or directory will prompt you to save changes first
   -- (:help prompt_save_on_select_new_entry)
   prompt_save_on_select_new_entry = true,
+  auto_save_on_select_new_entry = false,
   -- Canola will automatically delete hidden buffers after this delay
   -- You can set the delay to false to disable cleanup entirely
   -- Note that the cleanup process only starts when none of the canola buffers are currently displayed
@@ -239,6 +240,7 @@ default_config.view_options.highlight_filename = nil
 ---@field skip_confirm_for_simple_edits boolean
 ---@field skip_confirm_for_delete boolean
 ---@field prompt_save_on_select_new_entry boolean
+---@field auto_save_on_select_new_entry boolean
 ---@field cleanup_delay_ms integer
 ---@field lsp_file_methods canola.LspFileMethods
 ---@field constrain_cursor false|"name"|"editable"
@@ -272,6 +274,7 @@ local M = {}
 ---@field skip_confirm_for_simple_edits? boolean Skip the confirmation popup for simple operations (:help canola.skip_confirm_for_simple_edits).
 ---@field skip_confirm_for_delete? boolean Skip the confirmation popup when all pending actions are deletes (:help canola.skip_confirm_for_delete).
 ---@field prompt_save_on_select_new_entry? boolean Selecting a new/moved/renamed file or directory will prompt you to save changes first (:help prompt_save_on_select_new_entry).
+---@field auto_save_on_select_new_entry? boolean Automatically save changes when selecting a new/moved/renamed entry, instead of prompting (:help canola.auto_save_on_select_new_entry).
 ---@field cleanup_delay_ms? integer Canola will automatically delete hidden buffers after this delay. You can set the delay to false to disable cleanup entirely. Note that the cleanup process only starts when none of the canola buffers are currently displayed.
 ---@field lsp_file_methods? canola.SetupLspFileMethods Configure LSP file operation integration.
 ---@field constrain_cursor? false|"name"|"editable" Constrain the cursor to the editable parts of the canola buffer. Set to `false` to disable, or "name" to keep it on the file names.

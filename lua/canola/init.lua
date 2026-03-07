@@ -788,6 +788,10 @@ M.select = function(opts, callback)
     end
   end
   if any_moved and config.prompt_save_on_select_new_entry then
+    if config.auto_save_on_select_new_entry then
+      M.save()
+      return finish()
+    end
     local ok, choice = pcall(vim.fn.confirm, 'Save changes?', 'Yes\nNo', 1)
     if not ok then
       return finish()
