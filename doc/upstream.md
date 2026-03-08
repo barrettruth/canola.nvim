@@ -120,7 +120,7 @@ issues against this fork.
 | [#659](https://github.com/stevearc/oil.nvim/issues/659) | Mark and diff files in buffer | open |
 | [#664](https://github.com/stevearc/oil.nvim/issues/664) | Session reload extra buffer | not actionable — no repro |
 | [#665](https://github.com/stevearc/oil.nvim/issues/665) | Hot load preview fast-scratch buffers | not actionable — no clear architecture |
-| [#668](https://github.com/stevearc/oil.nvim/issues/668) | Custom yes/no confirmation | open |
+| [#668](https://github.com/stevearc/oil.nvim/issues/668) | Custom yes/no confirmation | not actionable — no demand |
 | [#670](https://github.com/stevearc/oil.nvim/issues/670) | Multi-directory cmdline args ignored | fixed ([#11](https://github.com/barrettruth/canola.nvim/pull/11)) |
 | [#671](https://github.com/stevearc/oil.nvim/issues/671) | Yanking between nvim instances | open |
 | [#673](https://github.com/stevearc/oil.nvim/issues/673) | Symlink newlines crash | fixed |
