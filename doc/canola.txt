@@ -479,6 +479,21 @@ close({opts})                                                          *canola.c
           {exit_if_last_buf} `nil|boolean` Exit vim if this canola buffer is the
                              last open buffer
 
+toggle({dir}, {opts}, {cb})                                        *canola.toggle*
+    Open canola browser for a directory, or close it if already open
+
+    Parameters:
+      {dir}  `nil|string` When nil, open the parent of the current buffer, or
+             the cwd if current buffer is not a file
+      {opts} `nil|canola.OpenOpts`
+          {preview} `nil|canola.OpenPreviewOpts` When present, open the preview
+                    window after opening canola
+              {vertical}   `nil|boolean` Open the buffer in a vertical split
+              {horizontal} `nil|boolean` Open the buffer in a horizontal split
+              {split}      `nil|"aboveleft"|"belowright"|"topleft"|"botright"` S
+                           plit modifier
+      {cb}   `nil|fun()` Called after the canola buffer is ready
+
 open_preview({opts}, {callback})                                *canola.open_preview*
     Preview the entry under the cursor in a split
 

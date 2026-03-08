@@ -526,6 +526,20 @@ M.close = function(opts)
   vim.api.nvim_buf_delete(canolabuf, { force = true })
 end
 
+---@param dir? string
+---@param opts? canola.OpenOpts
+---@param cb? fun()
+M.toggle = function(dir, opts, cb)
+  if vim.w.is_canola_win or vim.bo.filetype == 'canola' then
+    M.close()
+    if cb then
+      cb()
+    end
+  else
+    M.open(dir, opts, cb)
+  end
+end
+
 ---@class canola.OpenPreviewOpts
 ---@field vertical? boolean Open the buffer in a vertical split
 ---@field horizontal? boolean Open the buffer in a horizontal split
