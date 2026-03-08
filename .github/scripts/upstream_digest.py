@@ -10,8 +10,8 @@ from datetime import date, timedelta
 UPSTREAM = "stevearc/oil.nvim"
 UPSTREAM_MD = "doc/upstream.md"
 
-PRS_HEADING = "## Open upstream PRs"
-ISSUES_HEADING = "## Upstream issues"
+PRS_HEADING = "## Upstream PRs"
+ISSUES_HEADING = "## Issues — open"
 
 
 def get_last_tracked_number():
@@ -128,7 +128,7 @@ def main():
     issue_rows = []
     for issue in open_issues:
         issue_rows.append(
-            f"| [#{issue['number']}]({issue['url']}) | open | {issue['title']} |"
+            f"| [#{issue['number']}]({issue['url']}) | {issue['title']} |"
         )
 
     if pr_rows:
