@@ -11,6 +11,7 @@ local util = require('canola.util')
 local M = {}
 
 local FIELD_NAME = constants.FIELD_NAME
+local FIELD_TYPE = constants.FIELD_TYPE
 local FIELD_META = constants.FIELD_META
 
 ---@class (exact) canola.sshUrl
@@ -152,7 +153,11 @@ ssh_columns.size = {
     local meta = entry[FIELD_META]
     if not meta or not meta.size then
       return ''
-    elseif meta.size >= 1e9 then
+    end
+    if entry[FIELD_TYPE] == 'directory' then
+      return ''
+    end
+    if meta.size >= 1e9 then
       return string.format('%.1fG', meta.size / 1e9)
     elseif meta.size >= 1e6 then
       return string.format('%.1fM', meta.size / 1e6)

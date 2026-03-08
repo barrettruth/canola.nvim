@@ -37,6 +37,7 @@ Bugs fixed in this fork that remain open upstream.
 | [#710](https://github.com/stevearc/oil.nvim/issues/710) | buftype empty on BufEnter            | [#10](https://github.com/barrettruth/canola.nvim/pull/10) ([`01b860e`](https://github.com/barrettruth/canola.nvim/commit/01b860e)) |
 | [#213](https://github.com/stevearc/oil.nvim/issues/213) | Max file size for preview            | [#85](https://github.com/barrettruth/canola.nvim/pull/85) ([`4b32ada`](https://github.com/barrettruth/canola.nvim/commit/4b32ada)) |
 | [#473](https://github.com/stevearc/oil.nvim/issues/473) | Show hidden when dir is all-hidden   | [#85](https://github.com/barrettruth/canola.nvim/pull/85) ([`2fe4e78`](https://github.com/barrettruth/canola.nvim/commit/2fe4e78)) |
+| [#486](https://github.com/stevearc/oil.nvim/issues/486) | Directory sizes show misleading 4.1k | [#87](https://github.com/barrettruth/canola.nvim/pull/87) ([`2aff22a`](https://github.com/barrettruth/canola.nvim/commit/2aff22a)) |
 
 ## Open upstream PRs
 
@@ -109,7 +110,7 @@ Bugs fixed in this fork that remain open upstream.
 | [#473](https://github.com/stevearc/oil.nvim/issues/473) | fixed          | Show all hidden files if dir only has hidden — `view_options.show_hidden_when_empty`                                                                                                  |
 | [#479](https://github.com/stevearc/oil.nvim/issues/479) | open           | Harpoon integration recipe                                                                                                                                                            |
 | [#483](https://github.com/stevearc/oil.nvim/issues/483) | not actionable | Spell downloads depend on netrw — fixed in [neovim#34940](https://github.com/neovim/neovim/pull/34940)                                                                                |
-| [#486](https://github.com/stevearc/oil.nvim/issues/486) | open           | All directory sizes show 4.1k                                                                                                                                                         |
+| [#486](https://github.com/stevearc/oil.nvim/issues/486) | fixed          | Directory sizes show 4.1k — [#87](https://github.com/barrettruth/canola.nvim/pull/87) ([`2aff22a`](https://github.com/barrettruth/canola.nvim/commit/2aff22a))                                                                                                                                                         |
 | [#492](https://github.com/stevearc/oil.nvim/issues/492) | not actionable | j/k remapping question — answered in comments                                                                                                                                         |
 | [#507](https://github.com/stevearc/oil.nvim/issues/507) | not actionable | lacasitos.nvim conflict on Windows — cross-plugin + Windows-only, no actionable fix                                                                                                   |
 | [#521](https://github.com/stevearc/oil.nvim/issues/521) | open           | oil-ssh connection issues                                                                                                                                                             |
