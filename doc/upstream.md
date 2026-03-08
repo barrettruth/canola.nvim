@@ -3,166 +3,161 @@
 Triage of [stevearc/oil.nvim](https://github.com/stevearc/oil.nvim) PRs and
 issues against this fork.
 
-## Cherry-picked PRs
+## Upstream PRs
 
-Upstream PRs cherry-picked or adapted into this fork.
+| PR | Description | Status |
+|----|-------------|--------|
+| [#495](https://github.com/stevearc/oil.nvim/pull/495) | Cancel visual/operator-pending mode on close | cherry-picked |
+| [#537](https://github.com/stevearc/oil.nvim/pull/537) | Configurable file/directory creation permissions | cherry-picked |
+| [#618](https://github.com/stevearc/oil.nvim/pull/618) | Opt-in filetype detection for icons | cherry-picked |
+| [#644](https://github.com/stevearc/oil.nvim/pull/644) | Pass entry to `is_hidden_file`/`is_always_hidden` | cherry-picked |
+| [#697](https://github.com/stevearc/oil.nvim/pull/697) | Recipe for file extension column | cherry-picked |
+| [#698](https://github.com/stevearc/oil.nvim/pull/698) | Executable file highlighting | cherry-picked |
+| [#717](https://github.com/stevearc/oil.nvim/pull/717) | Add oil-git.nvim to extensions | cherry-picked |
+| [#720](https://github.com/stevearc/oil.nvim/pull/720) | Gate `BufAdd` autocmd behind config check | cherry-picked |
+| [#722](https://github.com/stevearc/oil.nvim/pull/722) | Fix freedesktop trash URL | cherry-picked |
+| [#723](https://github.com/stevearc/oil.nvim/pull/723) | Emit `OilReadPost` event after render | cherry-picked |
+| [#725](https://github.com/stevearc/oil.nvim/pull/725) | Normalize keymap keys before config merge | cherry-picked |
+| [#727](https://github.com/stevearc/oil.nvim/pull/727) | Clarify `get_current_dir` nil + Telescope recipe | cherry-picked |
+| [#739](https://github.com/stevearc/oil.nvim/pull/739) | macOS FreeDesktop trash recipe | cherry-picked |
+| [#488](https://github.com/stevearc/oil.nvim/pull/488) | Parent directory in a split | not actionable — empty PR |
+| [#493](https://github.com/stevearc/oil.nvim/pull/493) | UNC paths on Windows | not actionable — superseded by [#686](https://github.com/stevearc/oil.nvim/pull/686) |
+| [#686](https://github.com/stevearc/oil.nvim/pull/686) | Windows path conversion fix | not actionable — Windows-only |
+| [#735](https://github.com/stevearc/oil.nvim/pull/735) | gX opens external program with selection | not actionable — hardcoded Linux-only, incomplete |
+| [#591](https://github.com/stevearc/oil.nvim/pull/591) | release-please changelog | not applicable |
+| [#667](https://github.com/stevearc/oil.nvim/pull/667) | Virtual text columns + headers | deferred — WIP, conflicting |
+| [#708](https://github.com/stevearc/oil.nvim/pull/708) | Move file into new dir by renaming | deferred — needs rewrite |
+| [#721](https://github.com/stevearc/oil.nvim/pull/721) | `create_hook` to populate file contents | deferred — fixing via autocmd event |
+| [#728](https://github.com/stevearc/oil.nvim/pull/728) | `open_split` for opening oil in a split | deferred — tracked as [#2](https://github.com/barrettruth/canola.nvim/issues/2) |
 
-| PR                                                    | Description                                       | Commit                                                                                                                                         |
-| ----------------------------------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| [#495](https://github.com/stevearc/oil.nvim/pull/495) | Cancel visual/operator-pending mode on close      | [`16f3d7b`](https://github.com/barrettruth/canola.nvim/commit/16f3d7b)                                                                         |
-| [#537](https://github.com/stevearc/oil.nvim/pull/537) | Configurable file/directory creation permissions  | [`c6b4a7a`](https://github.com/barrettruth/canola.nvim/commit/c6b4a7a)                                                                         |
-| [#618](https://github.com/stevearc/oil.nvim/pull/618) | Opt-in filetype detection for icons               | [`ded1725`](https://github.com/barrettruth/canola.nvim/commit/ded1725)                                                                         |
-| [#644](https://github.com/stevearc/oil.nvim/pull/644) | Pass entry to `is_hidden_file`/`is_always_hidden` | [`4ab4765`](https://github.com/barrettruth/canola.nvim/commit/4ab4765)                                                                         |
-| [#697](https://github.com/stevearc/oil.nvim/pull/697) | Recipe for file extension column                  | [`dcb3a08`](https://github.com/barrettruth/canola.nvim/commit/dcb3a08)                                                                         |
-| [#698](https://github.com/stevearc/oil.nvim/pull/698) | Executable file highlighting                      | [`41556ec`](https://github.com/barrettruth/canola.nvim/commit/41556ec), [`85ed9b8`](https://github.com/barrettruth/canola.nvim/commit/85ed9b8) |
-| [#717](https://github.com/stevearc/oil.nvim/pull/717) | Add oil-git.nvim to extensions                    | [`582d9fc`](https://github.com/barrettruth/canola.nvim/commit/582d9fc)                                                                         |
-| [#720](https://github.com/stevearc/oil.nvim/pull/720) | Gate `BufAdd` autocmd behind config check         | [`2228f80`](https://github.com/barrettruth/canola.nvim/commit/2228f80)                                                                         |
-| [#722](https://github.com/stevearc/oil.nvim/pull/722) | Fix freedesktop trash URL                         | [`b92ecb0`](https://github.com/barrettruth/canola.nvim/commit/b92ecb0)                                                                         |
-| [#723](https://github.com/stevearc/oil.nvim/pull/723) | Emit `OilReadPost` event after render             | [`29239d5`](https://github.com/barrettruth/canola.nvim/commit/29239d5)                                                                         |
-| [#725](https://github.com/stevearc/oil.nvim/pull/725) | Normalize keymap keys before config merge         | [`723145c`](https://github.com/barrettruth/canola.nvim/commit/723145c)                                                                         |
-| [#727](https://github.com/stevearc/oil.nvim/pull/727) | Clarify `get_current_dir` nil + Telescope recipe  | [`eed6697`](https://github.com/barrettruth/canola.nvim/commit/eed6697)                                                                         |
-| [#739](https://github.com/stevearc/oil.nvim/pull/739) | macOS FreeDesktop trash recipe                    | `doc/canola.txt` (`canola-recipe-macos-freedesktop-trash`)                                                                                     |
+## Issues — fixed (original)
 
-## Original fixes
+Issues fixed in this fork that remain open upstream.
 
-Bugs fixed in this fork that remain open upstream.
+| Issue | Description | PR |
+|-------|-------------|----|
+| [#213](https://github.com/stevearc/oil.nvim/issues/213) | Disable preview for large files | [#85](https://github.com/barrettruth/canola.nvim/pull/85) |
+| [#302](https://github.com/stevearc/oil.nvim/issues/302) | `buflisted=true` after jumplist nav | [#71](https://github.com/barrettruth/canola.nvim/pull/71) |
+| [#363](https://github.com/stevearc/oil.nvim/issues/363) | `prompt_save_on_select_new_entry` wrong prompt | — |
+| [#392](https://github.com/stevearc/oil.nvim/issues/392) | Option to skip delete prompt | — |
+| [#393](https://github.com/stevearc/oil.nvim/issues/393) | Auto-save on select | — |
+| [#473](https://github.com/stevearc/oil.nvim/issues/473) | Show hidden when dir is all-hidden | [#85](https://github.com/barrettruth/canola.nvim/pull/85) |
+| [#486](https://github.com/stevearc/oil.nvim/issues/486) | Directory sizes show misleading 4.1k | [#87](https://github.com/barrettruth/canola.nvim/pull/87) |
+| [#578](https://github.com/stevearc/oil.nvim/issues/578) | Hidden file dimming recipe | — |
+| [#612](https://github.com/stevearc/oil.nvim/issues/612) | Delete buffers on file delete | — |
+| [#615](https://github.com/stevearc/oil.nvim/issues/615) | Cursor at name column on o/O | [#72](https://github.com/barrettruth/canola.nvim/pull/72) |
+| [#621](https://github.com/stevearc/oil.nvim/issues/621) | `toggle()` for regular windows | [#88](https://github.com/barrettruth/canola.nvim/pull/88) |
+| [#632](https://github.com/stevearc/oil.nvim/issues/632) | Preview + move = copy | [#12](https://github.com/barrettruth/canola.nvim/pull/12) |
+| [#642](https://github.com/stevearc/oil.nvim/issues/642) | W10 warning under `nvim -R` | — |
+| [#645](https://github.com/stevearc/oil.nvim/issues/645) | `close_float` action | — |
+| [#650](https://github.com/stevearc/oil.nvim/issues/650) | LSP `workspace.fileOperations` events | — |
+| [#670](https://github.com/stevearc/oil.nvim/issues/670) | Multi-directory cmdline args ignored | [#11](https://github.com/barrettruth/canola.nvim/pull/11) |
+| [#673](https://github.com/stevearc/oil.nvim/issues/673) | Symlink newlines crash | — |
+| [#683](https://github.com/stevearc/oil.nvim/issues/683) | Path not shown in floating mode | — |
+| [#690](https://github.com/stevearc/oil.nvim/issues/690) | `OilFileIcon` highlight group | — |
+| [#710](https://github.com/stevearc/oil.nvim/issues/710) | buftype empty on BufEnter | [#10](https://github.com/barrettruth/canola.nvim/pull/10) |
 
-| Upstream issue                                          | Description                          | PR                                                                                                                                 |
-| ------------------------------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| [#302](https://github.com/stevearc/oil.nvim/issues/302) | `buflisted=true` after jumplist nav  | [#71](https://github.com/barrettruth/canola.nvim/pull/71) ([`a078bcf`](https://github.com/barrettruth/canola.nvim/commit/a078bcf)) |
-| [#632](https://github.com/stevearc/oil.nvim/issues/632) | Preview + move = copy                | [#12](https://github.com/barrettruth/canola.nvim/pull/12) ([`fe16993`](https://github.com/barrettruth/canola.nvim/commit/fe16993)) |
-| [#642](https://github.com/stevearc/oil.nvim/issues/642) | W10 warning under `nvim -R`          | [`ca834cf`](https://github.com/barrettruth/canola.nvim/commit/ca834cf)                                                             |
-| [#670](https://github.com/stevearc/oil.nvim/issues/670) | Multi-directory cmdline args ignored | [#11](https://github.com/barrettruth/canola.nvim/pull/11) ([`70861e5`](https://github.com/barrettruth/canola.nvim/commit/70861e5)) |
-| [#673](https://github.com/stevearc/oil.nvim/issues/673) | Symlink newlines crash               | [`9110a1a`](https://github.com/barrettruth/canola.nvim/commit/9110a1a)                                                             |
-| [#710](https://github.com/stevearc/oil.nvim/issues/710) | buftype empty on BufEnter            | [#10](https://github.com/barrettruth/canola.nvim/pull/10) ([`01b860e`](https://github.com/barrettruth/canola.nvim/commit/01b860e)) |
-| [#213](https://github.com/stevearc/oil.nvim/issues/213) | Max file size for preview            | [#85](https://github.com/barrettruth/canola.nvim/pull/85) ([`4b32ada`](https://github.com/barrettruth/canola.nvim/commit/4b32ada)) |
-| [#473](https://github.com/stevearc/oil.nvim/issues/473) | Show hidden when dir is all-hidden   | [#85](https://github.com/barrettruth/canola.nvim/pull/85) ([`2fe4e78`](https://github.com/barrettruth/canola.nvim/commit/2fe4e78)) |
-| [#486](https://github.com/stevearc/oil.nvim/issues/486) | Directory sizes show misleading 4.1k | [#87](https://github.com/barrettruth/canola.nvim/pull/87) ([`2aff22a`](https://github.com/barrettruth/canola.nvim/commit/2aff22a)) |
-| [#621](https://github.com/stevearc/oil.nvim/issues/621) | `toggle()` for regular windows       | [#88](https://github.com/barrettruth/canola.nvim/pull/88) ([`385bd82`](https://github.com/barrettruth/canola.nvim/commit/385bd82)) |
+## Issues — resolved (cherry-pick)
 
-## Open upstream PRs
+Issues addressed by cherry-picking upstream PRs.
 
-| PR                                                    | Description                              | Status                                                                                                |
-| ----------------------------------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| [#488](https://github.com/stevearc/oil.nvim/pull/488) | Parent directory in a split              | not actionable — empty PR                                                                             |
-| [#493](https://github.com/stevearc/oil.nvim/pull/493) | UNC paths on Windows                     | not actionable — superseded by [#686](https://github.com/stevearc/oil.nvim/pull/686)                  |
-| [#591](https://github.com/stevearc/oil.nvim/pull/591) | release-please changelog                 | not applicable                                                                                        |
-| [#667](https://github.com/stevearc/oil.nvim/pull/667) | Virtual text columns + headers           | deferred — WIP, conflicting                                                                           |
-| [#686](https://github.com/stevearc/oil.nvim/pull/686) | Windows path conversion fix              | not actionable — Windows-only                                                                         |
-| [#708](https://github.com/stevearc/oil.nvim/pull/708) | Move file into new dir by renaming       | deferred — needs rewrite                                                                              |
-| [#721](https://github.com/stevearc/oil.nvim/pull/721) | `create_hook` to populate file contents  | deferred — fixing via autocmd event on file create                                                    |
-| [#728](https://github.com/stevearc/oil.nvim/pull/728) | `open_split` for opening oil in a split  | tracked — [#2](https://github.com/barrettruth/canola.nvim/issues/2)                                   |
-| [#735](https://github.com/stevearc/oil.nvim/pull/735) | gX opens external program with selection | not actionable — hardcoded Linux-only program list, no config surface, author-acknowledged incomplete |
+| Issue | Description | Upstream PR |
+|-------|-------------|-------------|
+| [#446](https://github.com/stevearc/oil.nvim/issues/446) | Executable highlighting | [#698](https://github.com/stevearc/oil.nvim/pull/698) |
+| [#679](https://github.com/stevearc/oil.nvim/issues/679) | Executable file sign | [#698](https://github.com/stevearc/oil.nvim/pull/698) |
+| [#682](https://github.com/stevearc/oil.nvim/issues/682) | `get_current_dir()` nil | [#727](https://github.com/stevearc/oil.nvim/pull/727) |
+| [#692](https://github.com/stevearc/oil.nvim/issues/692) | Keymap normalization | [#725](https://github.com/stevearc/oil.nvim/pull/725) |
 
-## Upstream issues
+## Issues — open
 
-| Issue                                                   | Status         | Notes                                                                                                                                                                                 |
-| ------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [#85](https://github.com/stevearc/oil.nvim/issues/85)   | open           | Git status column (P2)                                                                                                                                                                |
-| [#95](https://github.com/stevearc/oil.nvim/issues/95)   | open           | Undo after renaming files (P1)                                                                                                                                                        |
-| [#117](https://github.com/stevearc/oil.nvim/issues/117) | open           | Move file into new dir via slash in name (P1, related to [#708](https://github.com/stevearc/oil.nvim/pull/708))                                                                       |
-| [#156](https://github.com/stevearc/oil.nvim/issues/156) | open           | Paste path of files into oil buffer (P2)                                                                                                                                              |
-| [#200](https://github.com/stevearc/oil.nvim/issues/200) | open           | Highlights not working when opening a file (P2)                                                                                                                                       |
-| [#207](https://github.com/stevearc/oil.nvim/issues/207) | open           | Suppress "no longer available" message (P1)                                                                                                                                           |
-| [#210](https://github.com/stevearc/oil.nvim/issues/210) | open           | FTP support (P2)                                                                                                                                                                      |
-| [#213](https://github.com/stevearc/oil.nvim/issues/213) | fixed          | Disable preview for large files — `preview_win.max_file_size` (P1)                                                                                                                    |
-| [#226](https://github.com/stevearc/oil.nvim/issues/226) | open           | K8s/Docker adapter (P2)                                                                                                                                                               |
-| [#232](https://github.com/stevearc/oil.nvim/issues/232) | open           | Cannot close last window (P2)                                                                                                                                                         |
-| [#254](https://github.com/stevearc/oil.nvim/issues/254) | open           | Buffer modified highlight group (P2)                                                                                                                                                  |
-| [#263](https://github.com/stevearc/oil.nvim/issues/263) | open           | Diff mode (P2)                                                                                                                                                                        |
-| [#276](https://github.com/stevearc/oil.nvim/issues/276) | open           | Archives manipulation (P2)                                                                                                                                                            |
-| [#280](https://github.com/stevearc/oil.nvim/issues/280) | open           | vim-projectionist support (P2)                                                                                                                                                        |
-| [#288](https://github.com/stevearc/oil.nvim/issues/288) | not actionable | No reliable repro; likely lazy.nvim timing issue — setting `lazy = false` resolves it for affected users                                                                              |
-| [#289](https://github.com/stevearc/oil.nvim/issues/289) | open           | Show absolute path toggle (P2)                                                                                                                                                        |
-| [#294](https://github.com/stevearc/oil.nvim/issues/294) | open           | Can't handle emojis in filenames (P2)                                                                                                                                                 |
-| [#298](https://github.com/stevearc/oil.nvim/issues/298) | open           | Open float on neovim directory startup (P2)                                                                                                                                           |
-| [#302](https://github.com/stevearc/oil.nvim/issues/302) | fixed          | `buflisted=true` after jumplist nav — [#71](https://github.com/barrettruth/canola.nvim/pull/71) ([`a078bcf`](https://github.com/barrettruth/canola.nvim/commit/a078bcf))              |
-| [#303](https://github.com/stevearc/oil.nvim/issues/303) | open           | Preview in float window mode (P2)                                                                                                                                                     |
-| [#325](https://github.com/stevearc/oil.nvim/issues/325) | open           | oil-ssh error from command line (P0)                                                                                                                                                  |
-| [#330](https://github.com/stevearc/oil.nvim/issues/330) | not actionable | Telescope opens file in oil float — cross-plugin interaction, no repro provided                                                                                                       |
-| [#332](https://github.com/stevearc/oil.nvim/issues/332) | open           | Buffer not fixed to floating window (P2)                                                                                                                                              |
-| [#335](https://github.com/stevearc/oil.nvim/issues/335) | open           | Disable editing outside root dir                                                                                                                                                      |
-| [#349](https://github.com/stevearc/oil.nvim/issues/349) | open           | Parent directory as column/vsplit (P2)                                                                                                                                                |
-| [#351](https://github.com/stevearc/oil.nvim/issues/351) | open           | Paste deleted file from register                                                                                                                                                      |
-| [#359](https://github.com/stevearc/oil.nvim/issues/359) | open           | Parse error on filenames differing by space (P1)                                                                                                                                      |
-| [#360](https://github.com/stevearc/oil.nvim/issues/360) | open           | Pick window to open file into                                                                                                                                                         |
-| [#362](https://github.com/stevearc/oil.nvim/issues/362) | not actionable | "Could not find oil adapter for scheme" — no minimal repro provided, old nvim version (0.9.5)                                                                                         |
-| [#363](https://github.com/stevearc/oil.nvim/issues/363) | fixed          | `prompt_save_on_select_new_entry` uses wrong prompt — escape now cancels select                                                                                                       |
-| [#371](https://github.com/stevearc/oil.nvim/issues/371) | open           | Constrain cursor in insert mode                                                                                                                                                       |
-| [#373](https://github.com/stevearc/oil.nvim/issues/373) | open           | Dir from quickfix with bqf/trouble broken (P1)                                                                                                                                        |
-| [#375](https://github.com/stevearc/oil.nvim/issues/375) | open           | Highlights for file types and permissions (P2)                                                                                                                                        |
-| [#380](https://github.com/stevearc/oil.nvim/issues/380) | not actionable | Silently overriding `show_hidden` based on buffer state is counter to the config's intent                                                                                             |
-| [#382](https://github.com/stevearc/oil.nvim/issues/382) | open           | Relative path in window title (P2)                                                                                                                                                    |
-| [#392](https://github.com/stevearc/oil.nvim/issues/392) | fixed          | Option to skip delete prompt — fixed — `skip_confirm_for_delete` option                                                                                                               |
-| [#393](https://github.com/stevearc/oil.nvim/issues/393) | fixed          | Auto-save on select — `auto_save_on_select_new_entry` option                                                                                                                          |
-| [#396](https://github.com/stevearc/oil.nvim/issues/396) | open           | Customize preview content (P2)                                                                                                                                                        |
-| [#399](https://github.com/stevearc/oil.nvim/issues/399) | open           | Open file without closing Oil (P1)                                                                                                                                                    |
-| [#404](https://github.com/stevearc/oil.nvim/issues/404) | not actionable | Restricted UNC paths — Windows-only (P2)                                                                                                                                              |
-| [#416](https://github.com/stevearc/oil.nvim/issues/416) | open           | Cannot remap key to open split                                                                                                                                                        |
-| [#431](https://github.com/stevearc/oil.nvim/issues/431) | open           | More SSH adapter documentation                                                                                                                                                        |
-| [#435](https://github.com/stevearc/oil.nvim/issues/435) | open           | Error previewing with semantic tokens LSP                                                                                                                                             |
-| [#436](https://github.com/stevearc/oil.nvim/issues/436) | open           | Owner and group columns (P2)                                                                                                                                                          |
-| [#444](https://github.com/stevearc/oil.nvim/issues/444) | open           | Opening behaviour customization                                                                                                                                                       |
-| [#446](https://github.com/stevearc/oil.nvim/issues/446) | resolved       | Executable highlighting — PR [#698](https://github.com/stevearc/oil.nvim/pull/698)                                                                                                    |
-| [#449](https://github.com/stevearc/oil.nvim/issues/449) | open           | Renaming TypeScript files stopped working                                                                                                                                             |
-| [#450](https://github.com/stevearc/oil.nvim/issues/450) | open           | Highlight opened file in directory listing                                                                                                                                            |
-| [#457](https://github.com/stevearc/oil.nvim/issues/457) | open           | Custom column API                                                                                                                                                                     |
-| [#466](https://github.com/stevearc/oil.nvim/issues/466) | open           | Select into window on right                                                                                                                                                           |
-| [#473](https://github.com/stevearc/oil.nvim/issues/473) | fixed          | Show all hidden files if dir only has hidden — `view_options.show_hidden_when_empty`                                                                                                  |
-| [#479](https://github.com/stevearc/oil.nvim/issues/479) | open           | Harpoon integration recipe                                                                                                                                                            |
-| [#483](https://github.com/stevearc/oil.nvim/issues/483) | not actionable | Spell downloads depend on netrw — fixed in [neovim#34940](https://github.com/neovim/neovim/pull/34940)                                                                                |
-| [#486](https://github.com/stevearc/oil.nvim/issues/486) | fixed          | Directory sizes show 4.1k — [#87](https://github.com/barrettruth/canola.nvim/pull/87) ([`2aff22a`](https://github.com/barrettruth/canola.nvim/commit/2aff22a))                                                                                                                                                         |
-| [#492](https://github.com/stevearc/oil.nvim/issues/492) | not actionable | j/k remapping question — answered in comments                                                                                                                                         |
-| [#507](https://github.com/stevearc/oil.nvim/issues/507) | not actionable | lacasitos.nvim conflict on Windows — cross-plugin + Windows-only, no actionable fix                                                                                                   |
-| [#521](https://github.com/stevearc/oil.nvim/issues/521) | open           | oil-ssh connection issues                                                                                                                                                             |
-| [#525](https://github.com/stevearc/oil.nvim/issues/525) | open           | SSH adapter documentation (P2)                                                                                                                                                        |
-| [#531](https://github.com/stevearc/oil.nvim/issues/531) | not actionable | Windows — incomplete drive letters (P1)                                                                                                                                               |
-| [#533](https://github.com/stevearc/oil.nvim/issues/533) | not actionable | `constrain_cursor` — needs repro                                                                                                                                                      |
-| [#570](https://github.com/stevearc/oil.nvim/issues/570) | open           | Improve c0/d0 for renaming                                                                                                                                                            |
-| [#571](https://github.com/stevearc/oil.nvim/issues/571) | open           | Callback before `highlight_filename` (P2)                                                                                                                                             |
-| [#578](https://github.com/stevearc/oil.nvim/issues/578) | resolved       | Hidden file dimming recipe — [`38db6cf`](https://github.com/barrettruth/canola.nvim/commit/38db6cf)                                                                                   |
-| [#587](https://github.com/stevearc/oil.nvim/issues/587) | not actionable | Alt+h keymap — user config issue                                                                                                                                                      |
-| [#599](https://github.com/stevearc/oil.nvim/issues/599) | open           | user:group display and manipulation (P2)                                                                                                                                              |
-| [#607](https://github.com/stevearc/oil.nvim/issues/607) | open           | Per-host SCP args (P2)                                                                                                                                                                |
-| [#609](https://github.com/stevearc/oil.nvim/issues/609) | open           | Cursor placement via Snacks picker                                                                                                                                                    |
-| [#612](https://github.com/stevearc/oil.nvim/issues/612) | fixed          | Delete buffers on file delete — `cleanup_buffers_on_delete` option                                                                                                                    |
-| [#615](https://github.com/stevearc/oil.nvim/issues/615) | fixed          | Cursor at name column on o/O — [#72](https://github.com/barrettruth/canola.nvim/pull/72) ([`69d85b8`](https://github.com/barrettruth/canola.nvim/commit/69d85b8))                     |
-| [#617](https://github.com/stevearc/oil.nvim/issues/617) | open           | Filetype by actual filetype (P2)                                                                                                                                                      |
-| [#621](https://github.com/stevearc/oil.nvim/issues/621) | fixed          | `toggle()` for regular windows — [#88](https://github.com/barrettruth/canola.nvim/pull/88) ([`385bd82`](https://github.com/barrettruth/canola.nvim/commit/385bd82))                                                                                                                                              |
-| [#623](https://github.com/stevearc/oil.nvim/issues/623) | not actionable | bufferline.nvim interaction — cross-plugin                                                                                                                                            |
-| [#624](https://github.com/stevearc/oil.nvim/issues/624) | not actionable | Mutation race — no reliable repro                                                                                                                                                     |
-| [#625](https://github.com/stevearc/oil.nvim/issues/625) | not actionable | E19 mark invalid line — intractable without neovim API changes                                                                                                                        |
-| [#632](https://github.com/stevearc/oil.nvim/issues/632) | fixed          | Preview + move = copy — [#12](https://github.com/barrettruth/canola.nvim/pull/12) ([`fe16993`](https://github.com/barrettruth/canola.nvim/commit/fe16993))                            |
-| [#636](https://github.com/stevearc/oil.nvim/issues/636) | open           | Telescope picker opens in active buffer                                                                                                                                               |
-| [#637](https://github.com/stevearc/oil.nvim/issues/637) | open           | Inconsistent symlink resolution                                                                                                                                                       |
-| [#641](https://github.com/stevearc/oil.nvim/issues/641) | open           | Flicker on `actions.parent`                                                                                                                                                           |
-| [#642](https://github.com/stevearc/oil.nvim/issues/642) | fixed          | W10 warning under `nvim -R` — [`ca834cf`](https://github.com/barrettruth/canola.nvim/commit/ca834cf)                                                                                  |
-| [#645](https://github.com/stevearc/oil.nvim/issues/645) | resolved       | `close_float` action — [`f6bcdda`](https://github.com/barrettruth/canola.nvim/commit/f6bcdda)                                                                                         |
-| [#646](https://github.com/stevearc/oil.nvim/issues/646) | open           | `get_current_dir` nil on SSH                                                                                                                                                          |
-| [#650](https://github.com/stevearc/oil.nvim/issues/650) | resolved       | LSP `workspace.fileOperations` events — implemented in `lua/canola/lsp/workspace.lua`                                                                                                 |
-| [#655](https://github.com/stevearc/oil.nvim/issues/655) | open           | File statistics as virtual text                                                                                                                                                       |
-| [#659](https://github.com/stevearc/oil.nvim/issues/659) | open           | Mark and diff files in buffer                                                                                                                                                         |
-| [#664](https://github.com/stevearc/oil.nvim/issues/664) | not actionable | Session reload extra buffer — no repro                                                                                                                                                |
-| [#665](https://github.com/stevearc/oil.nvim/issues/665) | open           | Hot load preview fast-scratch buffers                                                                                                                                                 |
-| [#668](https://github.com/stevearc/oil.nvim/issues/668) | open           | Custom yes/no confirmation                                                                                                                                                            |
-| [#670](https://github.com/stevearc/oil.nvim/issues/670) | fixed          | Multi-directory cmdline — [#11](https://github.com/barrettruth/canola.nvim/pull/11) ([`70861e5`](https://github.com/barrettruth/canola.nvim/commit/70861e5))                          |
-| [#671](https://github.com/stevearc/oil.nvim/issues/671) | open           | Yanking between nvim instances                                                                                                                                                        |
-| [#673](https://github.com/stevearc/oil.nvim/issues/673) | fixed          | Symlink newlines crash — [`9110a1a`](https://github.com/barrettruth/canola.nvim/commit/9110a1a)                                                                                       |
-| [#675](https://github.com/stevearc/oil.nvim/issues/675) | open           | Move file into folder by renaming (related to [#708](https://github.com/stevearc/oil.nvim/pull/708))                                                                                  |
-| [#676](https://github.com/stevearc/oil.nvim/issues/676) | not actionable | Windows — path conversion                                                                                                                                                             |
-| [#678](https://github.com/stevearc/oil.nvim/issues/678) | tracking       | `buftype='acwrite'` causes `mksession` to skip oil windows                                                                                                                            |
-| [#679](https://github.com/stevearc/oil.nvim/issues/679) | resolved       | Executable file sign — PR [#698](https://github.com/stevearc/oil.nvim/pull/698)                                                                                                       |
-| [#682](https://github.com/stevearc/oil.nvim/issues/682) | resolved       | `get_current_dir()` nil — clarified via [`eed6697`](https://github.com/barrettruth/canola.nvim/commit/eed6697) (cherry-pick of [#727](https://github.com/stevearc/oil.nvim/pull/727)) |
-| [#683](https://github.com/stevearc/oil.nvim/issues/683) | fixed          | Path not shown in floating mode — title shown via fallback when border is nil                                                                                                         |
-| [#684](https://github.com/stevearc/oil.nvim/issues/684) | open           | User and group columns                                                                                                                                                                |
-| [#685](https://github.com/stevearc/oil.nvim/issues/685) | open           | Plain directory paths in buffer names                                                                                                                                                 |
-| [#690](https://github.com/stevearc/oil.nvim/issues/690) | resolved       | `OilFileIcon` highlight group — [`ce64ae1`](https://github.com/barrettruth/canola.nvim/commit/ce64ae1)                                                                                |
-| [#692](https://github.com/stevearc/oil.nvim/issues/692) | resolved       | Keymap normalization — PR [#725](https://github.com/stevearc/oil.nvim/pull/725)                                                                                                       |
-| [#699](https://github.com/stevearc/oil.nvim/issues/699) | open           | `select` blocks UI with slow FileType autocmd                                                                                                                                         |
-| [#707](https://github.com/stevearc/oil.nvim/issues/707) | open           | Move file/dir into new dir by renaming (related to [#708](https://github.com/stevearc/oil.nvim/pull/708))                                                                             |
-| [#710](https://github.com/stevearc/oil.nvim/issues/710) | fixed          | buftype empty on BufEnter — [#10](https://github.com/barrettruth/canola.nvim/pull/10) ([`01b860e`](https://github.com/barrettruth/canola.nvim/commit/01b860e))                        |
-| [#714](https://github.com/stevearc/oil.nvim/issues/714) | not actionable | Support question — answered                                                                                                                                                           |
-| [#719](https://github.com/stevearc/oil.nvim/issues/719) | not actionable | Neovim crash on node_modules — libuv/neovim bug                                                                                                                                       |
-| [#726](https://github.com/stevearc/oil.nvim/issues/726) | not actionable | Meta discussion/roadmap                                                                                                                                                               |
-| [#736](https://github.com/stevearc/oil.nvim/issues/736) | open           | Make icons virtual text — related to [#667](https://github.com/stevearc/oil.nvim/pull/667) (virtual text columns, deferred)                                                           |
-| [#738](https://github.com/stevearc/oil.nvim/issues/738) | open           | Allow changing mtime/atime via time column (P2)                                                                                                                                       |
+| Issue | Description |
+|-------|-------------|
+| [#85](https://github.com/stevearc/oil.nvim/issues/85) | Git status column |
+| [#95](https://github.com/stevearc/oil.nvim/issues/95) | Undo after renaming files |
+| [#117](https://github.com/stevearc/oil.nvim/issues/117) | Move file into new dir via slash in name |
+| [#156](https://github.com/stevearc/oil.nvim/issues/156) | Paste path of files into oil buffer |
+| [#200](https://github.com/stevearc/oil.nvim/issues/200) | Highlights not working when opening a file |
+| [#207](https://github.com/stevearc/oil.nvim/issues/207) | Suppress "no longer available" message |
+| [#210](https://github.com/stevearc/oil.nvim/issues/210) | FTP support |
+| [#226](https://github.com/stevearc/oil.nvim/issues/226) | K8s/Docker adapter |
+| [#232](https://github.com/stevearc/oil.nvim/issues/232) | Cannot close last window |
+| [#254](https://github.com/stevearc/oil.nvim/issues/254) | Buffer modified highlight group |
+| [#263](https://github.com/stevearc/oil.nvim/issues/263) | Diff mode |
+| [#276](https://github.com/stevearc/oil.nvim/issues/276) | Archives manipulation |
+| [#280](https://github.com/stevearc/oil.nvim/issues/280) | vim-projectionist support |
+| [#289](https://github.com/stevearc/oil.nvim/issues/289) | Show absolute path toggle |
+| [#294](https://github.com/stevearc/oil.nvim/issues/294) | Can't handle emojis in filenames |
+| [#298](https://github.com/stevearc/oil.nvim/issues/298) | Open float on neovim directory startup |
+| [#303](https://github.com/stevearc/oil.nvim/issues/303) | Preview in float window mode |
+| [#325](https://github.com/stevearc/oil.nvim/issues/325) | oil-ssh error from command line |
+| [#332](https://github.com/stevearc/oil.nvim/issues/332) | Buffer not fixed to floating window |
+| [#335](https://github.com/stevearc/oil.nvim/issues/335) | Disable editing outside root dir |
+| [#349](https://github.com/stevearc/oil.nvim/issues/349) | Parent directory as column/vsplit |
+| [#351](https://github.com/stevearc/oil.nvim/issues/351) | Paste deleted file from register |
+| [#359](https://github.com/stevearc/oil.nvim/issues/359) | Parse error on filenames differing by space |
+| [#360](https://github.com/stevearc/oil.nvim/issues/360) | Pick window to open file into |
+| [#371](https://github.com/stevearc/oil.nvim/issues/371) | Constrain cursor in insert mode |
+| [#373](https://github.com/stevearc/oil.nvim/issues/373) | Dir from quickfix with bqf/trouble broken |
+| [#375](https://github.com/stevearc/oil.nvim/issues/375) | Highlights for file types and permissions |
+| [#382](https://github.com/stevearc/oil.nvim/issues/382) | Relative path in window title |
+| [#396](https://github.com/stevearc/oil.nvim/issues/396) | Customize preview content |
+| [#399](https://github.com/stevearc/oil.nvim/issues/399) | Open file without closing Oil |
+| [#416](https://github.com/stevearc/oil.nvim/issues/416) | Cannot remap key to open split |
+| [#431](https://github.com/stevearc/oil.nvim/issues/431) | More SSH adapter documentation |
+| [#435](https://github.com/stevearc/oil.nvim/issues/435) | Error previewing with semantic tokens LSP |
+| [#436](https://github.com/stevearc/oil.nvim/issues/436) | Owner and group columns |
+| [#444](https://github.com/stevearc/oil.nvim/issues/444) | Opening behaviour customization |
+| [#449](https://github.com/stevearc/oil.nvim/issues/449) | Renaming TypeScript files stopped working |
+| [#450](https://github.com/stevearc/oil.nvim/issues/450) | Highlight opened file in directory listing |
+| [#457](https://github.com/stevearc/oil.nvim/issues/457) | Custom column API |
+| [#466](https://github.com/stevearc/oil.nvim/issues/466) | Select into window on right |
+| [#479](https://github.com/stevearc/oil.nvim/issues/479) | Harpoon integration recipe |
+| [#521](https://github.com/stevearc/oil.nvim/issues/521) | oil-ssh connection issues |
+| [#525](https://github.com/stevearc/oil.nvim/issues/525) | SSH adapter documentation |
+| [#570](https://github.com/stevearc/oil.nvim/issues/570) | Improve c0/d0 for renaming |
+| [#571](https://github.com/stevearc/oil.nvim/issues/571) | Callback before `highlight_filename` |
+| [#599](https://github.com/stevearc/oil.nvim/issues/599) | user:group display and manipulation |
+| [#607](https://github.com/stevearc/oil.nvim/issues/607) | Per-host SCP args |
+| [#609](https://github.com/stevearc/oil.nvim/issues/609) | Cursor placement via Snacks picker |
+| [#617](https://github.com/stevearc/oil.nvim/issues/617) | Filetype by actual filetype |
+| [#636](https://github.com/stevearc/oil.nvim/issues/636) | Telescope picker opens in active buffer |
+| [#637](https://github.com/stevearc/oil.nvim/issues/637) | Inconsistent symlink resolution |
+| [#641](https://github.com/stevearc/oil.nvim/issues/641) | Flicker on `actions.parent` |
+| [#646](https://github.com/stevearc/oil.nvim/issues/646) | `get_current_dir` nil on SSH |
+| [#655](https://github.com/stevearc/oil.nvim/issues/655) | File statistics as virtual text |
+| [#659](https://github.com/stevearc/oil.nvim/issues/659) | Mark and diff files in buffer |
+| [#665](https://github.com/stevearc/oil.nvim/issues/665) | Hot load preview fast-scratch buffers |
+| [#668](https://github.com/stevearc/oil.nvim/issues/668) | Custom yes/no confirmation |
+| [#671](https://github.com/stevearc/oil.nvim/issues/671) | Yanking between nvim instances |
+| [#675](https://github.com/stevearc/oil.nvim/issues/675) | Move file into folder by renaming |
+| [#678](https://github.com/stevearc/oil.nvim/issues/678) | `buftype='acwrite'` causes `mksession` to skip oil windows |
+| [#684](https://github.com/stevearc/oil.nvim/issues/684) | User and group columns |
+| [#685](https://github.com/stevearc/oil.nvim/issues/685) | Plain directory paths in buffer names |
+| [#699](https://github.com/stevearc/oil.nvim/issues/699) | `select` blocks UI with slow FileType autocmd |
+| [#707](https://github.com/stevearc/oil.nvim/issues/707) | Move file/dir into new dir by renaming |
+| [#736](https://github.com/stevearc/oil.nvim/issues/736) | Make icons virtual text |
+| [#738](https://github.com/stevearc/oil.nvim/issues/738) | Allow changing mtime/atime via time column |
+
+## Issues — not actionable
+
+| Issue | Reason |
+|-------|--------|
+| [#288](https://github.com/stevearc/oil.nvim/issues/288) | No reliable repro; likely lazy.nvim timing |
+| [#330](https://github.com/stevearc/oil.nvim/issues/330) | Telescope opens file in oil float — cross-plugin, no repro |
+| [#362](https://github.com/stevearc/oil.nvim/issues/362) | No minimal repro, old nvim version (0.9.5) |
+| [#380](https://github.com/stevearc/oil.nvim/issues/380) | Silently overriding `show_hidden` counter to config intent |
+| [#404](https://github.com/stevearc/oil.nvim/issues/404) | Windows-only |
+| [#483](https://github.com/stevearc/oil.nvim/issues/483) | Spell downloads depend on netrw — fixed in neovim#34940 |
+| [#492](https://github.com/stevearc/oil.nvim/issues/492) | j/k remapping question — answered |
+| [#507](https://github.com/stevearc/oil.nvim/issues/507) | lacasitos.nvim conflict — cross-plugin + Windows-only |
+| [#531](https://github.com/stevearc/oil.nvim/issues/531) | Windows — incomplete drive letters |
+| [#533](https://github.com/stevearc/oil.nvim/issues/533) | `constrain_cursor` — needs repro |
+| [#587](https://github.com/stevearc/oil.nvim/issues/587) | Alt+h keymap — user config issue |
+| [#623](https://github.com/stevearc/oil.nvim/issues/623) | bufferline.nvim interaction — cross-plugin |
+| [#624](https://github.com/stevearc/oil.nvim/issues/624) | Mutation race — no reliable repro |
+| [#625](https://github.com/stevearc/oil.nvim/issues/625) | E19 mark invalid line — intractable without neovim API changes |
+| [#664](https://github.com/stevearc/oil.nvim/issues/664) | Session reload extra buffer — no repro |
+| [#676](https://github.com/stevearc/oil.nvim/issues/676) | Windows — path conversion |
+| [#714](https://github.com/stevearc/oil.nvim/issues/714) | Support question — answered |
+| [#719](https://github.com/stevearc/oil.nvim/issues/719) | Neovim crash on node_modules — libuv/neovim bug |
+| [#726](https://github.com/stevearc/oil.nvim/issues/726) | Meta discussion/roadmap |
