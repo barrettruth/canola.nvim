@@ -60,7 +60,7 @@ issues against this fork.
 | [#335](https://github.com/stevearc/oil.nvim/issues/335) | Disable editing outside root dir | open |
 | [#349](https://github.com/stevearc/oil.nvim/issues/349) | Parent directory as column/vsplit | open |
 | [#351](https://github.com/stevearc/oil.nvim/issues/351) | Paste deleted file from register | open |
-| [#359](https://github.com/stevearc/oil.nvim/issues/359) | Parse error on filenames differing by space | open |
+| [#359](https://github.com/stevearc/oil.nvim/issues/359) | Parse error on filenames differing by space | not actionable — parser uses whitespace as column delimiter |
 | [#360](https://github.com/stevearc/oil.nvim/issues/360) | Pick window to open file into | open |
 | [#362](https://github.com/stevearc/oil.nvim/issues/362) | "Could not find oil adapter for scheme" | not actionable — no repro, old nvim (0.9.5) |
 | [#363](https://github.com/stevearc/oil.nvim/issues/363) | `prompt_save_on_select_new_entry` wrong prompt | fixed |
