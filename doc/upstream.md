@@ -119,7 +119,7 @@ issues against this fork.
 | [#655](https://github.com/stevearc/oil.nvim/issues/655) | File statistics as virtual text | open |
 | [#659](https://github.com/stevearc/oil.nvim/issues/659) | Mark and diff files in buffer | open |
 | [#664](https://github.com/stevearc/oil.nvim/issues/664) | Session reload extra buffer | not actionable — no repro |
-| [#665](https://github.com/stevearc/oil.nvim/issues/665) | Hot load preview fast-scratch buffers | open |
+| [#665](https://github.com/stevearc/oil.nvim/issues/665) | Hot load preview fast-scratch buffers | not actionable — no clear architecture |
 | [#668](https://github.com/stevearc/oil.nvim/issues/668) | Custom yes/no confirmation | open |
 | [#670](https://github.com/stevearc/oil.nvim/issues/670) | Multi-directory cmdline args ignored | fixed ([#11](https://github.com/barrettruth/canola.nvim/pull/11)) |
 | [#671](https://github.com/stevearc/oil.nvim/issues/671) | Yanking between nvim instances | open |
