@@ -60,6 +60,9 @@ file_columns.size = {
     if not stat then
       return columns.EMPTY
     end
+    if entry[FIELD_TYPE] == 'directory' then
+      return columns.EMPTY
+    end
     if stat.size >= 1e9 then
       return string.format('%.1fG', stat.size / 1e9)
     elseif stat.size >= 1e6 then
