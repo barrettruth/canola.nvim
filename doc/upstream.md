@@ -64,7 +64,7 @@ issues against this fork.
 | [#360](https://github.com/stevearc/oil.nvim/issues/360) | Pick window to open file into | open |
 | [#362](https://github.com/stevearc/oil.nvim/issues/362) | "Could not find oil adapter for scheme" | not actionable — no repro, old nvim (0.9.5) |
 | [#363](https://github.com/stevearc/oil.nvim/issues/363) | `prompt_save_on_select_new_entry` wrong prompt | fixed |
-| [#371](https://github.com/stevearc/oil.nvim/issues/371) | Constrain cursor in insert mode | open |
+| [#371](https://github.com/stevearc/oil.nvim/issues/371) | Constrain cursor in insert mode | fixed ([#93](https://github.com/barrettruth/canola.nvim/pull/93)) |
 | [#373](https://github.com/stevearc/oil.nvim/issues/373) | Dir from quickfix with bqf/trouble broken | open |
 | [#375](https://github.com/stevearc/oil.nvim/issues/375) | Highlights for file types and permissions | open |
 | [#380](https://github.com/stevearc/oil.nvim/issues/380) | Silently overriding `show_hidden` | not actionable — counter to config intent |
