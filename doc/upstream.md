@@ -46,7 +46,7 @@ issues against this fork.
 | [#232](https://github.com/stevearc/oil.nvim/issues/232) | Cannot close last window | open |
 | [#254](https://github.com/stevearc/oil.nvim/issues/254) | Buffer modified highlight group | open |
 | [#263](https://github.com/stevearc/oil.nvim/issues/263) | Diff mode | open |
-| [#276](https://github.com/stevearc/oil.nvim/issues/276) | Archives manipulation | open |
+| [#276](https://github.com/stevearc/oil.nvim/issues/276) | Archives manipulation | not actionable — nvim has builtin zip support |
 | [#280](https://github.com/stevearc/oil.nvim/issues/280) | vim-projectionist support | open |
 | [#288](https://github.com/stevearc/oil.nvim/issues/288) | No reliable repro; likely lazy.nvim timing | not actionable |
 | [#289](https://github.com/stevearc/oil.nvim/issues/289) | Show absolute path toggle | open |
