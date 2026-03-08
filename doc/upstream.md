@@ -42,15 +42,15 @@ issues against this fork.
 | [#207](https://github.com/stevearc/oil.nvim/issues/207) | Suppress "no longer available" message | fixed — `cleanup_buffers_on_delete` option |
 | [#210](https://github.com/stevearc/oil.nvim/issues/210) | FTP support | open |
 | [#213](https://github.com/stevearc/oil.nvim/issues/213) | Disable preview for large files | fixed ([#85](https://github.com/barrettruth/canola.nvim/pull/85)) |
-| [#226](https://github.com/stevearc/oil.nvim/issues/226) | K8s/Docker adapter | open |
+| [#226](https://github.com/stevearc/oil.nvim/issues/226) | K8s/Docker adapter | not actionable — no demand |
 | [#232](https://github.com/stevearc/oil.nvim/issues/232) | Cannot close last window | open |
 | [#254](https://github.com/stevearc/oil.nvim/issues/254) | Buffer modified highlight group | open |
 | [#263](https://github.com/stevearc/oil.nvim/issues/263) | Diff mode | open |
-| [#276](https://github.com/stevearc/oil.nvim/issues/276) | Archives manipulation | open |
+| [#276](https://github.com/stevearc/oil.nvim/issues/276) | Archives manipulation | not actionable — nvim has builtin zip support |
 | [#280](https://github.com/stevearc/oil.nvim/issues/280) | vim-projectionist support | open |
 | [#288](https://github.com/stevearc/oil.nvim/issues/288) | No reliable repro; likely lazy.nvim timing | not actionable |
 | [#289](https://github.com/stevearc/oil.nvim/issues/289) | Show absolute path toggle | open |
-| [#294](https://github.com/stevearc/oil.nvim/issues/294) | Can't handle emojis in filenames | open |
+| [#294](https://github.com/stevearc/oil.nvim/issues/294) | Can't handle emojis in filenames | not actionable — libuv bug ([nodejs/node#49042](https://github.com/nodejs/node/issues/49042)) |
 | [#298](https://github.com/stevearc/oil.nvim/issues/298) | Open float on neovim directory startup | open |
 | [#302](https://github.com/stevearc/oil.nvim/issues/302) | `buflisted=true` after jumplist nav | fixed ([#71](https://github.com/barrettruth/canola.nvim/pull/71)) |
 | [#303](https://github.com/stevearc/oil.nvim/issues/303) | Preview in float window mode | open |
