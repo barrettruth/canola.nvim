@@ -11,7 +11,7 @@ UPSTREAM = "stevearc/oil.nvim"
 UPSTREAM_MD = "doc/upstream.md"
 
 PRS_HEADING = "## Upstream PRs"
-ISSUES_HEADING = "## Issues — open"
+ISSUES_HEADING = "## Issues"
 
 
 def get_last_tracked_number():
@@ -128,7 +128,7 @@ def main():
     issue_rows = []
     for issue in open_issues:
         issue_rows.append(
-            f"| [#{issue['number']}]({issue['url']}) | {issue['title']} |"
+            f"| [#{issue['number']}]({issue['url']}) | {issue['title']} | open |"
         )
 
     if pr_rows:
