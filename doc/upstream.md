@@ -122,7 +122,7 @@ issues against this fork.
 | [#665](https://github.com/stevearc/oil.nvim/issues/665) | Hot load preview fast-scratch buffers | open |
 | [#668](https://github.com/stevearc/oil.nvim/issues/668) | Custom yes/no confirmation | open |
 | [#670](https://github.com/stevearc/oil.nvim/issues/670) | Multi-directory cmdline args ignored | fixed ([#11](https://github.com/barrettruth/canola.nvim/pull/11)) |
-| [#671](https://github.com/stevearc/oil.nvim/issues/671) | Yanking between nvim instances | open |
+| [#671](https://github.com/stevearc/oil.nvim/issues/671) | Yanking between nvim instances | not actionable — addressed upstream by clipboard actions |
 | [#673](https://github.com/stevearc/oil.nvim/issues/673) | Symlink newlines crash | fixed |
 | [#675](https://github.com/stevearc/oil.nvim/issues/675) | Move file into folder by renaming | open |
 | [#676](https://github.com/stevearc/oil.nvim/issues/676) | Windows path conversion | not actionable — Windows-only |
