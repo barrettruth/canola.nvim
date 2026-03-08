@@ -57,7 +57,7 @@ Before (`stevearc/oil.nvim`):
   'stevearc/oil.nvim',
   opts = { ... },
   config = function(_, opts)
-    require('canola').setup(opts)
+    require('oil').setup(opts)
   end,
 }
 ```
@@ -67,8 +67,9 @@ After (`barrettruth/canola.nvim`):
 ```lua
 {
   'barrettruth/canola.nvim',
-  init = function()
-    vim.g.canola = { ... }
+  opts = { ... },
+  config = function(_, opts)
+    require('canola').setup(opts)
   end,
 }
 ```
