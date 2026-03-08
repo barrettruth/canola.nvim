@@ -50,7 +50,7 @@ issues against this fork.
 | [#280](https://github.com/stevearc/oil.nvim/issues/280) | vim-projectionist support | open |
 | [#288](https://github.com/stevearc/oil.nvim/issues/288) | No reliable repro; likely lazy.nvim timing | not actionable |
 | [#289](https://github.com/stevearc/oil.nvim/issues/289) | Show absolute path toggle | open |
-| [#294](https://github.com/stevearc/oil.nvim/issues/294) | Can't handle emojis in filenames | open |
+| [#294](https://github.com/stevearc/oil.nvim/issues/294) | Can't handle emojis in filenames | not actionable — libuv bug ([nodejs/node#49042](https://github.com/nodejs/node/issues/49042)) |
 | [#298](https://github.com/stevearc/oil.nvim/issues/298) | Open float on neovim directory startup | open |
 | [#302](https://github.com/stevearc/oil.nvim/issues/302) | `buflisted=true` after jumplist nav | fixed ([#71](https://github.com/barrettruth/canola.nvim/pull/71)) |
 | [#303](https://github.com/stevearc/oil.nvim/issues/303) | Preview in float window mode | open |
