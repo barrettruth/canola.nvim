@@ -140,5 +140,5 @@ issues against this fork.
 | [#714](https://github.com/stevearc/oil.nvim/issues/714) | Support question | not actionable — answered |
 | [#719](https://github.com/stevearc/oil.nvim/issues/719) | Neovim crash on node_modules | not actionable — libuv/neovim bug |
 | [#726](https://github.com/stevearc/oil.nvim/issues/726) | Meta discussion/roadmap | not actionable |
-| [#736](https://github.com/stevearc/oil.nvim/issues/736) | Make icons virtual text | open |
+| [#736](https://github.com/stevearc/oil.nvim/issues/736) | Make icons virtual text | not actionable — breaks editable buffer model |
 | [#738](https://github.com/stevearc/oil.nvim/issues/738) | Allow changing mtime/atime via time column | open |
