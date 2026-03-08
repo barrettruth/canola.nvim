@@ -131,7 +131,7 @@ issues against this fork.
 | [#682](https://github.com/stevearc/oil.nvim/issues/682) | `get_current_dir()` nil | cherry-picked ([#727](https://github.com/stevearc/oil.nvim/pull/727)) |
 | [#683](https://github.com/stevearc/oil.nvim/issues/683) | Path not shown in floating mode | fixed |
 | [#684](https://github.com/stevearc/oil.nvim/issues/684) | User and group columns | open |
-| [#685](https://github.com/stevearc/oil.nvim/issues/685) | Plain directory paths in buffer names | open |
+| [#685](https://github.com/stevearc/oil.nvim/issues/685) | Plain directory paths in buffer names | not actionable — protocol prefix is fundamental to buffer identity |
 | [#690](https://github.com/stevearc/oil.nvim/issues/690) | `OilFileIcon` highlight group | fixed |
 | [#692](https://github.com/stevearc/oil.nvim/issues/692) | Keymap normalization | cherry-picked ([#725](https://github.com/stevearc/oil.nvim/pull/725)) |
 | [#699](https://github.com/stevearc/oil.nvim/issues/699) | `select` blocks UI with slow FileType autocmd | open |
