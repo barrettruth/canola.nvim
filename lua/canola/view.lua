@@ -552,7 +552,7 @@ M.initialize = function(bufnr)
       end
     end,
   })
-  vim.api.nvim_create_autocmd({ 'CursorMoved', 'ModeChanged' }, {
+  vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI', 'ModeChanged' }, {
     desc = 'Update canola preview window',
     group = 'Canola',
     buffer = bufnr,
