@@ -42,15 +42,15 @@ issues against this fork.
 | [#207](https://github.com/stevearc/oil.nvim/issues/207) | Suppress "no longer available" message | fixed — `cleanup_buffers_on_delete` option |
 | [#210](https://github.com/stevearc/oil.nvim/issues/210) | FTP support | open |
 | [#213](https://github.com/stevearc/oil.nvim/issues/213) | Disable preview for large files | fixed ([#85](https://github.com/barrettruth/canola.nvim/pull/85)) |
-| [#226](https://github.com/stevearc/oil.nvim/issues/226) | K8s/Docker adapter | open |
+| [#226](https://github.com/stevearc/oil.nvim/issues/226) | K8s/Docker adapter | not actionable — no demand |
 | [#232](https://github.com/stevearc/oil.nvim/issues/232) | Cannot close last window | open |
 | [#254](https://github.com/stevearc/oil.nvim/issues/254) | Buffer modified highlight group | open |
 | [#263](https://github.com/stevearc/oil.nvim/issues/263) | Diff mode | open |
-| [#276](https://github.com/stevearc/oil.nvim/issues/276) | Archives manipulation | open |
+| [#276](https://github.com/stevearc/oil.nvim/issues/276) | Archives manipulation | not actionable — nvim has builtin zip support |
 | [#280](https://github.com/stevearc/oil.nvim/issues/280) | vim-projectionist support | open |
 | [#288](https://github.com/stevearc/oil.nvim/issues/288) | No reliable repro; likely lazy.nvim timing | not actionable |
 | [#289](https://github.com/stevearc/oil.nvim/issues/289) | Show absolute path toggle | open |
-| [#294](https://github.com/stevearc/oil.nvim/issues/294) | Can't handle emojis in filenames | open |
+| [#294](https://github.com/stevearc/oil.nvim/issues/294) | Can't handle emojis in filenames | not actionable — libuv bug ([nodejs/node#49042](https://github.com/nodejs/node/issues/49042)) |
 | [#298](https://github.com/stevearc/oil.nvim/issues/298) | Open float on neovim directory startup | open |
 | [#302](https://github.com/stevearc/oil.nvim/issues/302) | `buflisted=true` after jumplist nav | fixed ([#71](https://github.com/barrettruth/canola.nvim/pull/71)) |
 | [#303](https://github.com/stevearc/oil.nvim/issues/303) | Preview in float window mode | open |
@@ -119,8 +119,8 @@ issues against this fork.
 | [#655](https://github.com/stevearc/oil.nvim/issues/655) | File statistics as virtual text | open |
 | [#659](https://github.com/stevearc/oil.nvim/issues/659) | Mark and diff files in buffer | open |
 | [#664](https://github.com/stevearc/oil.nvim/issues/664) | Session reload extra buffer | not actionable — no repro |
-| [#665](https://github.com/stevearc/oil.nvim/issues/665) | Hot load preview fast-scratch buffers | open |
-| [#668](https://github.com/stevearc/oil.nvim/issues/668) | Custom yes/no confirmation | open |
+| [#665](https://github.com/stevearc/oil.nvim/issues/665) | Hot load preview fast-scratch buffers | not actionable — no clear architecture |
+| [#668](https://github.com/stevearc/oil.nvim/issues/668) | Custom yes/no confirmation | not actionable — no demand |
 | [#670](https://github.com/stevearc/oil.nvim/issues/670) | Multi-directory cmdline args ignored | fixed ([#11](https://github.com/barrettruth/canola.nvim/pull/11)) |
 | [#671](https://github.com/stevearc/oil.nvim/issues/671) | Yanking between nvim instances | not actionable — addressed upstream by clipboard actions |
 | [#673](https://github.com/stevearc/oil.nvim/issues/673) | Symlink newlines crash | fixed |
