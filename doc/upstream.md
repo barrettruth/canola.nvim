@@ -38,6 +38,7 @@ Bugs fixed in this fork that remain open upstream.
 | [#213](https://github.com/stevearc/oil.nvim/issues/213) | Max file size for preview            | [#85](https://github.com/barrettruth/canola.nvim/pull/85) ([`4b32ada`](https://github.com/barrettruth/canola.nvim/commit/4b32ada)) |
 | [#473](https://github.com/stevearc/oil.nvim/issues/473) | Show hidden when dir is all-hidden   | [#85](https://github.com/barrettruth/canola.nvim/pull/85) ([`2fe4e78`](https://github.com/barrettruth/canola.nvim/commit/2fe4e78)) |
 | [#486](https://github.com/stevearc/oil.nvim/issues/486) | Directory sizes show misleading 4.1k | [#87](https://github.com/barrettruth/canola.nvim/pull/87) ([`2aff22a`](https://github.com/barrettruth/canola.nvim/commit/2aff22a)) |
+| [#621](https://github.com/stevearc/oil.nvim/issues/621) | `toggle()` for regular windows       | [#88](https://github.com/barrettruth/canola.nvim/pull/88) ([`385bd82`](https://github.com/barrettruth/canola.nvim/commit/385bd82)) |
 
 ## Open upstream PRs
 
@@ -127,7 +128,7 @@ Bugs fixed in this fork that remain open upstream.
 | [#612](https://github.com/stevearc/oil.nvim/issues/612) | fixed          | Delete buffers on file delete — `cleanup_buffers_on_delete` option                                                                                                                    |
 | [#615](https://github.com/stevearc/oil.nvim/issues/615) | fixed          | Cursor at name column on o/O — [#72](https://github.com/barrettruth/canola.nvim/pull/72) ([`69d85b8`](https://github.com/barrettruth/canola.nvim/commit/69d85b8))                     |
 | [#617](https://github.com/stevearc/oil.nvim/issues/617) | open           | Filetype by actual filetype (P2)                                                                                                                                                      |
-| [#621](https://github.com/stevearc/oil.nvim/issues/621) | open           | Toggle function for regular windows (P2)                                                                                                                                              |
+| [#621](https://github.com/stevearc/oil.nvim/issues/621) | fixed          | `toggle()` for regular windows — [#88](https://github.com/barrettruth/canola.nvim/pull/88) ([`385bd82`](https://github.com/barrettruth/canola.nvim/commit/385bd82))                                                                                                                                              |
 | [#623](https://github.com/stevearc/oil.nvim/issues/623) | not actionable | bufferline.nvim interaction — cross-plugin                                                                                                                                            |
 | [#624](https://github.com/stevearc/oil.nvim/issues/624) | not actionable | Mutation race — no reliable repro                                                                                                                                                     |
 | [#625](https://github.com/stevearc/oil.nvim/issues/625) | not actionable | E19 mark invalid line — intractable without neovim API changes                                                                                                                        |
