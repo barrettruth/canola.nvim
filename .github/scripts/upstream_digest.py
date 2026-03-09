@@ -4,28 +4,28 @@ import os
 import re
 import subprocess
 import sys
-from datetime import date, timedelta
 
 
 UPSTREAM = "stevearc/oil.nvim"
 UPSTREAM_MD = "doc/upstream.md"
+FORK_REPO = os.environ.get("GITHUB_REPOSITORY", "")
 
 PRS_HEADING = "## Upstream PRs"
 ISSUES_HEADING = "## Issues"
 
 
-def get_last_tracked_number():
+def get_tracked_numbers():
     try:
         with open(UPSTREAM_MD) as f:
             content = f.read()
-        numbers = re.findall(
-            r"\[#(\d+)\]\(https://github\.com/stevearc/oil\.nvim", content
-        )
-        if numbers:
-            return max(int(n) for n in numbers)
+        return {
+            int(n)
+            for n in re.findall(
+                r"\[#(\d+)\]\(https://github\.com/stevearc/oil\.nvim", content
+            )
+        }
     except OSError:
-        pass
-    return None
+        return set()
 
 
 def gh(*args):
@@ -38,14 +38,23 @@ def gh(*args):
     return result.stdout.strip()
 
 
-def fetch_items(last_number, since_date):
+def get_fork_created_at():
+    if FORK_REPO:
+        data = json.loads(gh("repo", "view", FORK_REPO, "--json", "createdAt"))
+        return data["createdAt"]
+    return None
+
+
+def fetch_items(tracked):
+    fork_created = get_fork_created_at()
+
     merged_prs = json.loads(
         gh(
             "pr", "list",
             "--repo", UPSTREAM,
             "--state", "merged",
             "--limit", "100",
-            "--json", "number,title,url",
+            "--json", "number,title,url,mergedAt",
         )
     )
     open_prs = json.loads(
@@ -54,7 +63,7 @@ def fetch_items(last_number, since_date):
             "--repo", UPSTREAM,
             "--state", "open",
             "--limit", "100",
-            "--json", "number,title,createdAt,url",
+            "--json", "number,title,url",
         )
     )
     open_issues = json.loads(
@@ -63,19 +72,17 @@ def fetch_items(last_number, since_date):
             "--repo", UPSTREAM,
             "--state", "open",
             "--limit", "100",
-            "--json", "number,title,createdAt,url",
+            "--json", "number,title,url",
         )
     )
 
-    if last_number is not None:
-        merged_prs = [x for x in merged_prs if x["number"] > last_number]
-        open_prs = [x for x in open_prs if x["number"] > last_number]
-        open_issues = [x for x in open_issues if x["number"] > last_number]
-    else:
-        cutoff = since_date.isoformat()
-        merged_prs = []
-        open_prs = [x for x in open_prs if x.get("createdAt", "") >= cutoff]
-        open_issues = [x for x in open_issues if x.get("createdAt", "") >= cutoff]
+    merged_prs = [
+        x for x in merged_prs
+        if x["number"] not in tracked
+        and (fork_created is None or x.get("mergedAt", "") >= fork_created)
+    ]
+    open_prs = [x for x in open_prs if x["number"] not in tracked]
+    open_issues = [x for x in open_issues if x["number"] not in tracked]
 
     merged_prs.sort(key=lambda x: x["number"])
     open_prs.sort(key=lambda x: x["number"])
@@ -104,10 +111,9 @@ def append_to_section(content, heading, new_rows):
 
 
 def main():
-    last_number = get_last_tracked_number()
-    since_date = date.today() - timedelta(days=30)
+    tracked = get_tracked_numbers()
 
-    merged_prs, open_prs, open_issues = fetch_items(last_number, since_date)
+    merged_prs, open_prs, open_issues = fetch_items(tracked)
 
     total = len(merged_prs) + len(open_prs) + len(open_issues)
     if total == 0:
