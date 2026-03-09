@@ -456,6 +456,9 @@ M.open = function(dir, opts, cb)
   local util = require('canola.util')
   local view = require('canola.view')
   local parent_url, basename = M.get_url_for_path(dir)
+  if parent_url == vim.api.nvim_buf_get_name(0) then
+    return
+  end
   if basename then
     view.set_last_cursor(parent_url, basename)
   end
