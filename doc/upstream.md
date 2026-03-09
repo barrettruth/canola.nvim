@@ -109,7 +109,7 @@ issues against this fork.
 | [#624](https://github.com/stevearc/oil.nvim/issues/624) | Mutation race                                              | not actionable — no reliable repro                                                            |
 | [#625](https://github.com/stevearc/oil.nvim/issues/625) | E19 mark invalid line                                      | not actionable — intractable without neovim API changes                                       |
 | [#632](https://github.com/stevearc/oil.nvim/issues/632) | Preview + move = copy                                      | fixed ([#12](https://github.com/barrettruth/canola.nvim/pull/12))                             |
-| [#636](https://github.com/stevearc/oil.nvim/issues/636) | Telescope picker opens in active buffer                    | open                                                                                          |
+| [#636](https://github.com/stevearc/oil.nvim/issues/636) | Telescope picker opens in active buffer                    | not actionable — cannot reproduce                                                             |
 | [#637](https://github.com/stevearc/oil.nvim/issues/637) | Inconsistent symlink resolution                            | open                                                                                          |
 | [#641](https://github.com/stevearc/oil.nvim/issues/641) | Flicker on `actions.parent`                                | open                                                                                          |
 | [#642](https://github.com/stevearc/oil.nvim/issues/642) | W10 warning under `nvim -R`                                | fixed                                                                                         |
