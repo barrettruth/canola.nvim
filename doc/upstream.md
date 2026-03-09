@@ -134,7 +134,7 @@ issues against this fork.
 | [#685](https://github.com/stevearc/oil.nvim/issues/685) | Plain directory paths in buffer names | not actionable — protocol prefix is fundamental to buffer identity |
 | [#690](https://github.com/stevearc/oil.nvim/issues/690) | `OilFileIcon` highlight group | fixed |
 | [#692](https://github.com/stevearc/oil.nvim/issues/692) | Keymap normalization | cherry-picked ([#725](https://github.com/stevearc/oil.nvim/pull/725)) |
-| [#699](https://github.com/stevearc/oil.nvim/issues/699) | `select` blocks UI with slow FileType autocmd | open |
+| [#699](https://github.com/stevearc/oil.nvim/issues/699) | `select` blocks UI with slow FileType autocmd | fixed ([#106](https://github.com/barrettruth/canola.nvim/pull/106)) |
 | [#707](https://github.com/stevearc/oil.nvim/issues/707) | Move file/dir into new dir by renaming | open |
 | [#710](https://github.com/stevearc/oil.nvim/issues/710) | buftype empty on BufEnter | fixed ([#10](https://github.com/barrettruth/canola.nvim/pull/10)) |
 | [#714](https://github.com/stevearc/oil.nvim/issues/714) | Support question | not actionable — answered |

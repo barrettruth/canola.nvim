@@ -899,6 +899,7 @@ M.select = function(opts, callback)
         end
       end
 
+      vim.cmd.redraw()
       open_next_entry(cb)
     end)
   end
