@@ -56,7 +56,7 @@ issues against this fork.
 | [#303](https://github.com/stevearc/oil.nvim/issues/303) | Preview in float window mode                               | open                                                                                          |
 | [#325](https://github.com/stevearc/oil.nvim/issues/325) | oil-ssh error from command line                            | open                                                                                          |
 | [#330](https://github.com/stevearc/oil.nvim/issues/330) | Telescope opens file in oil float                          | not actionable — cross-plugin, no repro                                                       |
-| [#332](https://github.com/stevearc/oil.nvim/issues/332) | Buffer not fixed to floating window                        | open                                                                                          |
+| [#332](https://github.com/stevearc/oil.nvim/issues/332) | Buffer not fixed to floating window                        | not actionable — cannot reproduce                                                             |
 | [#335](https://github.com/stevearc/oil.nvim/issues/335) | Disable editing outside root dir                           | open                                                                                          |
 | [#349](https://github.com/stevearc/oil.nvim/issues/349) | Parent directory as column/vsplit                          | open                                                                                          |
 | [#351](https://github.com/stevearc/oil.nvim/issues/351) | Paste deleted file from register                           | open                                                                                          |
