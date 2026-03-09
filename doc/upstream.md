@@ -76,7 +76,7 @@ issues against this fork.
 | [#404](https://github.com/stevearc/oil.nvim/issues/404) | Restricted UNC paths                                       | not actionable — Windows-only                                                                 |
 | [#416](https://github.com/stevearc/oil.nvim/issues/416) | Cannot remap key to open split                             | open                                                                                          |
 | [#431](https://github.com/stevearc/oil.nvim/issues/431) | More SSH adapter documentation                             | open                                                                                          |
-| [#435](https://github.com/stevearc/oil.nvim/issues/435) | Error previewing with semantic tokens LSP                  | open                                                                                          |
+| [#435](https://github.com/stevearc/oil.nvim/issues/435) | Error previewing with semantic tokens LSP                  | fixed — cherry-picked ([#467](https://github.com/stevearc/oil.nvim/pull/467))                 |
 | [#436](https://github.com/stevearc/oil.nvim/issues/436) | Owner and group columns                                    | open                                                                                          |
 | [#444](https://github.com/stevearc/oil.nvim/issues/444) | Opening behaviour customization                            | open                                                                                          |
 | [#446](https://github.com/stevearc/oil.nvim/issues/446) | Executable highlighting                                    | cherry-picked ([#698](https://github.com/stevearc/oil.nvim/pull/698))                         |
