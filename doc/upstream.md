@@ -100,7 +100,7 @@ issues against this fork.
 | [#587](https://github.com/stevearc/oil.nvim/issues/587) | Alt+h keymap | not actionable — user config issue |
 | [#599](https://github.com/stevearc/oil.nvim/issues/599) | user:group display and manipulation | open |
 | [#607](https://github.com/stevearc/oil.nvim/issues/607) | Per-host SCP args | open |
-| [#609](https://github.com/stevearc/oil.nvim/issues/609) | Cursor placement via Snacks picker | open |
+| [#609](https://github.com/stevearc/oil.nvim/issues/609) | Cursor placement via Snacks picker | not actionable — Windows-only |
 | [#612](https://github.com/stevearc/oil.nvim/issues/612) | Delete buffers on file delete | fixed |
 | [#615](https://github.com/stevearc/oil.nvim/issues/615) | Cursor at name column on o/O | fixed ([#72](https://github.com/barrettruth/canola.nvim/pull/72)) |
 | [#617](https://github.com/stevearc/oil.nvim/issues/617) | Filetype by actual filetype | open |
