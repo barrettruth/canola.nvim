@@ -38,7 +38,7 @@ issues against this fork.
 | [#95](https://github.com/stevearc/oil.nvim/issues/95)   | Undo after renaming files                                  | open                                                                                          |
 | [#117](https://github.com/stevearc/oil.nvim/issues/117) | Move file into new dir via slash in name                   | open                                                                                          |
 | [#156](https://github.com/stevearc/oil.nvim/issues/156) | Paste path of files into oil buffer                        | open                                                                                          |
-| [#200](https://github.com/stevearc/oil.nvim/issues/200) | Highlights not working when opening a file                 | open                                                                                          |
+| [#200](https://github.com/stevearc/oil.nvim/issues/200) | Highlights not working when opening a file                 | not actionable — cannot reproduce, nvim 0.9.4                                                 |
 | [#207](https://github.com/stevearc/oil.nvim/issues/207) | Suppress "no longer available" message                     | fixed — `cleanup_buffers_on_delete` option                                                    |
 | [#210](https://github.com/stevearc/oil.nvim/issues/210) | FTP support                                                | open                                                                                          |
 | [#213](https://github.com/stevearc/oil.nvim/issues/213) | Disable preview for large files                            | fixed ([#85](https://github.com/barrettruth/canola.nvim/pull/85))                             |
