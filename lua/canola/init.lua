@@ -870,6 +870,8 @@ M.select = function(opts, callback)
       local filebufnr = vim.fn.bufadd(normalized_url)
       local entry_is_file = not vim.endswith(normalized_url, '/')
 
+      -- The :buffer command doesn't set buflisted=true
+      -- So do that for normal files or for canola dirs if config set buflisted=true
       if entry_is_file or config.buf_options.buflisted then
         vim.bo[filebufnr].buflisted = true
       end
@@ -877,6 +879,7 @@ M.select = function(opts, callback)
       local cmd = 'buffer'
       if opts.tab then
         vim.cmd.tabnew({ mods = mods })
+        -- Make sure the new buffer from tabnew gets cleaned up
         vim.bo.bufhidden = 'wipe'
       elseif opts.split then
         cmd = 'sbuffer'
@@ -890,6 +893,7 @@ M.select = function(opts, callback)
           args = { filebufnr },
           mods = mods,
         })
+        -- Ignore swapfile errors
         if not ok and err and not err:match('^Vim:E325:') then
           vim.api.nvim_echo({ { err, 'Error' } }, true, {})
         end
