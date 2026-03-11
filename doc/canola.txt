@@ -395,7 +395,17 @@ toggle_hidden()                                                *canola.toggle_hi
 
 
 get_current_dir({bufnr}): nil|string                         *canola.get_current_dir*
-    Get the current directory
+    Get the current directory as a local filesystem path. Returns nil for
+    non-local adapters (SSH, S3, trash). See |canola.get_current_url| for an
+    adapter-agnostic alternative.
+
+    Parameters:
+      {bufnr} `nil|integer`
+
+get_current_url({bufnr}): nil|string                         *canola.get_current_url*
+    Get the current buffer's canola URL (e.g. "canola:///path/" or
+    "canola-ssh://host/path/"). Works for all adapters. Returns nil if the
+    buffer is not a canola buffer.
 
     Parameters:
       {bufnr} `nil|integer`
