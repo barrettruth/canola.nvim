@@ -4,8 +4,8 @@ vim.opt.runtimepath:prepend('.')
 local bm = require('benchmark')
 bm.sandbox()
 
----@module 'canola'
----@type canola.SetupOpts
+---@module 'oil'
+---@type oil.SetupOpts
 local setup_opts = {
   -- columns = { "icon", "permissions", "size", "mtime" },
 }
@@ -21,36 +21,36 @@ require('benchmark.files').create_files(TEST_DIR, 'file %d.txt', DIR_SIZE)
 
 -- selene: allow(global_usage)
 function _G.jit_profile()
-  require('canola').setup(setup_opts)
+  require('oil').setup(setup_opts)
   local finish = bm.jit_profile({ filename = TEST_DIR .. '/profile.txt' })
-  bm.wait_for_user_event('CanolaEnter', function()
+  bm.wait_for_user_event('OilEnter', function()
     finish()
   end)
-  require('canola').open(TEST_DIR)
+  require('oil').open(TEST_DIR)
 end
 
 -- selene: allow(global_usage)
 function _G.flame_profile()
   local start, stop = bm.flame_profile({
-    pattern = 'canola*',
+    pattern = 'oil*',
     filename = 'profile.json',
   })
-  require('canola').setup(setup_opts)
+  require('oil').setup(setup_opts)
   start()
-  bm.wait_for_user_event('CanolaEnter', function()
+  bm.wait_for_user_event('OilEnter', function()
     stop(function()
       vim.cmd.qall({ mods = { silent = true } })
     end)
   end)
-  require('canola').open(TEST_DIR)
+  require('oil').open(TEST_DIR)
 end
 
 -- selene: allow(global_usage)
 function _G.benchmark()
-  require('canola').setup(setup_opts)
-  bm.run({ title = 'canola.nvim', iterations = ITERATIONS, warm_up = WARM_UP }, function(callback)
-    bm.wait_for_user_event('CanolaEnter', callback)
-    require('canola').open(TEST_DIR)
+  require('oil').setup(setup_opts)
+  bm.run({ title = 'oil.nvim', iterations = ITERATIONS, warm_up = WARM_UP }, function(callback)
+    bm.wait_for_user_event('OilEnter', callback)
+    require('oil').open(TEST_DIR)
   end, function(times)
     local avg = bm.avg(times, { trim_outliers = OUTLIERS })
     local std_dev = bm.std_dev(times, { trim_outliers = OUTLIERS })
