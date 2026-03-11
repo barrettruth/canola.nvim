@@ -70,8 +70,8 @@ body:
           spec = {
             {
               'barrettruth/canola.nvim',
-              init = function()
-                vim.g.oil = {}
+              config = function()
+                require('oil').setup({})
               end,
             },
           },
