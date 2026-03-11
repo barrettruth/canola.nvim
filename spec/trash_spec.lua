@@ -6,10 +6,10 @@ describe('freedesktop', function()
   local tmphome
   local home = vim.env.XDG_DATA_HOME
   before_each(function()
-    require('canola.config').delete_to_trash = true
+    require('oil.config').delete_to_trash = true
     tmpdir = TmpDir.new()
     tmphome = TmpDir.new()
-    package.loaded['canola.adapters.trash'] = require('canola.adapters.trash.freedesktop')
+    package.loaded['oil.adapters.trash'] = require('oil.adapters.trash.freedesktop')
     vim.env.XDG_DATA_HOME = tmphome.path
   end)
   after_each(function()
@@ -21,7 +21,7 @@ describe('freedesktop', function()
       tmphome:dispose()
     end
     test_util.reset_editor()
-    package.loaded['canola.adapters.trash'] = nil
+    package.loaded['oil.adapters.trash'] = nil
   end)
 
   it('files can be moved to the trash', function()

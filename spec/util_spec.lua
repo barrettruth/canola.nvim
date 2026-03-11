@@ -1,4 +1,4 @@
-local util = require('canola.util')
+local util = require('oil.util')
 describe('util', function()
   it('url_escape', function()
     local cases = {

@@ -1,4 +1,4 @@
-local pathutil = require('canola.pathutil')
+local pathutil = require('oil.pathutil')
 describe('pathutil', function()
   it('calculates parent path', function()
     local cases = {
