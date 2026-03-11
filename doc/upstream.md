@@ -114,7 +114,7 @@ issues against this fork.
 | [#641](https://github.com/stevearc/oil.nvim/issues/641) | Flicker on `actions.parent`                                | open                                                                                          |
 | [#642](https://github.com/stevearc/oil.nvim/issues/642) | W10 warning under `nvim -R`                                | fixed                                                                                         |
 | [#645](https://github.com/stevearc/oil.nvim/issues/645) | `close_float` action                                       | fixed                                                                                         |
-| [#646](https://github.com/stevearc/oil.nvim/issues/646) | `get_current_dir` nil on SSH                               | open                                                                                          |
+| [#646](https://github.com/stevearc/oil.nvim/issues/646) | `get_current_dir` nil on SSH                               | fixed — `get_current_url()` API                                                               |
 | [#650](https://github.com/stevearc/oil.nvim/issues/650) | LSP `workspace.fileOperations` events                      | fixed                                                                                         |
 | [#655](https://github.com/stevearc/oil.nvim/issues/655) | File statistics as virtual text                            | open                                                                                          |
 | [#659](https://github.com/stevearc/oil.nvim/issues/659) | Mark and diff files in buffer                              | open                                                                                          |
