@@ -1,9 +1,9 @@
-local constants = require('canola.constants')
-local parser = require('canola.mutator.parser')
-local test_adapter = require('canola.adapters.test')
+local constants = require('oil.constants')
+local parser = require('oil.mutator.parser')
+local test_adapter = require('oil.adapters.test')
 local test_util = require('spec.test_util')
-local util = require('canola.util')
-local view = require('canola.view')
+local util = require('oil.util')
+local view = require('oil.view')
 
 local FIELD_ID = constants.FIELD_ID
 local FIELD_META = constants.FIELD_META
@@ -19,7 +19,7 @@ describe('parser', function()
   end)
 
   it('detects new files', function()
-    vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+    vim.cmd.edit({ args = { 'oil-test:///foo/' } })
     local bufnr = vim.api.nvim_get_current_buf()
     set_lines(bufnr, {
       'a.txt',
@@ -29,7 +29,7 @@ describe('parser', function()
   end)
 
   it('detects new directories', function()
-    vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+    vim.cmd.edit({ args = { 'oil-test:///foo/' } })
     local bufnr = vim.api.nvim_get_current_buf()
     set_lines(bufnr, {
       'foo/',
@@ -39,7 +39,7 @@ describe('parser', function()
   end)
 
   it('detects new links', function()
-    vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+    vim.cmd.edit({ args = { 'oil-test:///foo/' } })
     local bufnr = vim.api.nvim_get_current_buf()
     set_lines(bufnr, {
       'a.txt -> b.txt',
@@ -53,7 +53,7 @@ describe('parser', function()
 
   it('detects deleted files', function()
     local file = test_adapter.test_set('/foo/a.txt', 'file')
-    vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+    vim.cmd.edit({ args = { 'oil-test:///foo/' } })
     local bufnr = vim.api.nvim_get_current_buf()
     set_lines(bufnr, {})
     local diffs = parser.parse(bufnr)
@@ -64,7 +64,7 @@ describe('parser', function()
 
   it('detects deleted directories', function()
     local dir = test_adapter.test_set('/foo/bar', 'directory')
-    vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+    vim.cmd.edit({ args = { 'oil-test:///foo/' } })
     local bufnr = vim.api.nvim_get_current_buf()
     set_lines(bufnr, {})
     local diffs = parser.parse(bufnr)
@@ -76,7 +76,7 @@ describe('parser', function()
   it('detects deleted links', function()
     local file = test_adapter.test_set('/foo/a.txt', 'link')
     file[FIELD_META] = { link = 'b.txt' }
-    vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+    vim.cmd.edit({ args = { 'oil-test:///foo/' } })
     local bufnr = vim.api.nvim_get_current_buf()
     set_lines(bufnr, {})
     local diffs = parser.parse(bufnr)
@@ -87,7 +87,7 @@ describe('parser', function()
 
   it('ignores empty lines', function()
     local file = test_adapter.test_set('/foo/a.txt', 'file')
-    vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+    vim.cmd.edit({ args = { 'oil-test:///foo/' } })
     local bufnr = vim.api.nvim_get_current_buf()
     local cols = view.format_entry_cols(file, {}, {}, test_adapter, false)
     local lines = util.render_table({ cols }, {})
@@ -99,7 +99,7 @@ describe('parser', function()
   end)
 
   it('errors on missing filename', function()
-    vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+    vim.cmd.edit({ args = { 'oil-test:///foo/' } })
     local bufnr = vim.api.nvim_get_current_buf()
     set_lines(bufnr, {
       '/008',
@@ -116,7 +116,7 @@ describe('parser', function()
   end)
 
   it('errors on empty dirname', function()
-    vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+    vim.cmd.edit({ args = { 'oil-test:///foo/' } })
     local bufnr = vim.api.nvim_get_current_buf()
     set_lines(bufnr, {
       '/008 /',
@@ -133,7 +133,7 @@ describe('parser', function()
   end)
 
   it('errors on duplicate names', function()
-    vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+    vim.cmd.edit({ args = { 'oil-test:///foo/' } })
     local bufnr = vim.api.nvim_get_current_buf()
     set_lines(bufnr, {
       'foo',
@@ -152,7 +152,7 @@ describe('parser', function()
 
   it('errors on duplicate names for existing files', function()
     local file = test_adapter.test_set('/foo/a.txt', 'file')
-    vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+    vim.cmd.edit({ args = { 'oil-test:///foo/' } })
     local bufnr = vim.api.nvim_get_current_buf()
     set_lines(bufnr, {
       'a.txt',
@@ -170,7 +170,7 @@ describe('parser', function()
   end)
 
   it('ignores new dirs with empty name', function()
-    vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+    vim.cmd.edit({ args = { 'oil-test:///foo/' } })
     local bufnr = vim.api.nvim_get_current_buf()
     set_lines(bufnr, {
       '/',
@@ -181,7 +181,7 @@ describe('parser', function()
 
   it('parses a rename as a delete + new', function()
     local file = test_adapter.test_set('/foo/a.txt', 'file')
-    vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+    vim.cmd.edit({ args = { 'oil-test:///foo/' } })
     local bufnr = vim.api.nvim_get_current_buf()
     set_lines(bufnr, {
       string.format('/%d b.txt', file[FIELD_ID]),
@@ -195,7 +195,7 @@ describe('parser', function()
 
   it('detects a new trailing slash as a delete + create', function()
     local file = test_adapter.test_set('/foo', 'file')
-    vim.cmd.edit({ args = { 'canola-test:///' } })
+    vim.cmd.edit({ args = { 'oil-test:///' } })
     local bufnr = vim.api.nvim_get_current_buf()
     set_lines(bufnr, {
       string.format('/%d foo/', file[FIELD_ID]),
@@ -210,7 +210,7 @@ describe('parser', function()
   it('detects renamed files that conflict', function()
     local afile = test_adapter.test_set('/foo/a.txt', 'file')
     local bfile = test_adapter.test_set('/foo/b.txt', 'file')
-    vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+    vim.cmd.edit({ args = { 'oil-test:///foo/' } })
     local bufnr = vim.api.nvim_get_current_buf()
     set_lines(bufnr, {
       string.format('/%d a.txt', bfile[FIELD_ID]),
@@ -238,7 +238,7 @@ describe('parser', function()
   it('views link targets with trailing slashes as the same', function()
     local file = test_adapter.test_set('/foo/mydir', 'link')
     file[FIELD_META] = { link = 'dir/' }
-    vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+    vim.cmd.edit({ args = { 'oil-test:///foo/' } })
     local bufnr = vim.api.nvim_get_current_buf()
     set_lines(bufnr, {
       string.format('/%d mydir/ -> dir/', file[FIELD_ID]),
