@@ -154,6 +154,19 @@ M.get_current_dir = function(bufnr)
   end
 end
 
+---Get the current buffer's canola URL (e.g. "canola:///path/" or "canola-ssh://host/path/")
+---@param bufnr? integer
+---@return nil|string
+M.get_current_url = function(bufnr)
+  local config = require('canola.config')
+  local util = require('canola.util')
+  local buf_name = vim.api.nvim_buf_get_name(bufnr or 0)
+  local scheme = util.parse_url(buf_name)
+  if scheme and config.adapters[scheme] then
+    return buf_name
+  end
+end
+
 ---Get the canola url for a given directory
 ---@private
 ---@param dir nil|string When nil, use the cwd
