@@ -145,6 +145,9 @@ end
 ---@type table<integer, oil.ViewData>
 local session = {}
 
+---@type table<integer, { lnum: integer, min_col: integer }>
+local insert_boundary = {}
+
 ---@return integer[]
 M.get_all_buffers = function()
   return vim.tbl_filter(vim.api.nvim_buf_is_loaded, vim.tbl_keys(session))
@@ -418,6 +421,79 @@ local function show_insert_guide(bufnr)
   })
 end
 
+---@param bufnr integer
+---@return integer
+local function update_insert_boundary(bufnr)
+  local cur = vim.api.nvim_win_get_cursor(0)
+  local cached = insert_boundary[bufnr]
+  if cached and cached.lnum == cur[1] then
+    return cached.min_col
+  end
+
+  local adapter = util.get_adapter(bufnr, true)
+  if not adapter then
+    return 0
+  end
+
+  local parser = require('oil.mutator.parser')
+  local line = vim.api.nvim_buf_get_lines(bufnr, cur[1] - 1, cur[1], true)[1]
+  local column_defs = columns.get_supported_columns(adapter)
+  local result = parser.parse_line(adapter, line, column_defs)
+  local min_col = 0
+  if result and result.ranges then
+    min_col = result.ranges.name[1]
+  end
+  insert_boundary[bufnr] = { lnum = cur[1], min_col = min_col }
+  return min_col
+end
+
+---@param bufnr integer
+local function setup_insert_constraints(bufnr)
+  if not config.constrain_cursor then
+    return
+  end
+
+  local function make_bs_rhs(bufnr_inner)
+    return function()
+      local min_col = update_insert_boundary(bufnr_inner)
+      local col = vim.fn.col('.')
+      if col <= min_col + 1 then
+        return ''
+      end
+      return '<BS>'
+    end
+  end
+
+  local function make_cu_rhs(bufnr_inner)
+    return function()
+      local min_col = update_insert_boundary(bufnr_inner)
+      local col = vim.fn.col('.')
+      if col <= min_col + 1 then
+        return ''
+      end
+      local count = col - min_col - 1
+      return string.rep('<BS>', count)
+    end
+  end
+
+  local function make_cw_rhs(bufnr_inner)
+    return function()
+      local min_col = update_insert_boundary(bufnr_inner)
+      local col = vim.fn.col('.')
+      if col <= min_col + 1 then
+        return ''
+      end
+      return '<C-w>'
+    end
+  end
+
+  local opts = { buffer = bufnr, expr = true, nowait = true, silent = true }
+  vim.keymap.set('i', '<BS>', make_bs_rhs(bufnr), opts)
+  vim.keymap.set('i', '<C-h>', make_bs_rhs(bufnr), opts)
+  vim.keymap.set('i', '<C-u>', make_cu_rhs(bufnr), opts)
+  vim.keymap.set('i', '<C-w>', make_cw_rhs(bufnr), opts)
+end
+
 ---Redraw original path virtual text for trash buffer
 ---@param bufnr integer
 local function redraw_trash_virtual_text(bufnr)
@@ -512,6 +588,7 @@ M.initialize = function(bufnr)
     callback = function()
       local view_data = session[bufnr]
       session[bufnr] = nil
+      insert_boundary[bufnr] = nil
       if view_data and view_data.fs_event then
         view_data.fs_event:stop()
       end
@@ -546,6 +623,7 @@ M.initialize = function(bufnr)
     group = 'Oil',
     buffer = bufnr,
     callback = function()
+      insert_boundary[bufnr] = nil
       if vim.w.oil_saved_ve ~= nil then
         vim.wo.virtualedit = vim.w.oil_saved_ve
         vim.w.oil_saved_ve = nil
@@ -686,6 +764,7 @@ M.initialize = function(bufnr)
     end
   end)
   keymap_util.set_keymaps(config.keymaps, bufnr)
+  setup_insert_constraints(bufnr)
 end
 
 ---@param adapter oil.Adapter
