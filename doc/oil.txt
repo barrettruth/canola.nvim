@@ -1232,6 +1232,44 @@ for compatibility with FreeDesktop-compliant trash programs like gtrash:
     package.loaded["oil.adapters.trash.mac"] = require("oil.adapters.trash.freedesktop")
 <
 
+Flash highlight on opened file ~
+                                              *oil-recipe-highlight-opened-file*
+
+When opening a directory from a file buffer, briefly highlight the originating
+file's name in the listing. Uses |OilReadPost| to apply a timed extmark after
+the buffer renders.
+>lua
+    local ns = vim.api.nvim_create_namespace("oil_highlight_entry")
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "OilReadPost",
+      callback = function(args)
+        vim.defer_fn(function()
+          local bufnr = args.data.buf
+          if not vim.api.nvim_buf_is_valid(bufnr) then
+            return
+          end
+          vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
+          local entry = require("oil").get_cursor_entry()
+          if not entry then
+            return
+          end
+          local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
+          local line = vim.api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, true)[1]
+          local col = line:find(entry.name, 1, true)
+          if col then
+            vim.api.nvim_buf_set_extmark(bufnr, ns, lnum, col - 1, {
+              end_col = col - 1 + #entry.name,
+              hl_group = "Visual",
+            })
+            vim.defer_fn(function()
+              pcall(vim.api.nvim_buf_clear_namespace, bufnr, ns, 0, -1)
+            end, 1500)
+          end
+        end, 50)
+      end,
+    })
+<
+
 --------------------------------------------------------------------------------
 EVENTS                                                                *oil-events*
 
