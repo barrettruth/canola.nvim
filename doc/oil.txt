@@ -916,6 +916,56 @@ SSH                                                              *oil-adapter-ss
     server to have `/bin/sh` as well as standard unix commands (`ls`, `rm`,
     `mv`, `mkdir`, `chmod`, `cp`, `touch`, `ln`, `echo`).
 
+    How it works ~
+
+    Oil opens a persistent SSH connection to the remote host and runs shell
+    commands over stdin/stdout. Nothing is mounted locally. Directory listings
+    come from `ls -la`; file reads and writes go through `scp`. One connection
+    is maintained per unique host/port/user combination and reused across
+    buffers.
+
+    If the connection takes longer than 2 seconds (e.g. waiting for a password
+    or host-key confirmation), oil automatically opens a floating terminal so
+    you can interact with the SSH prompt. Configure this window with the `ssh`
+    key in `float_win_config`: >lua
+        require("oil").setup({
+          float_win_config = {
+            ssh = { border = "rounded" },
+          },
+        })
+<
+    Configuration ~
+
+    Pass extra flags to `scp` with `extra_scp_args`. This is useful for hosts
+    that require legacy SCP protocol (`-O`) or a specific cipher: >lua
+        require("oil").setup({
+          extra_scp_args = { "-O" },
+        })
+<
+    The underlying `ssh` command respects `~/.ssh/config`, so per-host
+    settings like `IdentityFile`, `ProxyJump`, and `Port` work as expected.
+
+    Limitations ~
+
+    The SSH adapter is self-contained. It does not expose a mount point or
+    local filesystem path, so other plugins (Telescope, tree views, LSP)
+    cannot access remote files through it. For full remote development,
+    consider mounting the remote filesystem with `sshfs` or using
+    `distant.nvim`.
+
+    Files can be copied between local and SSH adapters (uses `scp`), but
+    cross-adapter moves are not supported — use copy + delete instead.
+
+    Troubleshooting ~
+
+    Connection hangs: Check that key-based authentication is configured in
+    `~/.ssh/config`. Password prompts work but require interaction through
+    the floating terminal.
+
+    Permission denied on `scp`: Some hosts (notably Synology NAS) expose a
+    different directory tree over SFTP than over SSH. Try adding `-O` to
+    `extra_scp_args` to force the legacy SCP protocol.
+
 S3                                                                *oil-adapter-s3*
 
     Browse files stored in AWS S3. Make sure `aws` is configured correctly,
