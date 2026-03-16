@@ -118,7 +118,11 @@ local ssh_columns = {}
 ssh_columns.permissions = {
   render = function(entry, conf)
     local meta = entry[FIELD_META]
-    return meta and permissions.mode_to_str(meta.mode)
+    if not meta then
+      return
+    end
+    local str = permissions.mode_to_str(meta.mode)
+    return { str, permissions.mode_to_highlights(str) }
   end,
 
   parse = function(line, conf)
