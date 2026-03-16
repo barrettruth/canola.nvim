@@ -1288,6 +1288,39 @@ the buffer renders.
     })
 <
 
+                                          *oil-recipe-paste-file-from-clipboard*
+
+Copy a file into the current oil directory by pasting its absolute path from
+the system clipboard. Useful on macOS where copying a file in Finder places its
+path in the clipboard.
+>lua
+    vim.keymap.set("n", "gp", function()
+      local oil = require("oil")
+      local dir = oil.get_current_dir()
+      if not dir then
+        return
+      end
+      local path = vim.fn.getreg("+"):gsub("\n$", "")
+      if path == "" or not vim.uv.fs_stat(path) then
+        vim.notify("Clipboard does not contain a valid file path", vim.log.levels.WARN)
+        return
+      end
+      local name = vim.fn.fnamemodify(path, ":t")
+      local dest = dir .. name
+      vim.uv.fs_copyfile(path, dest, function(err)
+        vim.schedule(function()
+          if err then
+            vim.notify("Copy failed: " .. err, vim.log.levels.ERROR)
+          else
+            local bufname = vim.api.nvim_buf_get_name(0)
+            require("oil.view").set_last_cursor(bufname, name)
+            require("oil.actions").refresh.callback()
+          end
+        end)
+      end)
+    end, { desc = "Paste file from clipboard path into oil directory" })
+<
+
 --------------------------------------------------------------------------------
 EVENTS                                                                *oil-events*
 
