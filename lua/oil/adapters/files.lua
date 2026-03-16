@@ -100,7 +100,8 @@ if not fs.is_windows then
       if not stat then
         return columns.EMPTY
       end
-      return permissions.mode_to_str(stat.mode)
+      local str = permissions.mode_to_str(stat.mode)
+      return { str, permissions.mode_to_highlights(str) }
     end,
 
     parse = function(line, conf)
