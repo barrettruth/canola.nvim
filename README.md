@@ -46,9 +46,8 @@ luarocks install canola.nvim
 
 **Q: How do I migrate from `stevearc/oil.nvim`?**
 
-Change the plugin source and replace `setup()` with `vim.g.canola` in `init`.
-The configuration table is identical — only the entry point changes. For
-example, with [lazy.nvim](https://github.com/folke/lazy.nvim):
+Simply change the plugin source from `stevearc/oil.nvim` to
+`barretruth/oil.nvim`.
 
 Before (`stevearc/oil.nvim`):
 
@@ -62,14 +61,14 @@ Before (`stevearc/oil.nvim`):
 }
 ```
 
-After (`barrettruth/canola.nvim`):
+After (`barrettruth/oil.nvim`):
 
 ```lua
 {
-  'barrettruth/canola.nvim',
+  'barrettruth/oil.nvim',
   opts = { ... },
   config = function(_, opts)
-    require('canola').setup(opts)
+    require('oil').setup(opts)
   end,
 }
 ```
