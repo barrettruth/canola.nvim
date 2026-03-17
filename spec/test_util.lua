@@ -17,6 +17,14 @@ M.reset_editor = function()
   for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
     vim.api.nvim_buf_delete(bufnr, { force = true })
   end
+  local mutator = require('oil.mutator')
+  if mutator.is_mutating() then
+    vim.wait(50, function()
+      return not mutator.is_mutating()
+    end, 10)
+    mutator.reset()
+    require('oil.view').unlock_buffers()
+  end
   cache.clear_everything()
   test_adapter.test_clear()
 end
