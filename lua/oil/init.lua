@@ -292,9 +292,17 @@ M.open_float = function(dir, opts, cb)
         if util.is_floating_win() or vim.fn.win_gettype() == 'command' then
           return
         end
-        if vim.api.nvim_win_is_valid(winid) then
-          vim.api.nvim_win_close(winid, true)
+        if not vim.api.nvim_win_is_valid(winid) then
+          for _, id in ipairs(autocmds) do
+            vim.api.nvim_del_autocmd(id)
+          end
+          autocmds = {}
+          return
         end
+        if vim.w[winid].oil_keep_open then
+          return
+        end
+        vim.api.nvim_win_close(winid, true)
         for _, id in ipairs(autocmds) do
           vim.api.nvim_del_autocmd(id)
         end
@@ -851,6 +859,8 @@ M.select = function(opts, callback)
 
   local prev_win = vim.api.nvim_get_current_win()
   local oil_bufnr = vim.api.nvim_get_current_buf()
+  local keep_float_open = util.is_floating_win() and opts.close == false
+  local float_win = keep_float_open and prev_win or nil
 
   -- Async iter over entries so we can normalize the url before opening
   local i = 1
@@ -868,8 +878,10 @@ M.select = function(opts, callback)
         return cb('Please save changes before entering new directory')
       end
     else
-      -- Close floating window before opening a file
-      if vim.w.is_oil_win then
+      local is_float = util.is_floating_win()
+      if is_float and opts.close == false then
+        vim.w.oil_keep_open = true
+      elseif vim.w.is_oil_win then
         M.close()
       end
     end
@@ -892,10 +904,23 @@ M.select = function(opts, callback)
         vim.bo[filebufnr].buflisted = true
       end
 
+      if keep_float_open and not opts.tab then
+        local original_win = vim.w[float_win].oil_original_win
+        if original_win and vim.api.nvim_win_is_valid(original_win) then
+          vim.api.nvim_set_current_win(original_win)
+        else
+          for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+            if winid ~= float_win and not util.is_floating_win(winid) then
+              vim.api.nvim_set_current_win(winid)
+              break
+            end
+          end
+        end
+      end
+
       local cmd = 'buffer'
       if opts.tab then
         vim.cmd.tabnew({ mods = mods })
-        -- Make sure the new buffer from tabnew gets cleaned up
         vim.bo.bufhidden = 'wipe'
       elseif opts.split then
         cmd = 'sbuffer'
@@ -932,6 +957,13 @@ M.select = function(opts, callback)
       vim.api.nvim_win_call(prev_win, function()
         M.close()
       end)
+    end
+
+    if float_win and vim.api.nvim_win_is_valid(float_win) then
+      if opts.tab then
+        vim.api.nvim_set_current_tabpage(vim.api.nvim_win_get_tabpage(float_win))
+      end
+      vim.api.nvim_set_current_win(float_win)
     end
 
     update_preview_window()
