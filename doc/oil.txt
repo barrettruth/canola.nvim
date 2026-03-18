@@ -61,6 +61,9 @@ The full list of options with their defaults:
       -- Oil will take over directory buffers (e.g. `vim .` or `:e src/`)
       -- Set to false if you want some other plugin (e.g. netrw) to open when you edit directories.
       default_file_explorer = true,
+      -- When true, oil always opens in a floating window. Applies to :Oil, all open() calls,
+      -- and directory buffers opened on startup (e.g. `nvim .`).
+      default_to_float = false,
       -- Id is automatically added at the beginning, and name at the end
       -- See :help oil-columns
       columns = {
@@ -292,6 +295,13 @@ The full list of options with their defaults:
 --------------------------------------------------------------------------------
 OPTIONS                                                              *oil-options*
 
+
+default_to_float                                          *oil.default_to_float*
+    type: `boolean` default: `false`
+    When `true`, oil always opens in a floating window. Applies to all
+    `open()` calls (`:Oil`, default keymaps) and to directory buffers opened
+    on startup (e.g. `nvim .`). Individual calls to `open_float()` or
+    `open()` still work regardless of this setting.
 
 skip_confirm_for_simple_edits                  *oil.skip_confirm_for_simple_edits*
     type: `boolean` default: `false`
