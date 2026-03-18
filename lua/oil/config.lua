@@ -116,6 +116,8 @@ local default_config = {
   extra_scp_args = {},
   -- Extra arguments to pass to aws s3 when creating/deleting/moving/copying files using aws s3
   extra_s3_args = {},
+  -- Extra arguments to pass to curl for FTP operations
+  extra_curl_args = {},
   -- EXPERIMENTAL support for performing file operations with git
   git = {
     -- Return true to automatically git add/mv/rm files
@@ -223,6 +225,8 @@ default_config.adapters = {
   ['oil-ssh://'] = 'ssh',
   [oil_s3_string] = 's3',
   ['oil-trash://'] = 'trash',
+  ['oil-ftp://'] = 'ftp',
+  ['oil-ftps://'] = 'ftps',
 }
 default_config.adapter_aliases = {}
 -- We want the function in the default config for documentation generation, but if we nil it out
@@ -254,6 +258,7 @@ default_config.view_options.highlight_filename = nil
 ---@field new_dir_mode integer
 ---@field extra_scp_args string[]
 ---@field extra_s3_args string[]
+---@field extra_curl_args string[]
 ---@field git oil.GitOptions
 ---@field float oil.FloatWindowConfig
 ---@field preview_win oil.PreviewWindowConfig
@@ -288,6 +293,7 @@ local M = {}
 ---@field new_dir_mode? integer Permission mode for new directories in decimal (default 493 = 0755)
 ---@field extra_scp_args? string[] Extra arguments to pass to SCP when moving/copying files over SSH
 ---@field extra_s3_args? string[] Extra arguments to pass to aws s3 when moving/copying files using aws s3
+---@field extra_curl_args? string[] Extra arguments to pass to curl for FTP operations
 ---@field git? oil.SetupGitOptions EXPERIMENTAL support for performing file operations with git
 ---@field float? oil.SetupFloatWindowConfig Configuration for the floating window in oil.open_float
 ---@field preview_win? oil.SetupPreviewWindowConfig Configuration for the file preview window

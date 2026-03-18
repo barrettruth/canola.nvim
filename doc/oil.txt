@@ -173,6 +173,8 @@ The full list of options with their defaults:
       extra_scp_args = {},
       -- Extra arguments to pass to aws s3 when creating/deleting/moving/copying files using aws s3
       extra_s3_args = {},
+      -- Extra arguments to pass to curl for FTP operations
+      extra_curl_args = {},
       -- EXPERIMENTAL support for performing file operations with git
       git = {
         -- Return true to automatically git add/mv/rm files
@@ -992,6 +994,53 @@ S3                                                                *oil-adapter-s
 <
     Older versions of Neovim (0.11 and earlier) don't support numbers in the
     URL scheme, so use `oil-sss` instead of `oil-s3`.
+
+FTP                                                              *oil-adapter-ftp*
+
+    Browse files over FTP or FTPS (FTP over TLS). Open a buffer with: >
+        nvim oil-ftp://[username[:password]@]hostname[:port]/[path]/
+        nvim oil-ftps://[username[:password]@]hostname[:port]/[path]/
+<
+    The `oil-ftps://` scheme uses explicit TLS (STARTTLS / AUTH TLS, RFC 4217).
+    The server must support the `AUTH TLS` command on port 21. Servers using
+    implicit TLS (port 990) are not supported. Use `oil-ftp://` for plain FTP.
+
+    Authentication ~
+
+    Credentials can be supplied in the URL (`user:pass@host`) or stored in
+    `~/.netrc` (recommended — keeps passwords out of shell history): >
+        machine ftp.example.com login myuser password mypass
+<
+    How it works ~
+
+    The FTP adapter uses `curl` to perform all operations. Directory listings
+    come from FTP LIST output (Unix and IIS/Windows formats are both supported).
+    File reads download to a local tempfile; file writes upload from a tempfile.
+    Renames on the same server use the FTP RNFR/RNTO commands. File copies
+    between servers go through a local tempfile.
+
+    Limitations ~
+
+    Symbolic links cannot be created over FTP. Directory copies are not
+    supported (copy individual files instead). Moving or copying directories
+    across different FTP hosts is not supported. Deleting non-empty directories
+    requires MLSD support (RFC 3659); supported by vsftpd, ProFTPD, FileZilla
+    Server, and most servers from 2007 onwards.
+
+    Configuration ~
+
+    Pass extra flags to `curl` with `extra_curl_args`: >lua
+        require("oil").setup({
+          extra_curl_args = { "--insecure" },
+        })
+<
+    The adapter supports the `size`, `mtime`, and `permissions` columns.
+    Permission changes use the FTP `SITE CHMOD` command; not all servers
+    support it.
+
+    Dependencies ~
+
+    Requires `curl` (standard on Linux and macOS).
 
 Trash                                                        *oil-adapter-trash*
 
