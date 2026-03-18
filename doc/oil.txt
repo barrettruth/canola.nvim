@@ -649,6 +649,28 @@ permissions                                                   *column-permission
                   function that returns a highlight group
       {align}     `"left"|"center"|"right"` Text alignment within the column
 
+owner                                                               *column-owner*
+    Adapters: files, ssh
+    Display-only: this column is read-only
+    The file owner. On local files, resolves UID to username via /etc/passwd.
+    On SSH, displays the numeric UID from `ls -lan`.
+
+    Parameters:
+      {highlight} `string|fun(value: string): string` Highlight group, or
+                  function that returns a highlight group
+      {align}     `"left"|"center"|"right"` Text alignment within the column
+
+group                                                               *column-group*
+    Adapters: files, ssh
+    Display-only: this column is read-only
+    The file group. On local files, resolves GID to group name via /etc/group.
+    On SSH, displays the numeric GID from `ls -lan`.
+
+    Parameters:
+      {highlight} `string|fun(value: string): string` Highlight group, or
+                  function that returns a highlight group
+      {align}     `"left"|"center"|"right"` Text alignment within the column
+
 ctime                                                               *column-ctime*
     Adapters: files
     Sortable: this column can be used in view_props.sort
