@@ -103,7 +103,7 @@ end
 
 function SSHFS:realpath(path, callback)
   local cmd = string.format(
-    'if ! readlink -f "%s" 2>/dev/null; then [[ "%s" == /* ]] && echo "%s" || echo "$PWD/%s"; fi',
+    'if ! readlink -f "%s" 2>/dev/null; then case "%s" in /*) echo "%s";; *) echo "$PWD/%s";; esac; fi',
     path,
     path,
     path,
