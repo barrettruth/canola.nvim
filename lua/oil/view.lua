@@ -140,10 +140,13 @@ end
 
 ---@class oil.ViewData
 ---@field fs_event? any uv_fs_event_t
+---@field col_width? integer[]
+---@field col_align? oil.ColumnAlign[]
 
 -- List of bufnrs
 ---@type table<integer, oil.ViewData>
 local session = {}
+local _rendering = {}
 
 ---@type table<integer, { lnum: integer, min_col: integer }>
 local insert_boundary = {}
@@ -532,6 +535,52 @@ local function redraw_trash_virtual_text(bufnr)
 end
 
 ---@param bufnr integer
+M.reapply_highlights = function(bufnr)
+  local sess = session[bufnr]
+  if not sess or not sess.col_width or not sess.col_align then
+    return
+  end
+  local parser = require('oil.mutator.parser')
+  local adapter = util.get_adapter(bufnr)
+  if not adapter then
+    return
+  end
+  local bufname = vim.api.nvim_buf_get_name(bufnr)
+  local scheme = util.parse_url(bufname)
+  if not scheme then
+    return
+  end
+  local column_defs = columns.get_supported_columns(scheme)
+  local col_width = vim.deepcopy(sess.col_width)
+  ---@cast col_width integer[]
+  local col_align = sess.col_align
+  local buf_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
+  local line_table = {}
+  for _, line in ipairs(buf_lines) do
+    local result = parser.parse_line(adapter, line, column_defs)
+    if result then
+      local entry
+      if result.data.id == 0 then
+        entry = { 0, '..', 'directory' }
+      else
+        entry = cache.get_entry_by_id(result.data.id)
+      end
+      if entry then
+        local _, is_hidden = M.should_display(bufnr, entry)
+        local cols = M.format_entry_cols(entry, column_defs, col_width, adapter, is_hidden, bufnr)
+        table.insert(line_table, cols)
+      else
+        table.insert(line_table, {})
+      end
+    else
+      table.insert(line_table, {})
+    end
+  end
+  local _, highlights = util.render_table(line_table, col_width, col_align)
+  util.set_highlights(bufnr, highlights)
+end
+
+---@param bufnr integer
 M.initialize = function(bufnr)
   if bufnr == 0 then
     bufnr = vim.api.nvim_get_current_buf()
@@ -749,6 +798,16 @@ M.initialize = function(bufnr)
       end,
     })
   end
+  vim.api.nvim_create_autocmd('TextChanged', {
+    desc = 'Reapply oil column highlights after buffer edits',
+    group = 'Oil',
+    buffer = bufnr,
+    callback = function()
+      if not _rendering[bufnr] then
+        M.reapply_highlights(bufnr)
+      end
+    end,
+  })
   M.render_buffer_async(bufnr, {}, function(err)
     if err then
       vim.notify(
@@ -903,11 +962,15 @@ local function render_buffer(bufnr, opts)
 
   local lines, highlights = util.render_table(line_table, col_width, col_align)
 
+  _rendering[bufnr] = true
   vim.bo[bufnr].modifiable = true
   vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, lines)
   vim.bo[bufnr].modifiable = false
   vim.bo[bufnr].modified = false
   util.set_highlights(bufnr, highlights)
+  _rendering[bufnr] = nil
+  session[bufnr].col_width = col_width
+  session[bufnr].col_align = col_align
 
   if opts.jump then
     -- TODO why is the schedule necessary?
