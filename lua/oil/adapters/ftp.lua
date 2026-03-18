@@ -78,16 +78,17 @@ end
 ---@param s string
 ---@return string
 local function url_encode_path(s)
-  return (s:gsub('[^A-Za-z0-9%-._~:/]', function(c)
-    return string.format('%%%02X', c:byte())
-  end))
+  return (
+    s:gsub('[^A-Za-z0-9%-._~:/]', function(c)
+      return string.format('%%%02X', c:byte())
+    end)
+  )
 end
 
 ---@param url oil.ftpUrl
 ---@return string
 local function curl_ftp_url(url)
-  local scheme = url.scheme == 'oil-ftps://' and 'ftps://' or 'ftp://'
-  local pieces = { scheme }
+  local pieces = { 'ftp://' }
   if url.user then
     table.insert(pieces, url.user)
     if url.password then
@@ -112,8 +113,14 @@ local function ftpcmd(url, py_lines, cb)
   local lines = {}
   local use_tls = url.scheme == 'oil-ftps://'
   if use_tls then
+    local insecure = vim.tbl_contains(config.extra_curl_args, '--insecure')
+      or vim.tbl_contains(config.extra_curl_args, '-k')
     table.insert(lines, 'import ftplib, ssl')
     table.insert(lines, 'ctx = ssl.create_default_context()')
+    if insecure then
+      table.insert(lines, 'ctx.check_hostname = False')
+      table.insert(lines, 'ctx.verify_mode = ssl.CERT_NONE')
+    end
     table.insert(lines, 'ftp = ftplib.FTP_TLS(context=ctx)')
   else
     table.insert(lines, 'import ftplib')
@@ -154,13 +161,18 @@ end
 
 ---@param url oil.ftpUrl
 ---@param extra_args string[]
----@param cb fun(err: nil|string, output: nil|string[])
-local function curl(url, extra_args, cb)
-  local cmd = { 'curl', '-s', '--netrc-optional' }
+---@param opts table|fun(err: nil|string, output: nil|string[])
+---@param cb? fun(err: nil|string, output: nil|string[])
+local function curl(url, extra_args, opts, cb)
+  if not cb then
+    cb = opts
+    opts = {}
+  end
+  local cmd = { 'curl', '-sS', '--netrc-optional' }
   vim.list_extend(cmd, ssl_args(url))
   vim.list_extend(cmd, config.extra_curl_args)
   vim.list_extend(cmd, extra_args)
-  shell.run(cmd, cb)
+  shell.run(cmd, opts, cb)
 end
 
 ---@param url oil.ftpUrl
@@ -498,7 +510,7 @@ M.perform_action = function(action, cb)
     elseif action.entry_type == 'link' then
       cb('FTP does not support symbolic links')
     else
-      curl(res, { '-T', '/dev/null', curl_ftp_url(res) }, cb)
+      curl(res, { '-T', '-', curl_ftp_url(res) }, { stdin = 'null' }, cb)
     end
   elseif action.type == 'delete' then
     local res = M.parse_url(action.url)
@@ -506,7 +518,12 @@ M.perform_action = function(action, cb)
     if action.entry_type == 'directory' then
       ftpcmd(res, {
         'def rmtree(f, p):',
-        '  for name, facts in f.mlsd(p):',
+        '  try:',
+        '    entries = list(f.mlsd(p))',
+        '  except ftplib.error_perm as e:',
+        '    if "500" in str(e) or "502" in str(e): import sys; sys.exit("Server does not support MLSD; cannot recursively delete non-empty directories")',
+        '    raise',
+        '  for name, facts in entries:',
         '    if name in (".", ".."): continue',
         '    child = p.rstrip("/") + "/" + name',
         '    if facts["type"] == "dir": rmtree(f, child)',
@@ -653,5 +670,10 @@ M.write_file = function(bufnr)
     vim.api.nvim_buf_delete(tmp_bufnr, { force = true })
   end)
 end
+
+M._parse_unix_list_line = parse_unix_list_line
+M._parse_iis_list_line = parse_iis_list_line
+M._url_encode_path = url_encode_path
+M._curl_ftp_url = curl_ftp_url
 
 return M

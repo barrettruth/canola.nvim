@@ -1001,8 +1001,9 @@ FTP                                                              *oil-adapter-ft
         nvim oil-ftp://[username[:password]@]hostname[:port]/[path]/
         nvim oil-ftps://[username[:password]@]hostname[:port]/[path]/
 <
-    The `oil-ftps://` scheme connects with `--ssl-reqd`, requiring a valid TLS
-    certificate. Use `oil-ftp://` for plain FTP.
+    The `oil-ftps://` scheme uses explicit TLS (STARTTLS / AUTH TLS, RFC 4217).
+    The server must support the `AUTH TLS` command on port 21. Servers using
+    implicit TLS (port 990) are not supported. Use `oil-ftp://` for plain FTP.
 
     Authentication ~
 
@@ -1022,7 +1023,9 @@ FTP                                                              *oil-adapter-ft
 
     Symbolic links cannot be created over FTP. Directory copies are not
     supported (copy individual files instead). Moving or copying directories
-    across different FTP hosts is not supported.
+    across different FTP hosts is not supported. Deleting non-empty directories
+    requires MLSD support (RFC 3659); supported by vsftpd, ProFTPD, FileZilla
+    Server, and most servers from 2007 onwards.
 
     Configuration ~
 

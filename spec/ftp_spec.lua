@@ -1,0 +1,166 @@
+local ftp = require('oil.adapters.ftp')
+
+describe('ftp adapter', function()
+  describe('parse_url', function()
+    it('parses minimal url', function()
+      local res = ftp.parse_url('oil-ftp://host/')
+      assert.equals('oil-ftp://', res.scheme)
+      assert.equals('host', res.host)
+      assert.equals('', res.path)
+      assert.equals(nil, res.user)
+      assert.equals(nil, res.password)
+      assert.equals(nil, res.port)
+    end)
+
+    it('parses url with user, password, port, and path', function()
+      local res = ftp.parse_url('oil-ftp://user:pass@host:2121/some/path/')
+      assert.equals('oil-ftp://', res.scheme)
+      assert.equals('host', res.host)
+      assert.equals('user', res.user)
+      assert.equals('pass', res.password)
+      assert.equals(2121, res.port)
+      assert.equals('some/path/', res.path)
+    end)
+
+    it('parses url with user only', function()
+      local res = ftp.parse_url('oil-ftp://user@host/path/')
+      assert.equals('user', res.user)
+      assert.equals(nil, res.password)
+      assert.equals(nil, res.port)
+      assert.equals('path/', res.path)
+    end)
+
+    it('parses oil-ftps:// scheme', function()
+      local res = ftp.parse_url('oil-ftps://host/path/')
+      assert.equals('oil-ftps://', res.scheme)
+      assert.equals('host', res.host)
+    end)
+
+    it('parses port without credentials', function()
+      local res = ftp.parse_url('oil-ftp://host:990/')
+      assert.equals('host', res.host)
+      assert.equals(990, res.port)
+      assert.equals(nil, res.user)
+    end)
+  end)
+
+  describe('get_parent', function()
+    it('goes up one directory', function()
+      assert.equals('oil-ftp://host/', ftp.get_parent('oil-ftp://host/subdir/'))
+    end)
+
+    it('goes up nested directories', function()
+      assert.equals(
+        'oil-ftp://user:pass@host:2121/a/b/',
+        ftp.get_parent('oil-ftp://user:pass@host:2121/a/b/c/')
+      )
+    end)
+
+    it('stays at root', function()
+      assert.equals('oil-ftp://host/', ftp.get_parent('oil-ftp://host/'))
+    end)
+  end)
+
+  describe('unix list line parsing', function()
+    it('parses a regular file', function()
+      local name, entry_type, meta =
+        ftp._parse_unix_list_line('-rw-r--r--  1 user group   42 Jan 15  2024 hello.txt')
+      assert.equals('hello.txt', name)
+      assert.equals('file', entry_type)
+      assert.equals(42, meta.size)
+      assert.equals('number', type(meta.mtime))
+      assert.equals(420, meta.mode)
+    end)
+
+    it('parses a directory', function()
+      local name, entry_type, meta =
+        ftp._parse_unix_list_line('drwxr-xr-x  2 user group 4096 Mar 18 10:30 subdir')
+      assert.equals('subdir', name)
+      assert.equals('directory', entry_type)
+      assert.equals(4096, meta.size)
+      assert.equals('number', type(meta.mtime))
+    end)
+
+    it('parses a symlink', function()
+      local name, entry_type, meta =
+        ftp._parse_unix_list_line('lrwxrwxrwx  1 user group    8 Mar 18 10:30 link -> target')
+      assert.equals('link', name)
+      assert.equals('link', entry_type)
+      assert.equals('target', meta.link)
+    end)
+
+    it('parses a filename with spaces', function()
+      local name, entry_type, _ =
+        ftp._parse_unix_list_line('-rw-r--r--  1 user group  100 Mar 15 09:00 my file.txt')
+      assert.equals('my file.txt', name)
+      assert.equals('file', entry_type)
+    end)
+
+    it('returns nil for unrecognised lines', function()
+      local name = ftp._parse_unix_list_line('total 42')
+      assert.equals(nil, name)
+    end)
+  end)
+
+  describe('iis list line parsing', function()
+    it('parses a directory', function()
+      local name, entry_type, _ =
+        ftp._parse_iis_list_line('01-14-24  09:27AM       <DIR>          dirname')
+      assert.equals('dirname', name)
+      assert.equals('directory', entry_type)
+    end)
+
+    it('parses a file', function()
+      local name, entry_type, meta =
+        ftp._parse_iis_list_line('01-14-24  09:27AM              12345 file.txt')
+      assert.equals('file.txt', name)
+      assert.equals('file', entry_type)
+      assert.equals(12345, meta.size)
+    end)
+
+    it('returns nil for unrecognised lines', function()
+      local name = ftp._parse_iis_list_line('drwxr-xr-x  2 user group 4096 Mar 18 10:30 subdir')
+      assert.equals(nil, name)
+    end)
+  end)
+
+  describe('curl_ftp_url', function()
+    it('always uses ftp:// scheme for oil-ftp://', function()
+      local url = ftp.parse_url('oil-ftp://host/path/')
+      assert(vim.startswith(ftp._curl_ftp_url(url), 'ftp://'))
+    end)
+
+    it('always uses ftp:// scheme for oil-ftps://', function()
+      local url = ftp.parse_url('oil-ftps://host/path/')
+      assert(vim.startswith(ftp._curl_ftp_url(url), 'ftp://'))
+    end)
+
+    it('encodes spaces in path', function()
+      local url = ftp.parse_url('oil-ftp://host/my path/')
+      assert.equals('ftp://host/my%20path/', ftp._curl_ftp_url(url))
+    end)
+
+    it('includes credentials and port', function()
+      local url = ftp.parse_url('oil-ftp://user:pass@host:2121/dir/')
+      assert.equals('ftp://user:pass@host:2121/dir/', ftp._curl_ftp_url(url))
+    end)
+  end)
+
+  describe('url_encode_path', function()
+    it('leaves safe characters unchanged', function()
+      assert.equals('hello.txt', ftp._url_encode_path('hello.txt'))
+    end)
+
+    it('encodes spaces', function()
+      assert.equals('a%20file.txt', ftp._url_encode_path('a file.txt'))
+    end)
+
+    it('preserves path separators', function()
+      assert.equals('dir/subdir/file.txt', ftp._url_encode_path('dir/subdir/file.txt'))
+    end)
+
+    it('encodes special characters', function()
+      assert.equals('hello%23world', ftp._url_encode_path('hello#world'))
+    end)
+  end)
+end)
