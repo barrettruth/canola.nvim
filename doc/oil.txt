@@ -1321,6 +1321,50 @@ path in the clipboard.
     end, { desc = "Paste file from clipboard path into oil directory" })
 <
 
+                                              *oil-recipe-file-templates*
+
+Apply initial content to newly created files using the |OilFileCreated| event.
+This is the recommended alternative to relying on |BufNewFile|, which does not
+fire for files created through oil (the file already exists on disk by the
+time it is opened). >lua
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "OilFileCreated",
+      callback = function(args)
+        local path = args.data.path
+        local ext = vim.fn.fnamemodify(path, ":e")
+        local templates = {
+          sh = { "#!/usr/bin/env bash", "" },
+          py = { "#!/usr/bin/env python3", "" },
+        }
+        if templates[ext] then
+          vim.fn.writefile(templates[ext], path)
+        end
+      end,
+    })
+<
+
+For integration with vim-projectionist or any plugin that hooks |BufNewFile|,
+use |OilFileCreated| to track oil-created files, then fire |BufNewFile| the
+first time each file is opened. This is more precise than checking for empty
+buffers on |BufRead|: >lua
+    local oil_created = {}
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "OilFileCreated",
+      callback = function(args)
+        oil_created[args.data.path] = true
+      end,
+    })
+    vim.api.nvim_create_autocmd("BufRead", {
+      callback = function(args)
+        local path = vim.api.nvim_buf_get_name(args.buf)
+        if oil_created[path] then
+          oil_created[path] = nil
+          vim.api.nvim_exec_autocmds("BufNewFile", { buffer = args.buf })
+        end
+      end,
+    })
+<
+
 --------------------------------------------------------------------------------
 EVENTS                                                                *oil-events*
 
