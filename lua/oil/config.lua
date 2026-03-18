@@ -2,6 +2,7 @@ local default_config = {
   -- Oil will take over directory buffers (e.g. `vim .` or `:e src/`)
   -- Set to false if you want some other plugin (e.g. netrw) to open when you edit directories.
   default_file_explorer = true,
+  default_to_float = false,
   -- Id is automatically added at the beginning, and name at the end
   -- See :help oil-columns
   columns = {
@@ -250,6 +251,7 @@ default_config.view_options.highlight_filename = nil
 ---@field adapter_aliases table<string, string> Hidden from SetupOpts
 ---@field silence_scp_warning? boolean Undocumented option
 ---@field default_file_explorer boolean
+---@field default_to_float boolean
 ---@field columns oil.ColumnSpec[]
 ---@field buf_options table<string, any>
 ---@field win_options table<string, any>
@@ -288,6 +290,7 @@ local M = {}
 
 ---@class (exact) oil.SetupOpts
 ---@field default_file_explorer? boolean Oil will take over directory buffers (e.g. `vim .` or `:e src/`). Set to false if you still want to use netrw.
+---@field default_to_float? boolean When true, oil always opens in a floating window
 ---@field columns? oil.ColumnSpec[] The columns to display. See :help oil-columns.
 ---@field buf_options? table<string, any> Buffer-local options to use for oil buffers
 ---@field win_options? table<string, any> Window-local options to use for oil buffers

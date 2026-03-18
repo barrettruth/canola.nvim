@@ -474,6 +474,9 @@ end
 M.open = function(dir, opts, cb)
   opts = opts or {}
   local config = require('oil.config')
+  if config.default_to_float then
+    return M.open_float(dir, opts, cb)
+  end
   local util = require('oil.util')
   local view = require('oil.view')
   local parent_url, basename = M.get_url_for_path(dir)
@@ -1618,6 +1621,23 @@ M.setup = function(opts)
       end
     end,
   })
+
+  if config.default_to_float then
+    vim.api.nvim_create_autocmd('VimEnter', {
+      desc = 'Open oil in a float when starting on a directory',
+      group = aug,
+      once = true,
+      nested = true,
+      callback = function()
+        local util = require('oil.util')
+        if util.is_oil_bufnr(0) then
+          local url = vim.api.nvim_buf_get_name(0)
+          vim.cmd.enew({ mods = { silent = true, noswapfile = true } })
+          M.open_float(url)
+        end
+      end,
+    })
+  end
 
   if config.default_file_explorer then
     vim.api.nvim_create_autocmd('BufAdd', {
