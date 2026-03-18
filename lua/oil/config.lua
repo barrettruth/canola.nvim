@@ -226,7 +226,7 @@ default_config.adapters = {
   [oil_s3_string] = 's3',
   ['oil-trash://'] = 'trash',
   ['oil-ftp://'] = 'ftp',
-  ['oil-ftps://'] = 'ftp',
+  ['oil-ftps://'] = 'ftps',
 }
 default_config.adapter_aliases = {}
 -- We want the function in the default config for documentation generation, but if we nil it out
