@@ -164,6 +164,34 @@ ssh_columns.permissions = {
   end,
 }
 
+ssh_columns.owner = {
+  render = function(entry, conf)
+    local meta = entry[FIELD_META]
+    if not meta or not meta.user then
+      return ''
+    end
+    return meta.user
+  end,
+
+  parse = function(line, conf)
+    return line:match('^(%S+)%s+(.*)$')
+  end,
+}
+
+ssh_columns.group = {
+  render = function(entry, conf)
+    local meta = entry[FIELD_META]
+    if not meta or not meta.group then
+      return ''
+    end
+    return meta.group
+  end,
+
+  parse = function(line, conf)
+    return line:match('^(%S+)%s+(.*)$')
+  end,
+}
+
 ssh_columns.size = {
   render = function(entry, conf)
     local meta = entry[FIELD_META]

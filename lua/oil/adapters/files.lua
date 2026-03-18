@@ -91,6 +91,42 @@ file_columns.size = {
 
 -- TODO support file permissions on windows
 if not fs.is_windows then
+  local ids = require('oil.adapters.files.ids')
+
+  file_columns.owner = {
+    require_stat = true,
+
+    render = function(entry, conf)
+      local meta = entry[FIELD_META]
+      local stat = meta and meta.stat
+      if not stat then
+        return columns.EMPTY
+      end
+      return ids.get_user(stat.uid)
+    end,
+
+    parse = function(line, conf)
+      return line:match('^(%S+)%s+(.*)$')
+    end,
+  }
+
+  file_columns.group = {
+    require_stat = true,
+
+    render = function(entry, conf)
+      local meta = entry[FIELD_META]
+      local stat = meta and meta.stat
+      if not stat then
+        return columns.EMPTY
+      end
+      return ids.get_group(stat.gid)
+    end,
+
+    parse = function(line, conf)
+      return line:match('^(%S+)%s+(.*)$')
+    end,
+  }
+
   file_columns.permissions = {
     require_stat = true,
 
