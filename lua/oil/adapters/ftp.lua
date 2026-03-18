@@ -106,6 +106,17 @@ local function curl_ftp_url(url)
   return table.concat(pieces, '')
 end
 
+---@param host string
+---@return string[]
+local function resolved_curl_args(host)
+  local extra = vim.deepcopy(config.extra_curl_args)
+  local host_cfg = config.ftp_hosts[host]
+  if host_cfg and host_cfg.extra_curl_args then
+    vim.list_extend(extra, host_cfg.extra_curl_args)
+  end
+  return extra
+end
+
 ---@param url oil.ftpUrl
 ---@param py_lines string[]
 ---@param cb fun(err: nil|string)
@@ -113,8 +124,8 @@ local function ftpcmd(url, py_lines, cb)
   local lines = {}
   local use_tls = url.scheme == 'oil-ftps://'
   if use_tls then
-    local insecure = vim.tbl_contains(config.extra_curl_args, '--insecure')
-      or vim.tbl_contains(config.extra_curl_args, '-k')
+    local curl_args = resolved_curl_args(url.host)
+    local insecure = vim.tbl_contains(curl_args, '--insecure') or vim.tbl_contains(curl_args, '-k')
     table.insert(lines, 'import ftplib, ssl')
     table.insert(lines, 'ctx = ssl.create_default_context()')
     if insecure then
@@ -170,7 +181,7 @@ local function curl(url, extra_args, opts, cb)
   end
   local cmd = { 'curl', '-sS', '--netrc-optional' }
   vim.list_extend(cmd, ssl_args(url))
-  vim.list_extend(cmd, config.extra_curl_args)
+  vim.list_extend(cmd, resolved_curl_args(url.host))
   vim.list_extend(cmd, extra_args)
   shell.run(cmd, opts, cb)
 end
