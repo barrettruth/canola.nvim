@@ -547,8 +547,12 @@ M.reapply_highlights = function(bufnr)
   end
   local bufname = vim.api.nvim_buf_get_name(bufnr)
   local scheme = util.parse_url(bufname)
+  if not scheme then
+    return
+  end
   local column_defs = columns.get_supported_columns(scheme)
   local col_width = vim.deepcopy(sess.col_width)
+  ---@cast col_width integer[]
   local col_align = sess.col_align
   local buf_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
   local line_table = {}
