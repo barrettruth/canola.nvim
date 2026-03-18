@@ -650,10 +650,10 @@ permissions                                                   *column-permission
       {align}     `"left"|"center"|"right"` Text alignment within the column
 
 owner                                                               *column-owner*
-    Adapters: files, ssh
+    Adapters: files, ssh, ftp
     Display-only: this column is read-only
     The file owner. On local files, resolves UID to username via /etc/passwd.
-    On SSH, displays the numeric UID from `ls -lan`.
+    On SSH and FTP, displays the value from the directory listing.
 
     Parameters:
       {highlight} `string|fun(value: string): string` Highlight group, or
@@ -661,10 +661,10 @@ owner                                                               *column-owne
       {align}     `"left"|"center"|"right"` Text alignment within the column
 
 group                                                               *column-group*
-    Adapters: files, ssh
+    Adapters: files, ssh, ftp
     Display-only: this column is read-only
     The file group. On local files, resolves GID to group name via /etc/group.
-    On SSH, displays the numeric GID from `ls -lan`.
+    On SSH and FTP, displays the value from the directory listing.
 
     Parameters:
       {highlight} `string|fun(value: string): string` Highlight group, or
@@ -1023,6 +1023,10 @@ SSH                                                              *oil-adapter-ss
     The underlying `ssh` command respects `~/.ssh/config`, so per-host
     settings like `IdentityFile`, `ProxyJump`, and `Port` work as expected.
 
+    The adapter supports the `size`, `permissions`, `owner`, and `group`
+    columns. Permission changes use `chmod` on the remote host. The
+    `owner` and `group` columns display numeric UIDs/GIDs from `ls -lan`.
+
     Limitations ~
 
     The SSH adapter is self-contained. It does not expose a mount point or
@@ -1052,6 +1056,8 @@ S3                                                                *oil-adapter-s
 <
     Older versions of Neovim (0.11 and earlier) don't support numbers in the
     URL scheme, so use `oil-sss` instead of `oil-s3`.
+
+    The adapter supports the `size` and `birthtime` columns.
 
 FTP                                                              *oil-adapter-ftp*
 
@@ -1092,9 +1098,10 @@ FTP                                                              *oil-adapter-ft
           extra_curl_args = { "--insecure" },
         })
 <
-    The adapter supports the `size`, `mtime`, and `permissions` columns.
-    Permission changes use the FTP `SITE CHMOD` command; not all servers
-    support it.
+    The adapter supports the `size`, `mtime`, `permissions`, `owner`, and
+    `group` columns. Permission changes use the FTP `SITE CHMOD` command;
+    not all servers support it. The `owner` and `group` columns are only
+    available on servers that return Unix-style directory listings.
 
     Dependencies ~
 
