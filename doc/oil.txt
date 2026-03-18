@@ -1468,6 +1468,29 @@ buffers on |BufRead|: >lua
     })
 <
 
+Open file in a picked window ~
+                                              *oil-recipe-pick-window*
+
+Open the entry under the cursor in a window chosen via
+https://github.com/s1n7ax/nvim-window-picker. Add to `after/ftplugin/oil.lua`: >lua
+    vim.keymap.set("n", "<C-w>", function()
+      local oil = require("oil")
+      local entry = oil.get_cursor_entry()
+      if not entry or entry.type ~= "file" then
+        return
+      end
+      local dir = oil.get_current_dir()
+      oil.close({ exit_if_last_buf = false })
+      local win = require("window-picker").pick_window({
+        filter_rules = { autoselect_one = true, include_current_win = true },
+      })
+      if win then
+        vim.api.nvim_set_current_win(win)
+        vim.cmd.edit(vim.fs.joinpath(dir, entry.name))
+      end
+    end, { buffer = true, desc = "Open file in picked window" })
+<
+
 --------------------------------------------------------------------------------
 EVENTS                                                                *oil-events*
 

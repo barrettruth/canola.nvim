@@ -1646,7 +1646,9 @@ M.setup = function(opts)
       pattern = '*',
       nested = true,
       callback = function(params)
-        maybe_hijack_directory_buffer(params.buf)
+        if maybe_hijack_directory_buffer(params.buf) and vim.v.vim_did_enter == 1 then
+          M.load_oil_buffer(params.buf)
+        end
       end,
     })
 
