@@ -25,31 +25,6 @@ M.mode_to_str = function(mode)
     .. perm_to_str(bit.band(extra, 1) ~= 0 and 't', mode)
 end
 
-local char_hl = {
-  r = 'OilPermissionRead',
-  w = 'OilPermissionWrite',
-  x = 'OilPermissionExec',
-  s = 'OilPermissionSetuid',
-  S = 'OilPermissionSetuid',
-  t = 'OilPermissionSticky',
-  T = 'OilPermissionSticky',
-  ['-'] = 'OilPermissionNone',
-}
-
----@param str string
----@return table[]
-M.mode_to_highlights = function(str)
-  local highlights = {}
-  for i = 1, #str do
-    local c = str:sub(i, i)
-    local hl = char_hl[c]
-    if hl then
-      table.insert(highlights, { hl, i - 1, i })
-    end
-  end
-  return highlights
-end
-
 ---@param mode integer
 ---@return string
 M.mode_to_octal_str = function(mode)
