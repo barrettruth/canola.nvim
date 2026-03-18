@@ -496,7 +496,16 @@ M.perform_action = function(action, cb)
     local res = M.parse_url(action.url)
     local ftp_path = ftp_abs_path(res)
     if action.entry_type == 'directory' then
-      ftpcmd(res, { string.format('ftp.voidcmd(%q)', 'RMD ' .. ftp_path) }, cb)
+      ftpcmd(res, {
+        'def rmtree(f, p):',
+        '  for name, facts in f.mlsd(p):',
+        '    if name in (".", ".."): continue',
+        '    child = p.rstrip("/") + "/" + name',
+        '    if facts["type"] == "dir": rmtree(f, child)',
+        '    else: f.voidcmd("DELE " + child)',
+        '  f.voidcmd("RMD " + p)',
+        string.format('rmtree(ftp, %q)', ftp_path),
+      }, cb)
     else
       ftpcmd(res, { string.format('ftp.voidcmd(%q)', 'DELE ' .. ftp_path) }, cb)
     end
