@@ -75,6 +75,14 @@ local function url_to_str(url)
   return table.concat(pieces, '')
 end
 
+---@param s string
+---@return string
+local function url_encode_path(s)
+  return (s:gsub('[^A-Za-z0-9%-._~:/]', function(c)
+    return string.format('%%%02X', c:byte())
+  end))
+end
+
 ---@param url oil.ftpUrl
 ---@return string
 local function curl_ftp_url(url)
@@ -93,7 +101,7 @@ local function curl_ftp_url(url)
     table.insert(pieces, string.format(':%d', url.port))
   end
   table.insert(pieces, '/')
-  table.insert(pieces, url.path)
+  table.insert(pieces, url_encode_path(url.path))
   return table.concat(pieces, '')
 end
 
