@@ -217,8 +217,8 @@ local month_map = {
 ---@param line string
 ---@return nil|string, nil|string, nil|table
 local function parse_unix_list_line(line)
-  local perms, size, month, day, timeoryear, name =
-    line:match('^([dlrwxstST%-]+)%s+%d+%s+%S+%s+%S+%s+(%d+)%s+(%a+)%s+(%d+)%s+(%S+)%s+(.+)$')
+  local perms, user, group, size, month, day, timeoryear, name =
+    line:match('^([dlrwxstST%-]+)%s+%d+%s+(%S+)%s+(%S+)%s+(%d+)%s+(%a+)%s+(%d+)%s+(%S+)%s+(.+)$')
   if not perms then
     return nil
   end
@@ -280,7 +280,7 @@ local function parse_unix_list_line(line)
     end
   end
   local mode = permissions.parse(perms:sub(2))
-  local meta = { size = tonumber(size), mtime = mtime, mode = mode }
+  local meta = { user = user, group = group, size = tonumber(size), mtime = mtime, mode = mode }
   if link_target then
     meta.link = link_target
   end
@@ -369,8 +369,7 @@ ftp_columns.permissions = {
     if not meta or not meta.mode then
       return
     end
-    local str = permissions.mode_to_str(meta.mode)
-    return { str, permissions.mode_to_highlights(str) }
+    return permissions.mode_to_str(meta.mode)
   end,
 
   parse = function(line, conf)
@@ -402,6 +401,34 @@ ftp_columns.permissions = {
       { string.format('ftp.voidcmd(%q)', 'SITE CHMOD ' .. octal .. ' ' .. ftp_path) },
       callback
     )
+  end,
+}
+
+ftp_columns.owner = {
+  render = function(entry, conf)
+    local meta = entry[FIELD_META]
+    if not meta or not meta.user then
+      return ''
+    end
+    return meta.user
+  end,
+
+  parse = function(line, conf)
+    return line:match('^(%S+)%s+(.*)$')
+  end,
+}
+
+ftp_columns.group = {
+  render = function(entry, conf)
+    local meta = entry[FIELD_META]
+    if not meta or not meta.group then
+      return ''
+    end
+    return meta.group
+  end,
+
+  parse = function(line, conf)
+    return line:match('^(%S+)%s+(.*)$')
   end,
 }
 
