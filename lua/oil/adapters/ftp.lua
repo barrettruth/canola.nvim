@@ -165,7 +165,7 @@ end
 ---@param cb? fun(err: nil|string, output: nil|string[])
 local function curl(url, extra_args, opts, cb)
   if not cb then
-    cb = opts
+    cb = opts --[[@as fun(err: nil|string, output: nil|string[])]]
     opts = {}
   end
   local cmd = { 'curl', '-sS', '--netrc-optional' }
@@ -239,26 +239,32 @@ local function parse_unix_list_line(line)
       mtime = os.time({
         year = t.year,
         month = mon,
-        day = tonumber(day),
-        hour = tonumber(hour),
-        min = tonumber(min),
+        day = tonumber(day) or 0,
+        hour = tonumber(hour) or 0,
+        min = tonumber(min) or 0,
         sec = 0,
       })
       if mtime > now + 86400 then
         mtime = os.time({
           year = t.year - 1,
           month = mon,
-          day = tonumber(day),
-          hour = tonumber(hour),
-          min = tonumber(min),
+          day = tonumber(day) or 0,
+          hour = tonumber(hour) or 0,
+          min = tonumber(min) or 0,
           sec = 0,
         })
       end
     else
       local year = tonumber(timeoryear)
       if year then
-        mtime =
-          os.time({ year = year, month = mon, day = tonumber(day), hour = 0, min = 0, sec = 0 })
+        mtime = os.time({
+          year = year,
+          month = mon,
+          day = tonumber(day) or 0,
+          hour = 0,
+          min = 0,
+          sec = 0,
+        })
       end
     end
   end
