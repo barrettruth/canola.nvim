@@ -946,24 +946,6 @@ OilExecutable                                                   *hl-OilExecutabl
 OilExecutableHidden                                       *hl-OilExecutableHidden*
     Hidden executable files in an oil buffer
 
-OilPermissionRead                                           *hl-OilPermissionRead*
-    Read permission character in the permissions column
-
-OilPermissionWrite                                         *hl-OilPermissionWrite*
-    Write permission character in the permissions column
-
-OilPermissionExec                                           *hl-OilPermissionExec*
-    Execute permission character in the permissions column
-
-OilPermissionSetuid                                       *hl-OilPermissionSetuid*
-    Setuid/setgid permission character in the permissions column
-
-OilPermissionSticky                                       *hl-OilPermissionSticky*
-    Sticky bit permission character in the permissions column
-
-OilPermissionNone                                           *hl-OilPermissionNone*
-    No permission character in the permissions column
-
 OilCreate                                                           *hl-OilCreate*
     Create action in the oil preview window
 

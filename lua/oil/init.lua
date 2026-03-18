@@ -1102,36 +1102,6 @@ M._get_highlights = function()
       desc = 'Hidden executable files in an oil buffer',
     },
     {
-      name = 'OilPermissionRead',
-      link = 'DiagnosticWarn',
-      desc = 'Read permission character in the permissions column',
-    },
-    {
-      name = 'OilPermissionWrite',
-      link = 'DiagnosticError',
-      desc = 'Write permission character in the permissions column',
-    },
-    {
-      name = 'OilPermissionExec',
-      link = 'DiagnosticOk',
-      desc = 'Execute permission character in the permissions column',
-    },
-    {
-      name = 'OilPermissionSetuid',
-      link = 'DiagnosticError',
-      desc = 'Setuid/setgid permission character in the permissions column',
-    },
-    {
-      name = 'OilPermissionSticky',
-      link = 'DiagnosticInfo',
-      desc = 'Sticky bit permission character in the permissions column',
-    },
-    {
-      name = 'OilPermissionNone',
-      link = 'NonText',
-      desc = 'No permission character in the permissions column',
-    },
-    {
       name = 'OilCreate',
       link = 'DiagnosticInfo',
       desc = 'Create action in the oil preview window',
