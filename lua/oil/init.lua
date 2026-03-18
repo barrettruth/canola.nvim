@@ -1566,6 +1566,9 @@ M.setup = function(opts)
     pattern = '*',
     nested = true,
     callback = function(params)
+      if vim.v.vim_did_enter ~= 1 then
+        return
+      end
       local util = require('oil.util')
       if not util.is_oil_bufnr(params.buf) or vim.w.oil_did_enter then
         return
