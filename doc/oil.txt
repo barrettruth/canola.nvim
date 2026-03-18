@@ -175,6 +175,21 @@ The full list of options with their defaults:
       extra_s3_args = {},
       -- Extra arguments to pass to curl for FTP operations
       extra_curl_args = {},
+      -- Per-host SCP arg overrides. Args are appended after global extra_scp_args.
+      -- Keys are exact hostnames as they appear in the SSH URL.
+      ssh_hosts = {
+        -- ["myserver.com"] = { extra_scp_args = { "-O" } },
+      },
+      -- Per-bucket S3 arg overrides. Args are appended after global extra_s3_args.
+      -- Keys are exact S3 bucket names.
+      s3_buckets = {
+        -- ["my-r2-bucket"] = { extra_s3_args = { "--endpoint-url", "https://..." } },
+      },
+      -- Per-host curl arg overrides for FTP. Args are appended after global extra_curl_args.
+      -- Keys are exact hostnames as they appear in the FTP URL.
+      ftp_hosts = {
+        -- ["ftp.internal.com"] = { extra_curl_args = { "--insecure" } },
+      },
       -- EXPERIMENTAL support for performing file operations with git
       git = {
         -- Return true to automatically git add/mv/rm files
@@ -336,6 +351,35 @@ preview_win.max_file_size                          *oil.preview_win*
     Maximum file size in MB to load into the preview window. Files larger
     than this limit will show a placeholder message instead of being loaded.
     Set to `nil` to disable the limit.
+
+ssh_hosts                                                        *oil.ssh_hosts*
+    type: `table<string, {extra_scp_args?: string[]}>` default: `{}`
+    Per-host SCP argument overrides. Keys are exact hostnames as they appear
+    in the SSH URL. Per-host args are appended after the global
+    `extra_scp_args`. Example: >lua
+        ssh_hosts = {
+          ["nas.local"] = { extra_scp_args = { "-O" } },
+        }
+<
+
+s3_buckets                                                      *oil.s3_buckets*
+    type: `table<string, {extra_s3_args?: string[]}>` default: `{}`
+    Per-bucket S3 argument overrides. Keys are exact S3 bucket names.
+    Per-bucket args are appended after the global `extra_s3_args`. Example: >lua
+        s3_buckets = {
+          ["my-r2-bucket"] = { extra_s3_args = { "--endpoint-url", "https://..." } },
+        }
+<
+
+ftp_hosts                                                        *oil.ftp_hosts*
+    type: `table<string, {extra_curl_args?: string[]}>` default: `{}`
+    Per-host curl argument overrides for FTP operations. Keys are exact
+    hostnames as they appear in the FTP URL. Per-host args are appended after
+    the global `extra_curl_args`. Example: >lua
+        ftp_hosts = {
+          ["ftp.internal.com"] = { extra_curl_args = { "--insecure" } },
+        }
+<
 
 --------------------------------------------------------------------------------
 API                                                                      *oil-api*

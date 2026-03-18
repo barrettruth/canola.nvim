@@ -21,9 +21,21 @@ local FIELD_META = constants.FIELD_META
 ---@field port nil|integer
 ---@field path string
 
+---@param hosts string[]
 ---@param args string[]
-local function scp(args, ...)
-  local cmd = vim.list_extend({ 'scp', '-C' }, config.extra_scp_args)
+local function scp(hosts, args, ...)
+  local extra = vim.deepcopy(config.extra_scp_args)
+  local seen = {}
+  for _, host in ipairs(hosts) do
+    if not seen[host] then
+      seen[host] = true
+      local host_cfg = config.ssh_hosts[host]
+      if host_cfg and host_cfg.extra_scp_args then
+        vim.list_extend(extra, host_cfg.extra_scp_args)
+      end
+    end
+  end
+  local cmd = vim.list_extend({ 'scp', '-C' }, extra)
   vim.list_extend(cmd, args)
   shell.run(cmd, ...)
 end
@@ -320,12 +332,16 @@ M.perform_action = function(action, cb)
       local src_conn = get_connection(action.src_url)
       local dest_conn = get_connection(action.dest_url)
       if src_conn ~= dest_conn then
-        scp({ '-r', url_to_scp(src_res), url_to_scp(dest_res) }, function(err)
-          if err then
-            return cb(err)
+        scp(
+          { src_res.host, dest_res.host },
+          { '-r', url_to_scp(src_res), url_to_scp(dest_res) },
+          function(err)
+            if err then
+              return cb(err)
+            end
+            src_conn:rm(src_res.path, cb)
           end
-          src_conn:rm(src_res.path, cb)
-        end)
+        )
       else
         src_conn:mv(src_res.path, dest_res.path, cb)
       end
@@ -339,26 +355,31 @@ M.perform_action = function(action, cb)
       local src_res = M.parse_url(action.src_url)
       local dest_res = M.parse_url(action.dest_url)
       if not url_hosts_equal(src_res, dest_res) then
-        scp({ '-r', url_to_scp(src_res), url_to_scp(dest_res) }, cb)
+        scp(
+          { src_res.host, dest_res.host },
+          { '-r', url_to_scp(src_res), url_to_scp(dest_res) },
+          cb
+        )
       else
         local src_conn = get_connection(action.src_url)
         src_conn:cp(src_res.path, dest_res.path, cb)
       end
     else
-      local src_arg
-      local dest_arg
       if src_adapter == M then
-        src_arg = url_to_scp(M.parse_url(action.src_url))
+        local src_res = M.parse_url(action.src_url)
+        local src_arg = url_to_scp(src_res)
         local _, path = util.parse_url(action.dest_url)
         assert(path)
-        dest_arg = fs.posix_to_os_path(path)
+        local dest_arg = fs.posix_to_os_path(path)
+        scp({ src_res.host }, { '-r', src_arg, dest_arg }, cb)
       else
         local _, path = util.parse_url(action.src_url)
         assert(path)
-        src_arg = fs.posix_to_os_path(path)
-        dest_arg = url_to_scp(M.parse_url(action.dest_url))
+        local src_arg = fs.posix_to_os_path(path)
+        local dest_res = M.parse_url(action.dest_url)
+        local dest_arg = url_to_scp(dest_res)
+        scp({ dest_res.host }, { '-r', src_arg, dest_arg }, cb)
       end
-      scp({ '-r', src_arg, dest_arg }, cb)
     end
   else
     cb(string.format('Bad action type: %s', action.type))
@@ -384,7 +405,7 @@ M.read_file = function(bufnr)
   end
   local tmp_bufnr = vim.fn.bufadd(tmpfile)
 
-  scp({ scp_url, tmpfile }, function(err)
+  scp({ url.host }, { scp_url, tmpfile }, function(err)
     loading.set_loading(bufnr, false)
     vim.bo[bufnr].modifiable = true
     vim.cmd.doautocmd({ args = { 'BufReadPre', bufname }, mods = { silent = true } })
@@ -426,7 +447,7 @@ M.write_file = function(bufnr)
   vim.cmd.write({ args = { tmpfile }, bang = true, mods = { silent = true, noautocmd = true } })
   local tmp_bufnr = vim.fn.bufadd(tmpfile)
 
-  scp({ tmpfile, scp_url }, function(err)
+  scp({ url.host }, { tmpfile, scp_url }, function(err)
     vim.bo[bufnr].modifiable = true
     if err then
       vim.notify(string.format('Error writing file: %s', err), vim.log.levels.ERROR)

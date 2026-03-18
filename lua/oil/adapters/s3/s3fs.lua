@@ -46,8 +46,22 @@ end
 ---@param cmd string[] cmd and flags
 ---@return string[] Shell command to run
 local function create_s3_command(cmd)
+  local bucket
+  for _, arg in ipairs(cmd) do
+    bucket = arg:match('^s3://([^/]+)')
+    if bucket then
+      break
+    end
+  end
+  local extra = vim.deepcopy(config.extra_s3_args)
+  if bucket then
+    local bucket_cfg = config.s3_buckets[bucket]
+    if bucket_cfg and bucket_cfg.extra_s3_args then
+      vim.list_extend(extra, bucket_cfg.extra_s3_args)
+    end
+  end
   local full_cmd = vim.list_extend({ 'aws', 's3' }, cmd)
-  return vim.list_extend(full_cmd, config.extra_s3_args)
+  return vim.list_extend(full_cmd, extra)
 end
 
 ---@param url string

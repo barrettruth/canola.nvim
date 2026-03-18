@@ -118,6 +118,9 @@ local default_config = {
   extra_s3_args = {},
   -- Extra arguments to pass to curl for FTP operations
   extra_curl_args = {},
+  ssh_hosts = {},
+  s3_buckets = {},
+  ftp_hosts = {},
   -- EXPERIMENTAL support for performing file operations with git
   git = {
     -- Return true to automatically git add/mv/rm files
@@ -233,6 +236,15 @@ default_config.adapter_aliases = {}
 -- here we can get some performance wins
 default_config.view_options.highlight_filename = nil
 
+---@class (exact) oil.SshHostConfig
+---@field extra_scp_args? string[]
+
+---@class (exact) oil.S3BucketConfig
+---@field extra_s3_args? string[]
+
+---@class (exact) oil.FtpHostConfig
+---@field extra_curl_args? string[]
+
 ---@class oil.Config
 ---@field adapters table<string, string> Hidden from SetupOpts
 ---@field adapter_aliases table<string, string> Hidden from SetupOpts
@@ -259,6 +271,9 @@ default_config.view_options.highlight_filename = nil
 ---@field extra_scp_args string[]
 ---@field extra_s3_args string[]
 ---@field extra_curl_args string[]
+---@field ssh_hosts table<string, oil.SshHostConfig>
+---@field s3_buckets table<string, oil.S3BucketConfig>
+---@field ftp_hosts table<string, oil.FtpHostConfig>
 ---@field git oil.GitOptions
 ---@field float oil.FloatWindowConfig
 ---@field preview_win oil.PreviewWindowConfig
@@ -294,6 +309,9 @@ local M = {}
 ---@field extra_scp_args? string[] Extra arguments to pass to SCP when moving/copying files over SSH
 ---@field extra_s3_args? string[] Extra arguments to pass to aws s3 when moving/copying files using aws s3
 ---@field extra_curl_args? string[] Extra arguments to pass to curl for FTP operations
+---@field ssh_hosts? table<string, oil.SshHostConfig> Per-host SCP arg overrides
+---@field s3_buckets? table<string, oil.S3BucketConfig> Per-bucket S3 arg overrides
+---@field ftp_hosts? table<string, oil.FtpHostConfig> Per-host curl arg overrides
 ---@field git? oil.SetupGitOptions EXPERIMENTAL support for performing file operations with git
 ---@field float? oil.SetupFloatWindowConfig Configuration for the floating window in oil.open_float
 ---@field preview_win? oil.SetupPreviewWindowConfig Configuration for the file preview window
