@@ -407,7 +407,7 @@ M.list = function(url, column_defs, callback)
           name, entry_type, meta = parse_iis_list_line(line)
         end
         if name and entry_type and name ~= '.' and name ~= '..' then
-          table.insert(entries, { 0, name, entry_type, meta })
+          table.insert(entries, { nil, name, entry_type, meta })
         end
       end
     end
