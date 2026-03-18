@@ -98,24 +98,41 @@ local function curl_ftp_url(url)
 end
 
 ---@param url oil.ftpUrl
----@return string
-local function host_ftp_url(url)
-  local scheme = url.scheme == 'oil-ftps://' and 'ftps://' or 'ftp://'
-  local pieces = { scheme }
-  if url.user then
-    table.insert(pieces, url.user)
-    if url.password then
-      table.insert(pieces, ':')
-      table.insert(pieces, url.password)
+---@param commands string[]
+---@param cb fun(err: nil|string)
+local function ftpcmd(url, commands, cb)
+  local lines = {}
+  local use_tls = url.scheme == 'oil-ftps://'
+  if use_tls then
+    table.insert(lines, 'import ftplib, ssl')
+    table.insert(lines, 'ctx = ssl.create_default_context()')
+    table.insert(lines, 'ftp = ftplib.FTP_TLS(context=ctx)')
+  else
+    table.insert(lines, 'import ftplib')
+    table.insert(lines, 'ftp = ftplib.FTP()')
+  end
+  table.insert(lines, string.format('ftp.connect(%q, %d)', url.host, url.port or 21))
+  if use_tls then
+    table.insert(lines, 'ftp.auth()')
+  end
+  local user = url.user or 'anonymous'
+  local password = url.password or ''
+  table.insert(lines, string.format('ftp.login(%q, %q)', user, password))
+  if use_tls then
+    table.insert(lines, 'ftp.prot_p()')
+  end
+  for _, cmd in ipairs(commands) do
+    table.insert(lines, string.format('ftp.voidcmd(%q)', cmd))
+  end
+  table.insert(lines, 'ftp.quit()')
+  local script = table.concat(lines, '\n')
+  shell.run({ 'python3', '-c', script }, function(err)
+    if err then
+      cb(err:match('ftplib%.[^:]+: (.+)$') or err:match('[^\n]+$') or err)
+    else
+      cb(nil)
     end
-    table.insert(pieces, '@')
-  end
-  table.insert(pieces, url.host)
-  if url.port then
-    table.insert(pieces, string.format(':%d', url.port))
-  end
-  table.insert(pieces, '/')
-  return table.concat(pieces, '')
+  end)
 end
 
 ---@param url oil.ftpUrl
@@ -343,11 +360,7 @@ ftp_columns.permissions = {
     local res = M.parse_url(action.url)
     local octal = permissions.mode_to_octal_str(action.value)
     local ftp_path = ftp_abs_path(res)
-    curl(res, {
-      '--quote',
-      string.format('SITE CHMOD %s %s', octal, ftp_path),
-      host_ftp_url(res),
-    }, callback)
+    ftpcmd(res, { string.format('SITE CHMOD %s %s', octal, ftp_path) }, callback)
   end,
 }
 
@@ -469,11 +482,7 @@ M.perform_action = function(action, cb)
     local res = M.parse_url(action.url)
     local ftp_path = ftp_abs_path(res)
     if action.entry_type == 'directory' then
-      curl(res, {
-        '--quote',
-        string.format('MKD %s', ftp_path),
-        host_ftp_url(res),
-      }, cb)
+      ftpcmd(res, { string.format('MKD %s', ftp_path) }, cb)
     elseif action.entry_type == 'link' then
       cb('FTP does not support symbolic links')
     else
@@ -483,17 +492,9 @@ M.perform_action = function(action, cb)
     local res = M.parse_url(action.url)
     local ftp_path = ftp_abs_path(res)
     if action.entry_type == 'directory' then
-      curl(res, {
-        '--quote',
-        string.format('RMD %s', ftp_path),
-        host_ftp_url(res),
-      }, cb)
+      ftpcmd(res, { string.format('RMD %s', ftp_path) }, cb)
     else
-      curl(res, {
-        '--quote',
-        string.format('DELE %s', ftp_path),
-        host_ftp_url(res),
-      }, cb)
+      ftpcmd(res, { string.format('DELE %s', ftp_path) }, cb)
     end
   elseif action.type == 'move' then
     local src_adapter = assert(config.get_adapter_by_scheme(action.src_url))
@@ -502,12 +503,9 @@ M.perform_action = function(action, cb)
       local src_res = M.parse_url(action.src_url)
       local dest_res = M.parse_url(action.dest_url)
       if url_hosts_equal(src_res, dest_res) then
-        curl(src_res, {
-          '--quote',
+        ftpcmd(src_res, {
           string.format('RNFR %s', ftp_abs_path(src_res)),
-          '--quote',
           string.format('RNTO %s', ftp_abs_path(dest_res)),
-          host_ftp_url(src_res),
         }, cb)
       else
         if action.entry_type == 'directory' then
@@ -518,11 +516,7 @@ M.perform_action = function(action, cb)
           if err then
             return cb(err)
           end
-          curl(src_res, {
-            '--quote',
-            string.format('DELE %s', ftp_abs_path(src_res)),
-            host_ftp_url(src_res),
-          }, cb)
+          ftpcmd(src_res, { string.format('DELE %s', ftp_abs_path(src_res)) }, cb)
         end)
       end
     else
