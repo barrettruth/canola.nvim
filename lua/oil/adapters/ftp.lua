@@ -98,9 +98,9 @@ local function curl_ftp_url(url)
 end
 
 ---@param url oil.ftpUrl
----@param commands string[]
+---@param py_lines string[]
 ---@param cb fun(err: nil|string)
-local function ftpcmd(url, commands, cb)
+local function ftpcmd(url, py_lines, cb)
   local lines = {}
   local use_tls = url.scheme == 'oil-ftps://'
   if use_tls then
@@ -121,8 +121,8 @@ local function ftpcmd(url, commands, cb)
   if use_tls then
     table.insert(lines, 'ftp.prot_p()')
   end
-  for _, cmd in ipairs(commands) do
-    table.insert(lines, string.format('ftp.voidcmd(%q)', cmd))
+  for _, line in ipairs(py_lines) do
+    table.insert(lines, line)
   end
   table.insert(lines, 'ftp.quit()')
   local script = table.concat(lines, '\n')
@@ -360,7 +360,11 @@ ftp_columns.permissions = {
     local res = M.parse_url(action.url)
     local octal = permissions.mode_to_octal_str(action.value)
     local ftp_path = ftp_abs_path(res)
-    ftpcmd(res, { string.format('SITE CHMOD %s %s', octal, ftp_path) }, callback)
+    ftpcmd(
+      res,
+      { string.format('ftp.voidcmd(%q)', 'SITE CHMOD ' .. octal .. ' ' .. ftp_path) },
+      callback
+    )
   end,
 }
 
@@ -482,7 +486,7 @@ M.perform_action = function(action, cb)
     local res = M.parse_url(action.url)
     local ftp_path = ftp_abs_path(res)
     if action.entry_type == 'directory' then
-      ftpcmd(res, { string.format('MKD %s', ftp_path) }, cb)
+      ftpcmd(res, { string.format('ftp.voidcmd(%q)', 'MKD ' .. ftp_path) }, cb)
     elseif action.entry_type == 'link' then
       cb('FTP does not support symbolic links')
     else
@@ -492,9 +496,9 @@ M.perform_action = function(action, cb)
     local res = M.parse_url(action.url)
     local ftp_path = ftp_abs_path(res)
     if action.entry_type == 'directory' then
-      ftpcmd(res, { string.format('RMD %s', ftp_path) }, cb)
+      ftpcmd(res, { string.format('ftp.voidcmd(%q)', 'RMD ' .. ftp_path) }, cb)
     else
-      ftpcmd(res, { string.format('DELE %s', ftp_path) }, cb)
+      ftpcmd(res, { string.format('ftp.voidcmd(%q)', 'DELE ' .. ftp_path) }, cb)
     end
   elseif action.type == 'move' then
     local src_adapter = assert(config.get_adapter_by_scheme(action.src_url))
@@ -504,8 +508,7 @@ M.perform_action = function(action, cb)
       local dest_res = M.parse_url(action.dest_url)
       if url_hosts_equal(src_res, dest_res) then
         ftpcmd(src_res, {
-          string.format('RNFR %s', ftp_abs_path(src_res)),
-          string.format('RNTO %s', ftp_abs_path(dest_res)),
+          string.format('ftp.rename(%q, %q)', ftp_abs_path(src_res), ftp_abs_path(dest_res)),
         }, cb)
       else
         if action.entry_type == 'directory' then
@@ -516,7 +519,11 @@ M.perform_action = function(action, cb)
           if err then
             return cb(err)
           end
-          ftpcmd(src_res, { string.format('DELE %s', ftp_abs_path(src_res)) }, cb)
+          ftpcmd(
+            src_res,
+            { string.format('ftp.voidcmd(%q)', 'DELE ' .. ftp_abs_path(src_res)) },
+            cb
+          )
         end)
       end
     else
