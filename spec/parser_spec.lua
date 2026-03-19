@@ -142,7 +142,7 @@ describe('parser', function()
     local _, errors = parser.parse(bufnr)
     assert.are.same({
       {
-        message = 'Duplicate filename',
+        message = 'Duplicate filename: foo',
         lnum = 1,
         end_lnum = 2,
         col = 0,
@@ -161,7 +161,7 @@ describe('parser', function()
     local _, errors = parser.parse(bufnr)
     assert.are.same({
       {
-        message = 'Duplicate filename',
+        message = 'Duplicate filename: a.txt',
         lnum = 1,
         end_lnum = 2,
         col = 0,

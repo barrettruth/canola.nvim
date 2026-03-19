@@ -254,7 +254,7 @@ end
 ---@param err oil.ParseError
 ---@return boolean
 M.filter_error = function(err)
-  if err.message == 'Duplicate filename' then
+  if vim.startswith(err.message, 'Duplicate filename') then
     return false
   end
   return true
