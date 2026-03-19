@@ -1,7 +1,7 @@
 # canola.nvim
 
-[oil.nvim](https://github.com/stevearc/oil.nvim) with 55+ upstream bugs and
-feature requests resolved. Drop-in replacement — zero config changes needed.
+[oil.nvim](https://github.com/stevearc/oil.nvim) with 133 upstream issues and
+PRs triaged. Drop-in replacement — zero config changes needed.
 
 [Full upstream triage](doc/upstream.md)
 
@@ -68,6 +68,12 @@ Drew Neil:
   — cross-directory filesystem-as-buffer with a column view
 - [vim-vinegar](https://github.com/tpope/vim-vinegar) — the granddaddy of
   single-directory file browsing
+- [dirbuf.nvim](https://github.com/elihunter173/dirbuf.nvim) — filesystem as
+  buffer without cross-directory edits
+- [lir.nvim](https://github.com/tamago324/lir.nvim) — vim-vinegar style with
+  Neovim integration
+- [vim-dirvish](https://github.com/justinmk/vim-dirvish) — stable, simple
+  directory browser
 
 ## Acknowledgements
 
