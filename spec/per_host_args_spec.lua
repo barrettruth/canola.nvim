@@ -1,4 +1,4 @@
-local config = require('oil.config')
+local config = require('canola.config')
 local test_util = require('spec.test_util')
 
 describe('per-host/bucket arg overrides', function()

@@ -1,5 +1,5 @@
 -- Manual test for minimizing/restoring progress window
-local Progress = require('oil.mutator.progress')
+local Progress = require('canola.mutator.progress')
 
 local progress = Progress.new()
 
@@ -13,7 +13,7 @@ for i = 1, 10, 1 do
   vim.defer_fn(function()
     progress:set_action({
       type = 'create',
-      url = string.format('oil:///tmp/test_%d.txt', i),
+      url = string.format('canola:///tmp/test_%d.txt', i),
       entry_type = 'file',
     }, i, 10)
   end, (i - 1) * 1000)

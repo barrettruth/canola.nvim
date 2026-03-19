@@ -1,4 +1,4 @@
-local config = require('oil.config')
+local config = require('canola.config')
 
 describe('config', function()
   it('uses defaults when setup() is called with no args', function()

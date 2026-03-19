@@ -1,13 +1,13 @@
-local cache = require('oil.cache')
-local test_adapter = require('oil.adapters.test')
-local util = require('oil.util')
+local cache = require('canola.cache')
+local test_adapter = require('canola.adapters.test')
+local util = require('canola.util')
 local M = {}
 
 M.reset_editor = function()
-  require('oil').setup({
+  require('canola').setup({
     columms = {},
     adapters = {
-      ['oil-test://'] = 'test',
+      ['canola-test://'] = 'test',
     },
     prompt_save_on_select_new_entry = false,
   })
@@ -17,13 +17,13 @@ M.reset_editor = function()
   for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
     vim.api.nvim_buf_delete(bufnr, { force = true })
   end
-  local mutator = require('oil.mutator')
+  local mutator = require('canola.mutator')
   if mutator.is_mutating() then
     vim.wait(50, function()
       return not mutator.is_mutating()
     end, 10)
     mutator.reset()
-    require('oil.view').unlock_buffers()
+    require('canola.view').unlock_buffers()
   end
   cache.clear_everything()
   test_adapter.test_clear()
@@ -62,7 +62,7 @@ M.await_throwiferr = function(fn, nargs, ...)
 end
 
 M.oil_open = function(...)
-  M.await(require('oil').open, 3, ...)
+  M.await(require('canola').open, 3, ...)
 end
 
 M.wait_for_autocmd = function(autocmd)
@@ -89,7 +89,7 @@ M.wait_for_autocmd = function(autocmd)
   end
 end
 
-M.wait_oil_ready = function()
+M.wait_canola_ready = function()
   local ready = false
   util.run_after_load(
     0,
@@ -101,7 +101,7 @@ M.wait_oil_ready = function()
     return ready
   end, 10)
   if not ready then
-    error('wait_oil_ready timed out')
+    error('wait_canola_ready timed out')
   end
 end
 
@@ -125,27 +125,27 @@ M.actions = {
   ---@param args string[]
   open = function(args)
     vim.schedule(function()
-      vim.cmd.Oil({ args = args })
-      if vim.b.oil_ready then
+      vim.cmd.Canola({ args = args })
+      if vim.b.canola_ready then
         vim.api.nvim_exec_autocmds('User', {
-          pattern = 'OilEnter',
+          pattern = 'CanolaEnter',
           modeline = false,
           data = { buf = vim.api.nvim_get_current_buf() },
         })
       end
     end)
-    M.wait_for_autocmd({ 'User', pattern = 'OilEnter' })
+    M.wait_for_autocmd({ 'User', pattern = 'CanolaEnter' })
   end,
 
   ---Save all changes and wait for operation to complete
   save = function()
-    vim.schedule_wrap(require('oil').save)({ confirm = false })
-    M.wait_for_autocmd({ 'User', pattern = 'OilMutationComplete' })
+    vim.schedule_wrap(require('canola').save)({ confirm = false })
+    M.wait_for_autocmd({ 'User', pattern = 'CanolaMutationComplete' })
   end,
 
   ---@param bufnr? integer
   reload = function(bufnr)
-    M.await(require('oil.view').render_buffer_async, 3, bufnr or 0)
+    M.await(require('canola.view').render_buffer_async, 3, bufnr or 0)
   end,
 
   ---Move cursor to a file or directory in an oil buffer

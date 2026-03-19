@@ -1,7 +1,7 @@
 local TmpDir = require('spec.tmpdir')
-local oil = require('oil')
+local canola = require('canola')
 local test_util = require('spec.test_util')
-local util = require('oil.util')
+local util = require('canola.util')
 
 describe('oil preview', function()
   local tmpdir
@@ -18,7 +18,7 @@ describe('oil preview', function()
   it('opens preview window', function()
     tmpdir:create({ 'a.txt' })
     test_util.oil_open(tmpdir.path)
-    test_util.await(oil.open_preview, 2)
+    test_util.await(canola.open_preview, 2)
     local preview_win = util.get_preview_win()
     assert.not_nil(preview_win)
     assert(preview_win)
