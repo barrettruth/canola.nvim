@@ -1,51 +1,19 @@
 local fs = require('canola.fs')
 local ms = require('vim.lsp.protocol').Methods
-if vim.fn.has('nvim-0.10') == 0 then
-  ms = {
-    workspace_willCreateFiles = 'workspace/willCreateFiles',
-    workspace_didCreateFiles = 'workspace/didCreateFiles',
-    workspace_willDeleteFiles = 'workspace/willDeleteFiles',
-    workspace_didDeleteFiles = 'workspace/didDeleteFiles',
-    workspace_willRenameFiles = 'workspace/willRenameFiles',
-    workspace_didRenameFiles = 'workspace/didRenameFiles',
-  }
-end
 
 local M = {}
 
 ---@param method string
 ---@return vim.lsp.Client[]
 local function get_clients(method)
-  if vim.fn.has('nvim-0.10') == 1 then
-    return vim.lsp.get_clients({ method = method })
-  else
-    ---@diagnostic disable-next-line: deprecated
-    local clients = vim.lsp.get_active_clients()
-    return vim.tbl_filter(function(client)
-      return client.supports_method(method)
-    end, clients)
-  end
+  return vim.lsp.get_clients({ method = method })
 end
 
 ---@param glob string|vim.lpeg.Pattern
 ---@param path string
 ---@return boolean
 local function match_glob(glob, path)
-  -- nvim-0.10 will have vim.glob.to_lpeg, so this will be a LPeg pattern
-  if type(glob) ~= 'string' then
-    return glob:match(path) ~= nil
-  end
-
-  -- older versions fall back to glob2regpat
-  local pat = vim.fn.glob2regpat(glob)
-  local ignorecase = vim.o.ignorecase
-  vim.o.ignorecase = false
-  local ok, match = pcall(vim.fn.match, path, pat)
-  vim.o.ignorecase = ignorecase
-  if not ok then
-    error(match)
-  end
-  return match >= 0
+  return glob:match(path) ~= nil
 end
 
 ---@param client vim.lsp.Client
@@ -73,32 +41,21 @@ local function get_matching_paths(client, filters, paths)
         glob = glob:gsub('/', '\\')
       end
 
-      ---@type string|vim.lpeg.Pattern
-      local glob_to_match = glob
-      if vim.glob and vim.glob.to_lpeg then
-        glob = glob:gsub('{(.-)}', function(s)
-          local patterns = vim.split(s, ',')
-          local filtered = {}
-          for _, pat in ipairs(patterns) do
-            if pat ~= '' then
-              table.insert(filtered, pat)
-            end
+      glob = glob:gsub('{(.-)}', function(s)
+        local patterns = vim.split(s, ',')
+        local filtered = {}
+        for _, pat in ipairs(patterns) do
+          if pat ~= '' then
+            table.insert(filtered, pat)
           end
-          if #filtered == 0 then
-            return ''
-          end
-          -- HACK around https://github.com/neovim/neovim/issues/28931
-          -- find alternations and sort them by length to try to match the longest first
-          if vim.fn.has('nvim-0.11') == 0 then
-            table.sort(filtered, function(a, b)
-              return a:len() > b:len()
-            end)
-          end
-          return '{' .. table.concat(filtered, ',') .. '}'
-        end)
+        end
+        if #filtered == 0 then
+          return ''
+        end
+        return '{' .. table.concat(filtered, ',') .. '}'
+      end)
 
-        glob_to_match = vim.glob.to_lpeg(glob)
-      end
+      local glob_to_match = vim.glob.to_lpeg(glob)
       local matches = pattern.matches
       table.insert(match_fns, function(path)
         local is_dir = vim.fn.isdirectory(path) == 1
@@ -142,7 +99,7 @@ local function get_matching_paths(client, filters, paths)
       table.insert(ret, path)
     end
   end
-  if vim.tbl_isempty(ret) then
+  if next(ret) == nil then
     return nil
   else
     return ret
@@ -177,13 +134,7 @@ local function will_file_operation(method, capability_name, files, options)
           }
         end, matching_files),
       }
-      local result, err
-      if vim.fn.has('nvim-0.11') == 1 then
-        result, err = client:request_sync(method, params, options.timeout_ms or 1000, 0)
-      else
-        ---@diagnostic disable-next-line: param-type-mismatch
-        result, err = client.request_sync(method, params, options.timeout_ms or 1000, 0)
-      end
+      local result, err = client:request_sync(method, params, options.timeout_ms or 1000, 0)
       if result and result.result then
         if options.apply_edits ~= false then
           vim.lsp.util.apply_workspace_edit(result.result, client.offset_encoding)
@@ -219,12 +170,7 @@ local function did_file_operation(method, capability_name, files)
           }
         end, matching_files),
       }
-      if vim.fn.has('nvim-0.11') == 1 then
-        client:notify(method, params)
-      else
-        ---@diagnostic disable-next-line: param-type-mismatch
-        client.notify(method, params)
-      end
+      client:notify(method, params)
     end
   end
 end
@@ -299,15 +245,8 @@ function M.will_rename_files(files, options)
           }
         end, matching_files),
       }
-      local result, err
-      if vim.fn.has('nvim-0.11') == 1 then
-        result, err =
-          client:request_sync(ms.workspace_willRenameFiles, params, options.timeout_ms or 1000, 0)
-      else
-        result, err =
-          ---@diagnostic disable-next-line: param-type-mismatch
-          client.request_sync(ms.workspace_willRenameFiles, params, options.timeout_ms or 1000, 0)
-      end
+      local result, err =
+        client:request_sync(ms.workspace_willRenameFiles, params, options.timeout_ms or 1000, 0)
       if result and result.result then
         if options.apply_edits ~= false then
           vim.lsp.util.apply_workspace_edit(result.result, client.offset_encoding)
@@ -338,12 +277,7 @@ function M.did_rename_files(files)
           }
         end, matching_files),
       }
-      if vim.fn.has('nvim-0.11') == 1 then
-        client:notify(ms.workspace_didRenameFiles, params)
-      else
-        ---@diagnostic disable-next-line: param-type-mismatch
-        client.notify(ms.workspace_didRenameFiles, params)
-      end
+      client:notify(ms.workspace_didRenameFiles, params)
     end
   end
 end

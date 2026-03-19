@@ -1,4 +1,4 @@
-local uv = vim.uv or vim.loop
+local uv = vim.uv
 local cache = require('canola.cache')
 local columns = require('canola.columns')
 local config = require('canola.config')
@@ -256,7 +256,7 @@ M.delete_hidden_buffers = function()
   if
     not visible_buffers
     or not hidden_buffers
-    or not vim.tbl_isempty(visible_buffers)
+    or next(visible_buffers) ~= nil
     or vim.fn.win_gettype() == 'command'
   then
     return
@@ -614,7 +614,7 @@ M.initialize = function(bufnr)
       vim.defer_fn(function()
         local visible_buffers = get_visible_hidden_buffers()
         -- Only delete oil buffers if none of them are visible
-        if visible_buffers and vim.tbl_isempty(visible_buffers) then
+        if visible_buffers and next(visible_buffers) == nil then
           -- Check if cleanup is enabled
           if type(config.cleanup_delay_ms) == 'number' then
             if config.cleanup_delay_ms > 0 then
@@ -834,7 +834,7 @@ local function get_sort_function(adapter, num_entries)
   local sort_config = config.view_options.sort
 
   -- If empty, default to type + name sorting
-  if vim.tbl_isempty(sort_config) then
+  if next(sort_config) == nil then
     sort_config = { { 'type', 'asc' }, { 'name', 'asc' } }
   end
 

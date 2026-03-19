@@ -6,7 +6,7 @@ describe('url', function()
       { '', 'canola://' .. util.addslash(vim.fn.getcwd()) },
       {
         'term://~/oil.nvim//52953:/bin/sh',
-        'canola://' .. vim.loop.os_homedir() .. '/oil.nvim/',
+        'canola://' .. vim.uv.os_homedir() .. '/oil.nvim/',
       },
       { '/foo/bar.txt', 'canola:///foo/', 'bar.txt' },
       { 'canola:///foo/bar.txt', 'canola:///foo/', 'bar.txt' },

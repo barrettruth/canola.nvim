@@ -1,4 +1,3 @@
--- integration with git operations
 local fs = require('canola.fs')
 
 local M = {}
@@ -22,24 +21,17 @@ M.add = function(path, cb)
     return cb()
   end
 
-  local stderr = ''
-  local jid = vim.fn.jobstart({ 'git', 'add', path }, {
-    cwd = root,
-    stderr_buffered = true,
-    on_stderr = function(_, data)
-      stderr = table.concat(data, '\n')
-    end,
-    on_exit = function(_, code)
-      if code ~= 0 then
-        cb('Error in git add: ' .. stderr)
+  vim.system(
+    { 'git', 'add', path },
+    { cwd = root, text = true },
+    vim.schedule_wrap(function(result)
+      if result.code ~= 0 then
+        cb('Error in git add: ' .. (result.stderr or ''))
       else
         cb()
       end
-    end,
-  })
-  if jid <= 0 then
-    cb()
-  end
+    end)
+  )
 end
 
 ---@param path string
@@ -50,16 +42,12 @@ M.rm = function(path, cb)
     return cb()
   end
 
-  local stderr = ''
-  local jid = vim.fn.jobstart({ 'git', 'rm', '-r', path }, {
-    cwd = root,
-    stderr_buffered = true,
-    on_stderr = function(_, data)
-      stderr = table.concat(data, '\n')
-    end,
-    on_exit = function(_, code)
-      if code ~= 0 then
-        stderr = vim.trim(stderr)
+  vim.system(
+    { 'git', 'rm', '-r', path },
+    { cwd = root, text = true },
+    vim.schedule_wrap(function(result)
+      if result.code ~= 0 then
+        local stderr = vim.trim(result.stderr or '')
         if stderr:match("^fatal: pathspec '.*' did not match any files$") then
           cb()
         else
@@ -68,11 +56,8 @@ M.rm = function(path, cb)
       else
         cb()
       end
-    end,
-  })
-  if jid <= 0 then
-    cb()
-  end
+    end)
+  )
 end
 
 ---@param entry_type canola.EntryType
@@ -86,16 +71,12 @@ M.mv = function(entry_type, src_path, dest_path, cb)
     return
   end
 
-  local stderr = ''
-  local jid = vim.fn.jobstart({ 'git', 'mv', src_path, dest_path }, {
-    cwd = src_git,
-    stderr_buffered = true,
-    on_stderr = function(_, data)
-      stderr = table.concat(data, '\n')
-    end,
-    on_exit = function(_, code)
-      if code ~= 0 then
-        stderr = vim.trim(stderr)
+  vim.system(
+    { 'git', 'mv', src_path, dest_path },
+    { cwd = src_git, text = true },
+    vim.schedule_wrap(function(result)
+      if result.code ~= 0 then
+        local stderr = vim.trim(result.stderr or '')
         if
           stderr:match('^fatal: not under version control')
           or stderr:match('^fatal: source directory is empty')
@@ -107,12 +88,8 @@ M.mv = function(entry_type, src_path, dest_path, cb)
       else
         cb()
       end
-    end,
-  })
-  if jid <= 0 then
-    -- Failed to run git, fall back to normal filesystem operations
-    fs.recursive_move(entry_type, src_path, dest_path, cb)
-  end
+    end)
+  )
 end
 
 return M

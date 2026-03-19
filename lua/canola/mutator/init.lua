@@ -288,7 +288,7 @@ M.enforce_action_order = function(actions)
     end
     seen[action] = true
     local deps = get_deps(action)
-    if vim.tbl_isempty(deps) then
+    if next(deps) == nil then
       return action
     end
     local action_in_loop
@@ -305,7 +305,7 @@ M.enforce_action_order = function(actions)
 
   local ret = {}
   local after = {}
-  while not vim.tbl_isempty(actions) do
+  while next(actions) ~= nil do
     local action = actions[1]
     local selected, loop_action = find_leaf(action)
     local to_remove
@@ -542,7 +542,7 @@ M.try_write_changes = function(confirm, cb)
       if adapter.filter_error then
         errors = vim.tbl_filter(adapter.filter_error, errors)
       end
-      if not vim.tbl_isempty(errors) then
+      if next(errors) ~= nil then
         all_errors[bufnr] = errors
       end
     end
@@ -558,7 +558,7 @@ M.try_write_changes = function(confirm, cb)
 
   local ns = vim.api.nvim_create_namespace('Canola')
   vim.diagnostic.reset(ns)
-  if not vim.tbl_isempty(all_errors) then
+  if next(all_errors) ~= nil then
     for bufnr, errors in pairs(all_errors) do
       vim.diagnostic.set(ns, bufnr, errors)
     end

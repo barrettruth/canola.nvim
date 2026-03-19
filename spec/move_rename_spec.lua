@@ -14,7 +14,7 @@ describe('update_moved_buffers', function()
   end)
 
   it('Renames moved buffers when they are normal files', function()
-    local tmpdir = fs.join(vim.loop.fs_realpath(vim.fn.stdpath('cache')), 'canola', 'test')
+    local tmpdir = fs.join(vim.uv.fs_realpath(vim.fn.stdpath('cache')), 'canola', 'test')
     local testfile = fs.join(tmpdir, 'foo.txt')
     vim.cmd.edit({ args = { testfile } })
     util.update_moved_buffers(
@@ -44,7 +44,7 @@ describe('update_moved_buffers', function()
   end)
 
   it('Renames subfiles when they are normal files', function()
-    local tmpdir = fs.join(vim.loop.fs_realpath(vim.fn.stdpath('cache')), 'canola', 'test')
+    local tmpdir = fs.join(vim.uv.fs_realpath(vim.fn.stdpath('cache')), 'canola', 'test')
     local foo = fs.join(tmpdir, 'foo')
     local bar = fs.join(tmpdir, 'bar')
     local testfile = fs.join(foo, 'foo.txt')

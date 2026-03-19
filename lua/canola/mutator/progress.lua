@@ -46,7 +46,7 @@ function Progress:show(opts)
   local loading_iter = loading.get_bar_iter()
   local spinner = loading.get_iter('dots')
   if not self.timer then
-    self.timer = vim.loop.new_timer()
+    self.timer = vim.uv.new_timer()
     self.timer:start(
       0,
       math.floor(1000 / FPS),

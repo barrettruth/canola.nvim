@@ -162,7 +162,7 @@ M.rename_buffer = function(src_bufnr, dest_buf_name)
   -- If this buffer is not literally a file on disk, then we can use the simple
   -- rename logic. The only reason we can't use nvim_buf_set_name on files is because vim will
   -- think that the new buffer conflicts with the file next time it tries to save.
-  if not vim.loop.fs_stat(dest_buf_name) then
+  if not vim.uv.fs_stat(dest_buf_name) then
     ---@diagnostic disable-next-line: param-type-mismatch
     local altbuf = vim.fn.bufnr('#')
     -- This will fail if the dest buf name already exists
@@ -766,7 +766,7 @@ M.adapter_list_all = function(adapter, url, opts, callback)
   local cache = require('canola.cache')
   if not opts.no_cache then
     local entries = cache.list_url(url)
-    if not vim.tbl_isempty(entries) then
+    if next(entries) ~= nil then
       return callback(nil, vim.tbl_values(entries))
     end
   end

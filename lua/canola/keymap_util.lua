@@ -43,7 +43,6 @@ local function resolve(rhs)
     opts.callback = nil
     opts.mode = nil
     opts[1] = nil
-    opts.deprecated = nil
     opts.parameters = nil
 
     if opts.opts and type(callback) == 'function' then

@@ -21,7 +21,7 @@ https://user-images.githubusercontent.com/506791/209727111-6b4a11f4-634a-4efa-94
 
 ## Requirements
 
-- Neovim 0.10+
+- Neovim 0.11+
 - (Optionally) any of the following icon providers:
   - [mini.icons](https://github.com/nvim-mini/mini.nvim/blob/main/readmes/mini-icons.md)
   - [nvim-web-devicons](https://github.com/nvim-tree/nvim-web-devicons)

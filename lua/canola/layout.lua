@@ -156,11 +156,6 @@ M.split_window = function(winid, direction, gap)
     col = float_config.col,
     row = float_config.row,
   }
-  if vim.fn.has('nvim-0.10') == 0 then
-    -- read https://github.com/neovim/neovim/issues/24430 for more infos.
-    dim_root.col = float_config.col[vim.val_idx]
-    dim_root.row = float_config.row[vim.val_idx]
-  end
   local dim_new = vim.deepcopy(dim_root)
 
   if direction == 'left' or direction == 'right' then

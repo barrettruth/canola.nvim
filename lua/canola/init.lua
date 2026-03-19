@@ -818,7 +818,7 @@ M.select = function(opts, callback)
       table.insert(entries, entry)
     end
   end
-  if vim.tbl_isempty(entries) then
+  if next(entries) == nil then
     return finish('Could not find entry under cursor')
   end
 
@@ -1300,13 +1300,11 @@ local function close_preview_window_if_not_in_oil()
 end
 
 local _on_key_ns = 0
----Initialize oil
----@param opts oil.setupOpts|nil
-M.setup = function(opts)
+M.init = function()
   local Ringbuf = require('canola.ringbuf')
   local config = require('canola.config')
 
-  config.setup(opts)
+  config.init()
   set_colors()
   local callback = function(args)
     local util = require('canola.util')
@@ -1527,7 +1525,7 @@ M.setup = function(opts)
       once = true,
       callback = function()
         vim.notify(
-          'If you are trying to browse using Oil, use canola-ssh:// instead of scp://\nSet `silence_scp_warning = true` in oil.setup() to disable this message.\nSee https://github.com/stevearc/oil.nvim/issues/27 for more information.',
+          'If you are trying to browse using Canola, use canola-ssh:// instead of scp://\nSet `silence_scp_warning = true` in vim.g.canola to disable this message.\nSee https://github.com/stevearc/oil.nvim/issues/27 for more information.',
           vim.log.levels.WARN
         )
       end,

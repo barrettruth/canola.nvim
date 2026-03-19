@@ -1,1 +1,1 @@
-
+require('canola').init()

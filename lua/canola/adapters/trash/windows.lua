@@ -1,5 +1,5 @@
 local util = require('canola.util')
-local uv = vim.uv or vim.loop
+local uv = vim.uv
 local cache = require('canola.cache')
 local config = require('canola.config')
 local constants = require('canola.constants')

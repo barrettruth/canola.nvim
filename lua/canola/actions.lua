@@ -43,30 +43,6 @@ M.select = {
   },
 }
 
-M.select_vsplit = {
-  desc = 'Open the entry under the cursor in a vertical split',
-  deprecated = true,
-  callback = function()
-    canola.select({ vertical = true })
-  end,
-}
-
-M.select_split = {
-  desc = 'Open the entry under the cursor in a horizontal split',
-  deprecated = true,
-  callback = function()
-    canola.select({ horizontal = true })
-  end,
-}
-
-M.select_tab = {
-  desc = 'Open the entry under the cursor in a new tab',
-  deprecated = true,
-  callback = function()
-    canola.select({ tab = true })
-  end,
-}
-
 M.preview = {
   desc = 'Open the entry under the cursor in a preview window, or close the preview window if already open',
   parameters = {
@@ -233,14 +209,6 @@ M.cd = {
   },
 }
 
-M.tcd = {
-  desc = ':tcd to the current oil directory',
-  deprecated = true,
-  callback = function()
-    cd('tcd')
-  end,
-}
-
 M.open_cwd = {
   desc = "Open oil in Neovim's current working directory",
   callback = function()
@@ -269,24 +237,13 @@ M.open_terminal = {
       assert(dir, 'Oil buffer with files adapter must have current directory')
       local bufnr = vim.api.nvim_create_buf(false, true)
       vim.api.nvim_set_current_buf(bufnr)
-      if vim.fn.has('nvim-0.11') == 1 then
-        vim.fn.jobstart(vim.o.shell, { cwd = dir, term = true })
-      else
-        ---@diagnostic disable-next-line: deprecated
-        vim.fn.termopen(vim.o.shell, { cwd = dir })
-      end
+      vim.fn.jobstart(vim.o.shell, { cwd = dir, term = true })
     elseif adapter.name == 'ssh' then
       local bufnr = vim.api.nvim_create_buf(false, true)
       vim.api.nvim_set_current_buf(bufnr)
       local url = require('canola.adapters.ssh').parse_url(bufname)
       local cmd = require('canola.adapters.ssh.connection').create_ssh_command(url)
-      local term_id
-      if vim.fn.has('nvim-0.11') == 1 then
-        term_id = vim.fn.jobstart(cmd, { term = true })
-      else
-        ---@diagnostic disable-next-line: deprecated
-        term_id = vim.fn.termopen(cmd)
-      end
+      local term_id = vim.fn.jobstart(cmd, { term = true })
       if term_id then
         vim.api.nvim_chan_send(term_id, string.format('cd %s\n', url.path))
       end
@@ -299,28 +256,6 @@ M.open_terminal = {
   end,
 }
 
----Copied from vim.ui.open in Neovim 0.10+
----@param path string
----@return nil|string[] cmd
----@return nil|string error
-local function get_open_cmd(path)
-  if vim.fn.has('mac') == 1 then
-    return { 'open', path }
-  elseif vim.fn.has('win32') == 1 then
-    if vim.fn.executable('rundll32') == 1 then
-      return { 'rundll32', 'url.dll,FileProtocolHandler', path }
-    else
-      return nil, 'rundll32 not found'
-    end
-  elseif vim.fn.executable('explorer.exe') == 1 then
-    return { 'explorer.exe', path }
-  elseif vim.fn.executable('xdg-open') == 1 then
-    return { 'xdg-open', path }
-  else
-    return nil, 'no handler found'
-  end
-end
-
 M.open_external = {
   desc = 'Open the entry under the cursor in an external program',
   callback = function()
@@ -329,20 +264,7 @@ M.open_external = {
     if not entry or not dir then
       return
     end
-    local path = dir .. entry.name
-
-    if vim.ui.open then
-      vim.ui.open(path)
-      return
-    end
-
-    local cmd, err = get_open_cmd(path)
-    if not cmd then
-      vim.notify(string.format('Could not open %s: %s', path, err), vim.log.levels.ERROR)
-      return
-    end
-    local jid = vim.fn.jobstart(cmd, { detach = true })
-    assert(jid > 0, 'Failed to start job')
+    vim.ui.open(dir .. entry.name)
   end,
 }
 
@@ -444,31 +366,6 @@ M.yank_entry = {
   },
 }
 
-M.copy_entry_path = {
-  desc = 'Yank the filepath of the entry under the cursor to a register',
-  deprecated = true,
-  callback = function()
-    local entry = canola.get_cursor_entry()
-    local dir = canola.get_current_dir()
-    if not entry or not dir then
-      return
-    end
-    vim.fn.setreg(vim.v.register, dir .. entry.name)
-  end,
-}
-
-M.copy_entry_filename = {
-  desc = 'Yank the filename of the entry under the cursor to a register',
-  deprecated = true,
-  callback = function()
-    local entry = canola.get_cursor_entry()
-    if not entry then
-      return
-    end
-    vim.fn.setreg(vim.v.register, entry.name)
-  end,
-}
-
 M.copy_to_system_clipboard = {
   desc = 'Copy the entry under the cursor to the system clipboard',
   callback = function()
@@ -487,18 +384,6 @@ M.paste_from_system_clipboard = {
       desc = 'Delete the original file after copying',
     },
   },
-}
-
-M.open_cmdline_dir = {
-  desc = 'Open vim cmdline with current directory as an argument',
-  deprecated = true,
-  callback = function()
-    local fs = require('canola.fs')
-    local dir = canola.get_current_dir()
-    if dir then
-      open_cmdline_with_path(fs.shorten_path(dir))
-    end
-  end,
 }
 
 M.change_sort = {
@@ -599,40 +484,6 @@ M.send_to_qflist = {
   },
 }
 
-M.add_to_qflist = {
-  desc = 'Adds files in the current oil directory to the quickfix list, keeping the previous entries.',
-  deprecated = true,
-  callback = function()
-    util.send_to_quickfix({
-      target = 'qflist',
-      mode = 'a',
-    })
-  end,
-}
-
-M.send_to_loclist = {
-  desc = 'Sends files in the current oil directory to the location list, replacing the previous entries.',
-  deprecated = true,
-  callback = function()
-    util.send_to_quickfix({
-      target = 'loclist',
-      mode = 'r',
-    })
-  end,
-}
-
-M.add_to_loclist = {
-  desc = 'Adds files in the current oil directory to the location list, keeping the previous entries.',
-  deprecated = true,
-  callback = function()
-    util.send_to_quickfix({
-      target = 'loclist',
-      mode = 'a',
-    })
-  end,
-}
-
----List actions for documentation generation
 ---@private
 M._get_actions = function()
   local ret = {}
@@ -641,7 +492,6 @@ M._get_actions = function()
       table.insert(ret, {
         name = name,
         desc = action.desc,
-        deprecated = action.deprecated,
         parameters = action.parameters,
       })
     end
