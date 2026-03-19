@@ -27,7 +27,7 @@ See `:help canola.nvim` for full documentation.
 ## Requirements
 
 - Neovim 0.10+
-- (Optional) icon provider:
+- (Optionally) an icon provider:
   [mini.icons](https://github.com/echasnovski/mini.nvim/blob/main/readmes/mini-icons.md),
   [nvim-web-devicons](https://github.com/nvim-tree/nvim-web-devicons), or
   [nonicons.nvim](https://github.com/barrettruth/nonicons.nvim)
