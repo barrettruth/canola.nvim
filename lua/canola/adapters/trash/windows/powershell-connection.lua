@@ -95,7 +95,7 @@ function PowershellConnection:run(command, cb)
 end
 
 function PowershellConnection:_consume()
-  if not vim.tbl_isempty(self.commands) then
+  if next(self.commands) ~= nil then
     local cmd = self.commands[1]
     if not cmd.running then
       cmd.running = true

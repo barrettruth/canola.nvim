@@ -89,9 +89,9 @@ function Trie:accum_first_parents_of(url, ret)
     table.insert(containers, next_container)
   end
   table.remove(containers)
-  while not vim.tbl_isempty(containers) do
+  while next(containers) ~= nil do
     local container = containers[#containers]
-    if not vim.tbl_isempty(container.values) then
+    if next(container.values) ~= nil then
       vim.list_extend(ret, container.values)
       break
     end

@@ -22,7 +22,7 @@ local SSHConnection = {}
 
 local function output_extend(agg, output)
   local start = #agg
-  if vim.tbl_isempty(agg) then
+  if next(agg) == nil then
     for _, line in ipairs(output) do
       line = line:gsub('\r', '')
       table.insert(agg, line)
@@ -53,7 +53,7 @@ local function get_last_lines(bufnr, num_lines)
       vim.api.nvim_buf_get_lines(bufnr, end_line - need_lines, end_line, false),
       lines
     )
-    while not vim.tbl_isempty(lines) and lines[#lines]:match('^%s*$') do
+    while next(lines) ~= nil and lines[#lines]:match('^%s*$') do
       table.remove(lines)
     end
     end_line = end_line - need_lines
@@ -297,7 +297,7 @@ function SSHConnection:run(command, callback)
 end
 
 function SSHConnection:_consume()
-  if self.connected and not vim.tbl_isempty(self.commands) then
+  if self.connected and next(self.commands) ~= nil then
     local cmd = self.commands[1]
     if not cmd.running then
       cmd.running = true

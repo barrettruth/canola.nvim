@@ -818,7 +818,7 @@ M.select = function(opts, callback)
       table.insert(entries, entry)
     end
   end
-  if vim.tbl_isempty(entries) then
+  if next(entries) == nil then
     return finish('Could not find entry under cursor')
   end
 
