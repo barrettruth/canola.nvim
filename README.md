@@ -4,7 +4,7 @@
 [133 upstream issues and PRs triaged](doc/upstream.md). Drop-in replacement —
 zero config changes needed.
 
-https://github.com/user-attachments/assets/32beb27e-7490-4ebd-ba25-60f112df5fac
+https://github.com/user-attachments/assets/a1864956-ad7e-49c4-a7f9-e0ec8799da83
 
 ## Installation
 
