@@ -1,4 +1,4 @@
-local fs = require('oil.fs')
+local fs = require('canola.fs')
 local test_util = require('spec.test_util')
 
 ---@param path string
