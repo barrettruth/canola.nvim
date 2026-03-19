@@ -1560,10 +1560,6 @@ M.setup = function(opts)
         end
       end
       if not parent_win then
-        vim.notify(
-          'Oil split could not find parent window. Please try to replicate whatever you just did and report a bug on github',
-          vim.log.levels.WARN
-        )
         return
       end
 
