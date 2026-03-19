@@ -6,30 +6,10 @@ zero config changes needed.
 
 https://user-images.githubusercontent.com/506791/209727111-6b4a11f4-634a-4efa-9461-80e9717cea94.mp4
 
-## Migration from oil.nvim
+## Installation
 
 Swap the plugin source. Everything else is identical — same module, same config,
-same keymaps.
-
-```lua
--- before
-{ 'stevearc/oil.nvim' }
-
--- after
-{ 'barrettruth/canola.nvim' }
-```
-
-`require('oil').setup(opts)` works unchanged.
-
-## Requirements
-
-- Neovim 0.10+
-- (Optional) icon provider:
-  [mini.icons](https://github.com/echasnovski/mini.nvim/blob/main/readmes/mini-icons.md),
-  [nvim-web-devicons](https://github.com/nvim-tree/nvim-web-devicons), or
-  [nonicons.nvim](https://github.com/barrettruth/nonicons.nvim)
-
-## Installation
+same keymaps. `require('oil').setup(opts)` works unchanged.
 
 ```lua
 { 'barrettruth/canola.nvim', opts = {} }
@@ -41,11 +21,12 @@ Or via [luarocks](https://luarocks.org/modules/barrettruth/canola.nvim):
 luarocks install canola.nvim
 ```
 
-## Documentation
+Requires Neovim 0.10+. Optionally, an icon provider:
+[mini.icons](https://github.com/echasnovski/mini.nvim/blob/main/readmes/mini-icons.md),
+[nvim-web-devicons](https://github.com/nvim-tree/nvim-web-devicons), or
+[nonicons.nvim](https://github.com/barrettruth/nonicons.nvim).
 
-```vim
-:help canola.nvim
-```
+See `:help canola.nvim` for full documentation.
 
 ## Similar Projects
 
