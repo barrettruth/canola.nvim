@@ -182,14 +182,16 @@ M.parse = function(bufnr)
   end
   local seen_names = {}
   local function check_dupe(name, i)
-    if fs.is_mac or fs.is_windows then
-      -- mac and windows use case-insensitive filesystems
-      name = name:lower()
-    end
-    if seen_names[name] then
-      table.insert(errors, { message = 'Duplicate filename', lnum = i - 1, end_lnum = i, col = 0 })
+    local key = (fs.is_mac or fs.is_windows) and name:lower() or name
+    if seen_names[key] then
+      table.insert(errors, {
+        message = string.format('Duplicate filename: %s', name),
+        lnum = i - 1,
+        end_lnum = i,
+        col = 0,
+      })
     else
-      seen_names[name] = true
+      seen_names[key] = true
     end
   end
 
