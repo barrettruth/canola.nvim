@@ -48,20 +48,7 @@ luarocks install canola.nvim
 :help canola.nvim
 ```
 
-## FAQ
-
-**Q: Why "canola"?**
-
-Canola oil.
-
-**Q: Why "oil"?**
-
-From the [vim-vinegar](https://github.com/tpope/vim-vinegar) README, a quote by
-Drew Neil:
-
-> Split windows and the project drawer go together like oil and vinegar
-
-**Q: What are some alternatives?**
+## Similar Projects
 
 - [stevearc/oil.nvim](https://github.com/stevearc/oil.nvim) — the original
 - [mini.files](https://github.com/echasnovski/mini.nvim/blob/main/readmes/mini-files.md)
