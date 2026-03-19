@@ -1,9 +1,8 @@
 # canola.nvim
 
-[oil.nvim](https://github.com/stevearc/oil.nvim) with 133 upstream issues and
-PRs triaged. Drop-in replacement — zero config changes needed.
-
-[Full upstream triage](doc/upstream.md)
+[oil.nvim](https://github.com/stevearc/oil.nvim) with
+[133 upstream issues and PRs triaged](doc/upstream.md). Drop-in replacement —
+zero config changes needed.
 
 https://user-images.githubusercontent.com/506791/209727111-6b4a11f4-634a-4efa-9461-80e9717cea94.mp4
 
