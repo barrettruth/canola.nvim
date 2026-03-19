@@ -8,8 +8,9 @@ https://user-images.githubusercontent.com/506791/209727111-6b4a11f4-634a-4efa-94
 
 ## Installation
 
-Swap the plugin source. Everything else is identical — same module, same config,
-same keymaps. `require('oil').setup(opts)` works unchanged.
+Swap `stevearc/oil.nvim` for `barrettruth/canola.nvim`. Everything else is
+identical — same module, same config, same keymaps. `require('oil').setup(opts)`
+works unchanged.
 
 ```lua
 { 'barrettruth/canola.nvim', opts = {} }
