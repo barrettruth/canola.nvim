@@ -1,30 +1,12 @@
 local fs = require('canola.fs')
 local ms = require('vim.lsp.protocol').Methods
-if vim.fn.has('nvim-0.10') == 0 then
-  ms = {
-    workspace_willCreateFiles = 'workspace/willCreateFiles',
-    workspace_didCreateFiles = 'workspace/didCreateFiles',
-    workspace_willDeleteFiles = 'workspace/willDeleteFiles',
-    workspace_didDeleteFiles = 'workspace/didDeleteFiles',
-    workspace_willRenameFiles = 'workspace/willRenameFiles',
-    workspace_didRenameFiles = 'workspace/didRenameFiles',
-  }
-end
 
 local M = {}
 
 ---@param method string
 ---@return vim.lsp.Client[]
 local function get_clients(method)
-  if vim.fn.has('nvim-0.10') == 1 then
-    return vim.lsp.get_clients({ method = method })
-  else
-    ---@diagnostic disable-next-line: deprecated
-    local clients = vim.lsp.get_active_clients()
-    return vim.tbl_filter(function(client)
-      return client.supports_method(method)
-    end, clients)
-  end
+  return vim.lsp.get_clients({ method = method })
 end
 
 ---@param glob string|vim.lpeg.Pattern
