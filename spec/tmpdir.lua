@@ -3,29 +3,29 @@ local test_util = require('spec.test_util')
 
 ---@param path string
 local function touch(path)
-  local fd, open_err = vim.loop.fs_open(path, 'w', 420) -- 0644
+  local fd, open_err = vim.uv.fs_open(path, 'w', 420) -- 0644
   if not fd then
     error(open_err)
   end
   local shortpath = path:gsub('^[^' .. fs.sep .. ']*' .. fs.sep, '')
-  local _, write_err = vim.loop.fs_write(fd, shortpath)
+  local _, write_err = vim.uv.fs_write(fd, shortpath)
   if write_err then
     error(write_err)
   end
-  vim.loop.fs_close(fd)
+  vim.uv.fs_close(fd)
 end
 
 ---@param filepath string
 ---@return boolean
 local function exists(filepath)
-  local stat = vim.loop.fs_stat(filepath)
+  local stat = vim.uv.fs_stat(filepath)
   return stat ~= nil and stat.type ~= nil
 end
 
 local TmpDir = {}
 
 TmpDir.new = function()
-  local path, err = vim.loop.fs_mkdtemp('oil_test_XXXXXXXXX')
+  local path, err = vim.uv.fs_mkdtemp('oil_test_XXXXXXXXX')
   if not path then
     error(err)
   end
@@ -44,7 +44,7 @@ function TmpDir:create(paths)
       if i == #pieces and not vim.endswith(partial_path, fs.sep) then
         touch(partial_path)
       elseif not exists(partial_path) then
-        vim.loop.fs_mkdir(partial_path, 493)
+        vim.uv.fs_mkdir(partial_path, 493)
       end
     end
   end
@@ -53,13 +53,13 @@ end
 ---@param filepath string
 ---@return string?
 local read_file = function(filepath)
-  local fd = vim.loop.fs_open(filepath, 'r', 420)
+  local fd = vim.uv.fs_open(filepath, 'r', 420)
   if not fd then
     return nil
   end
-  local stat = vim.loop.fs_fstat(fd)
-  local content = vim.loop.fs_read(fd, stat.size)
-  vim.loop.fs_close(fd)
+  local stat = vim.uv.fs_fstat(fd)
+  local content = vim.uv.fs_read(fd, stat.size)
+  vim.uv.fs_close(fd)
   return content
 end
 
@@ -139,13 +139,13 @@ end
 
 function TmpDir:assert_exists(path)
   path = fs.join(self.path, path)
-  local stat = vim.loop.fs_stat(path)
+  local stat = vim.uv.fs_stat(path)
   assert(stat, string.format("Expected path '%s' to exist", path))
 end
 
 function TmpDir:assert_not_exists(path)
   path = fs.join(self.path, path)
-  local stat = vim.loop.fs_stat(path)
+  local stat = vim.uv.fs_stat(path)
   assert(not stat, string.format("Expected path '%s' to not exist", path))
 end
 

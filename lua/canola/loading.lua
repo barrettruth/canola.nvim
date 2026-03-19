@@ -64,7 +64,7 @@ M.set_loading = function(bufnr, is_loading)
   if is_loading then
     if timers[bufnr] == nil then
       local width = 20
-      timers[bufnr] = vim.loop.new_timer()
+      timers[bufnr] = vim.uv.new_timer()
       local bar_iter = M.get_bar_iter({ width = width })
       timers[bufnr]:start(
         200, -- Delay the loading screen just a bit to avoid flicker

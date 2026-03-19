@@ -332,9 +332,9 @@ M.read_file = function(bufnr)
   assert(type(cache_dir) == 'string')
   local tmpdir = fs.join(cache_dir, 'canola')
   fs.mkdirp(tmpdir)
-  local fd, tmpfile = vim.loop.fs_mkstemp(fs.join(tmpdir, 's3_XXXXXX'))
+  local fd, tmpfile = vim.uv.fs_mkstemp(fs.join(tmpdir, 's3_XXXXXX'))
   if fd then
-    vim.loop.fs_close(fd)
+    vim.uv.fs_close(fd)
   end
   local tmp_bufnr = vim.fn.bufadd(tmpfile)
 
@@ -349,7 +349,7 @@ M.read_file = function(bufnr)
       vim.api.nvim_buf_call(bufnr, function()
         vim.cmd.read({ args = { tmpfile }, mods = { silent = true } })
       end)
-      vim.loop.fs_unlink(tmpfile)
+      vim.uv.fs_unlink(tmpfile)
       vim.api.nvim_buf_set_lines(bufnr, 0, 1, true, {})
     end
     vim.bo[bufnr].modified = false
@@ -369,9 +369,9 @@ M.write_file = function(bufnr)
   local cache_dir = vim.fn.stdpath('cache')
   assert(type(cache_dir) == 'string')
   local tmpdir = fs.join(cache_dir, 'canola')
-  local fd, tmpfile = vim.loop.fs_mkstemp(fs.join(tmpdir, 's3_XXXXXXXX'))
+  local fd, tmpfile = vim.uv.fs_mkstemp(fs.join(tmpdir, 's3_XXXXXXXX'))
   if fd then
-    vim.loop.fs_close(fd)
+    vim.uv.fs_close(fd)
   end
   vim.cmd.doautocmd({ args = { 'BufWritePre', bufname }, mods = { silent = true } })
   vim.bo[bufnr].modifiable = false
@@ -386,7 +386,7 @@ M.write_file = function(bufnr)
       vim.bo[bufnr].modified = false
       vim.cmd.doautocmd({ args = { 'BufWritePost', bufname }, mods = { silent = true } })
     end
-    vim.loop.fs_unlink(tmpfile)
+    vim.uv.fs_unlink(tmpfile)
     vim.api.nvim_buf_delete(tmp_bufnr, { force = true })
   end)
 end

@@ -1,4 +1,4 @@
-local uv = vim.uv or vim.loop
+local uv = vim.uv
 local levels_reverse = {}
 for k, v in pairs(vim.log.levels) do
   levels_reverse[v] = k

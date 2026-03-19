@@ -7,7 +7,7 @@ local files = require('canola.adapters.files')
 local fs = require('canola.fs')
 local util = require('canola.util')
 
-local uv = vim.uv or vim.loop
+local uv = vim.uv
 local FIELD_META = constants.FIELD_META
 
 local M = {}
@@ -87,7 +87,7 @@ local function get_write_trash_dir(path)
   end
 
   local top_trash_dirs = get_top_trash_dirs(path)
-  if not vim.tbl_isempty(top_trash_dirs) then
+  if next(top_trash_dirs) ~= nil then
     return top_trash_dirs[1]
   end
 

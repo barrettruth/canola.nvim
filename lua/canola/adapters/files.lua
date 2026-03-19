@@ -7,7 +7,7 @@ local git = require('canola.git')
 local log = require('canola.log')
 local permissions = require('canola.adapters.files.permissions')
 local util = require('canola.util')
-local uv = vim.uv or vim.loop
+local uv = vim.uv
 
 local M = {}
 
@@ -437,18 +437,14 @@ local function list_windows_drives(url, column_defs, cb)
   local _, path = util.parse_url(url)
   assert(path)
   local require_stat = columns_require_stat(column_defs)
-  local stdout = ''
-  local jid = vim.fn.jobstart({ 'wmic', 'logicaldisk', 'get', 'name' }, {
-    stdout_buffered = true,
-    on_stdout = function(_, data)
-      stdout = table.concat(data, '\n')
-    end,
-    on_exit = function(_, code)
-      if code ~= 0 then
+  vim.system(
+    { 'wmic', 'logicaldisk', 'get', 'name' },
+    { text = true },
+    vim.schedule_wrap(function(result)
+      if result.code ~= 0 then
         return cb('Error listing windows devices')
       end
-      local lines = vim.split(stdout, '\n', { plain = true, trimempty = true })
-      -- Remove the "Name" header
+      local lines = vim.split(result.stdout or '', '\n', { plain = true, trimempty = true })
       table.remove(lines, 1)
       local internal_entries = {}
       local complete_disk_cb = util.cb_collect(#lines, function(err)
@@ -461,7 +457,6 @@ local function list_windows_drives(url, column_defs, cb)
 
       for _, disk in ipairs(lines) do
         if disk:match('^%s*$') then
-          -- Skip empty line
           complete_disk_cb()
         else
           disk = disk:gsub(':%s*$', '')
@@ -470,11 +465,8 @@ local function list_windows_drives(url, column_defs, cb)
           fetch_entry_metadata(path, cache_entry, require_stat, complete_disk_cb)
         end
       end
-    end,
-  })
-  if jid <= 0 then
-    cb('Could not list windows devices')
-  end
+    end)
+  )
 end
 
 ---@param url string

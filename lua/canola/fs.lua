@@ -1,7 +1,7 @@
 local log = require('canola.log')
 local M = {}
 
-local uv = vim.uv or vim.loop
+local uv = vim.uv
 
 ---@type boolean
 M.is_windows = uv.os_uname().version:match('Windows')

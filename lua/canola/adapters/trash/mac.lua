@@ -4,7 +4,7 @@ local files = require('canola.adapters.files')
 local fs = require('canola.fs')
 local util = require('canola.util')
 
-local uv = vim.uv or vim.loop
+local uv = vim.uv
 
 local M = {}
 
