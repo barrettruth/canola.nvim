@@ -4,13 +4,14 @@ local util = require('canola.util')
 local M = {}
 
 M.reset_editor = function()
-  require('canola').setup({
-    columms = {},
+  vim.g.canola = {
+    columns = {},
     adapters = {
       ['canola-test://'] = 'test',
     },
     prompt_save_on_select_new_entry = false,
-  })
+  }
+  require('canola').init()
   vim.cmd.tabonly({ mods = { silent = true } })
   vim.cmd.new()
   vim.cmd.only()

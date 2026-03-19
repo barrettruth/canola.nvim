@@ -126,7 +126,8 @@ describe('regression tests', function()
 
   it('BS at constraint boundary is a no-op', function()
     tmpdir:create({ 'a.txt' })
-    canola.setup({ constrain_cursor = 'name', columns = {} })
+    vim.g.canola = { constrain_cursor = 'name', columns = {} }
+    canola.init()
     vim.cmd.edit({ args = { 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') } })
     test_util.wait_for_autocmd({ 'User', pattern = 'CanolaEnter' })
     test_util.actions.focus('a.txt')
@@ -150,7 +151,8 @@ describe('regression tests', function()
 
   it('BS within name works normally', function()
     tmpdir:create({ 'a.txt' })
-    canola.setup({ constrain_cursor = 'name', columns = {} })
+    vim.g.canola = { constrain_cursor = 'name', columns = {} }
+    canola.init()
     vim.cmd.edit({ args = { 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') } })
     test_util.wait_for_autocmd({ 'User', pattern = 'CanolaEnter' })
     test_util.actions.focus('a.txt')
@@ -164,7 +166,8 @@ describe('regression tests', function()
 
   it('BS does not cross into prefix area', function()
     tmpdir:create({ 'a.txt' })
-    canola.setup({ constrain_cursor = 'name', columns = {} })
+    vim.g.canola = { constrain_cursor = 'name', columns = {} }
+    canola.init()
     vim.cmd.edit({ args = { 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') } })
     test_util.wait_for_autocmd({ 'User', pattern = 'CanolaEnter' })
     test_util.actions.focus('a.txt')

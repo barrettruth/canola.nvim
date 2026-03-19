@@ -285,9 +285,6 @@ default_config.view_options.highlight_filename = nil
 ---@field keymaps_help canola.SimpleWindowConfig
 local M = {}
 
--- For backwards compatibility
----@alias oil.setupOpts canola.SetupOpts
-
 ---@class (exact) canola.SetupOpts
 ---@field default_file_explorer? boolean Oil will take over directory buffers (e.g. `vim .` or `:e src/`). Set to false if you still want to use netrw.
 ---@field default_to_float? boolean When true, oil always opens in a floating window
@@ -448,15 +445,13 @@ local M = {}
 ---@class (exact) canola.SetupSimpleWindowConfig
 ---@field border? string|string[] Window border
 
-M.setup = function(opts)
-  opts = opts or {}
+M.init = function()
+  local opts = vim.g.canola or {}
 
   local new_conf = vim.tbl_deep_extend('keep', opts, default_config)
   if not new_conf.use_default_keymaps then
     new_conf.keymaps = opts.keymaps or {}
   elseif opts.keymaps then
-    -- We don't want to deep merge the keymaps, we want any keymap defined by the user to override
-    -- everything about the default.
     for k, v in pairs(opts.keymaps) do
       local normalized = vim.api.nvim_replace_termcodes(k, true, true, true)
       for existing_k, _ in pairs(new_conf.keymaps) do
@@ -471,7 +466,6 @@ M.setup = function(opts)
     end
   end
 
-  -- Backwards compatibility for old versions that don't support winborder
   if vim.fn.has('nvim-0.11') == 0 then
     new_conf = vim.tbl_deep_extend('keep', new_conf, {
       float = { border = 'rounded' },
@@ -480,29 +474,6 @@ M.setup = function(opts)
       ssh = { border = 'rounded' },
       keymaps_help = { border = 'rounded' },
     })
-  end
-
-  -- Backwards compatibility. We renamed the 'preview' window config to be called 'confirmation'.
-  if opts.preview and not opts.confirmation then
-    new_conf.confirmation = vim.tbl_deep_extend('keep', opts.preview, default_config.confirmation)
-  end
-  -- Backwards compatibility. We renamed the 'preview' config to 'preview_win'
-  if opts.preview and opts.preview.update_on_cursor_moved ~= nil then
-    new_conf.preview_win.update_on_cursor_moved = opts.preview.update_on_cursor_moved
-  end
-
-  if new_conf.lsp_rename_autosave ~= nil then
-    new_conf.lsp_file_methods.autosave_changes = new_conf.lsp_rename_autosave
-    new_conf.lsp_rename_autosave = nil
-    vim.notify_once(
-      'oil config value lsp_rename_autosave has moved to lsp_file_methods.autosave_changes.\nCompatibility will be removed on 2024-09-01.',
-      vim.log.levels.WARN
-    )
-  end
-
-  -- This option was renamed because it is no longer experimental
-  if new_conf.experimental_watch_for_changes then
-    new_conf.watch_for_changes = true
   end
 
   for k, v in pairs(new_conf) do
