@@ -243,16 +243,17 @@ M.copy_to_system_clipboard = function()
     vim.notify(string.format("Could not find executable '%s'", cmd[1]), vim.log.levels.ERROR)
     return
   end
-  local stderr = ''
-  local jid = vim.fn.jobstart(cmd, {
-    stderr_buffered = true,
-    on_stderr = function(_, data)
-      stderr = table.concat(data, '\n')
-    end,
-    on_exit = function(j, exit_code)
-      if exit_code ~= 0 then
+  vim.system(
+    cmd,
+    { stdin = stdin or false, text = true },
+    vim.schedule_wrap(function(result)
+      if result.code ~= 0 then
         vim.notify(
-          string.format("Error copying '%s' to system clipboard\n%s", vim.inspect(paths), stderr),
+          string.format(
+            "Error copying '%s' to system clipboard\n%s",
+            vim.inspect(paths),
+            result.stderr or ''
+          ),
           vim.log.levels.ERROR
         )
       else
@@ -262,13 +263,8 @@ M.copy_to_system_clipboard = function()
           vim.notify(string.format('Copied %d files to system clipboard', #paths))
         end
       end
-    end,
-  })
-  assert(jid > 0, 'Failed to start job')
-  if stdin then
-    vim.api.nvim_chan_send(jid, stdin)
-    vim.fn.chanclose(jid, 'stdin')
-  end
+    end)
+  )
 end
 
 ---@param lines string[]
@@ -335,36 +331,30 @@ M.paste_from_system_clipboard = function(delete_original)
     vim.notify('System clipboard not supported on Windows', vim.log.levels.ERROR)
     return
   end
-  local paths
-  local stderr = ''
   if vim.fn.executable(cmd[1]) == 0 then
     vim.notify(string.format("Could not find executable '%s'", cmd[1]), vim.log.levels.ERROR)
     return
   end
-  local jid = vim.fn.jobstart(cmd, {
-    stdout_buffered = true,
-    stderr_buffered = true,
-    on_stdout = function(j, data)
-      local lines = vim.split(table.concat(data, '\n'), '\r?\n')
-      paths = handle_paste_output(lines)
-    end,
-    on_stderr = function(_, data)
-      stderr = table.concat(data, '\n')
-    end,
-    on_exit = function(j, exit_code)
-      if exit_code ~= 0 or not paths then
+  vim.system(
+    cmd,
+    { text = true },
+    vim.schedule_wrap(function(result)
+      if result.code ~= 0 then
         vim.notify(
-          string.format('Error pasting from system clipboard: %s', stderr),
+          string.format('Error pasting from system clipboard: %s', result.stderr or ''),
           vim.log.levels.ERROR
         )
-      elseif #paths == 0 then
-        vim.notify('No valid files found in system clipboard', vim.log.levels.WARN)
       else
-        paste_paths(paths, delete_original)
+        local lines = vim.split(result.stdout or '', '\r?\n')
+        local paths = handle_paste_output(lines)
+        if #paths == 0 then
+          vim.notify('No valid files found in system clipboard', vim.log.levels.WARN)
+        else
+          paste_paths(paths, delete_original)
+        end
       end
-    end,
-  })
-  assert(jid > 0, 'Failed to start job')
+    end)
+  )
 end
 
 return M
