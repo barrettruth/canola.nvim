@@ -29,6 +29,7 @@ local M = {}
 ---@field supported_cross_adapter_actions? table<string, canola.CrossAdapterAction> Mapping of adapter name to enum for all other adapters that can be used as a src or dest for move/copy actions.
 ---@field filter_action? fun(action: canola.Action): boolean When present, filter out actions as they are created
 ---@field filter_error? fun(action: canola.ParseError): boolean When present, filter out errors from parsing a buffer
+---@field open_terminal? fun() Open a terminal session in the current directory. Used by the `open_terminal` action.
 
 ---Get the entry on a specific line (1-indexed)
 ---@param bufnr integer
@@ -137,6 +138,33 @@ end
 ---Toggle hidden files and directories
 M.toggle_hidden = function()
   require('canola.view').toggle_hidden()
+end
+
+---Register an external adapter for a URL scheme
+---@param scheme string URL scheme including "://" (e.g. "canola-ssh://")
+---@param name string Adapter module name (resolved via require("canola.adapters." .. name))
+M.register_adapter = function(scheme, name)
+  local config = require('canola.config')
+  if config.adapters[scheme] then
+    return
+  end
+  config.adapters[scheme] = name
+  config.adapter_to_scheme[name] = scheme
+  config._adapter_by_scheme[scheme] = nil
+
+  vim.filetype.add({
+    pattern = { [scheme .. '.*'] = { 'canola', { priority = 10 } } },
+  })
+  local aug = vim.api.nvim_create_augroup('Canola', { clear = false })
+  local pattern = scheme .. '*'
+  vim.api.nvim_create_autocmd('BufReadCmd', {
+    group = aug,
+    pattern = pattern,
+    nested = true,
+    callback = function(params)
+      M.load_oil_buffer(params.buf)
+    end,
+  })
 end
 
 ---Get the current directory

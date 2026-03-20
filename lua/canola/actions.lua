@@ -232,24 +232,17 @@ M.open_terminal = {
     if not adapter then
       return
     end
-    if adapter.name == 'files' then
+    if adapter.open_terminal then
+      adapter.open_terminal()
+    elseif adapter.name == 'files' then
       local dir = canola.get_current_dir()
       assert(dir, 'Oil buffer with files adapter must have current directory')
       local bufnr = vim.api.nvim_create_buf(false, true)
       vim.api.nvim_set_current_buf(bufnr)
       vim.fn.jobstart(vim.o.shell, { cwd = dir, term = true })
-    elseif adapter.name == 'ssh' then
-      local bufnr = vim.api.nvim_create_buf(false, true)
-      vim.api.nvim_set_current_buf(bufnr)
-      local url = require('canola.adapters.ssh').parse_url(bufname)
-      local cmd = require('canola.adapters.ssh.connection').create_ssh_command(url)
-      local term_id = vim.fn.jobstart(cmd, { term = true })
-      if term_id then
-        vim.api.nvim_chan_send(term_id, string.format('cd %s\n', url.path))
-      end
     else
       vim.notify(
-        string.format("Cannot open terminal for unsupported adapter: '%s'", adapter.name),
+        string.format("Cannot open terminal for adapter '%s'", adapter.name),
         vim.log.levels.WARN
       )
     end

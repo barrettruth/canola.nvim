@@ -11,12 +11,6 @@ describe('url', function()
       { '/foo/bar.txt', 'canola:///foo/', 'bar.txt' },
       { 'canola:///foo/bar.txt', 'canola:///foo/', 'bar.txt' },
       { 'canola:///', 'canola:///' },
-      {
-        'canola-ssh://user@hostname:8888//bar.txt',
-        'canola-ssh://user@hostname:8888//',
-        'bar.txt',
-      },
-      { 'canola-ssh://user@hostname:8888//', 'canola-ssh://user@hostname:8888//' },
     }
     for _, case in ipairs(cases) do
       local input, expected, expected_basename = unpack(case)
