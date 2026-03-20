@@ -29,6 +29,7 @@ local M = {}
 ---@field supported_cross_adapter_actions? table<string, canola.CrossAdapterAction> Mapping of adapter name to enum for all other adapters that can be used as a src or dest for move/copy actions.
 ---@field filter_action? fun(action: canola.Action): boolean When present, filter out actions as they are created
 ---@field filter_error? fun(action: canola.ParseError): boolean When present, filter out errors from parsing a buffer
+---@field open_terminal? fun() Open a terminal session in the current directory. Used by the `open_terminal` action.
 
 ---Get the entry on a specific line (1-indexed)
 ---@param bufnr integer
