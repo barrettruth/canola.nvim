@@ -25,6 +25,7 @@
         default = pkgs.mkShell {
           packages = [
             pkgs.prettier
+            pkgs.neovim
             pkgs.stylua
             pkgs.selene
             vimdoc-language-server.packages.${pkgs.system}.default
