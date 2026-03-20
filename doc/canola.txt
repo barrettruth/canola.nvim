@@ -619,7 +619,7 @@ birthtime                                                       *column-birthtim
 ACTIONS                                                              *canola-actions*
 
 The `keymaps` key in |canola-config| accepts mappings using the same parameters
-as |vim.keymap.set|.
+as |vim.keymap.set()|.
 >lua
     vim.g.canola = {
       keymaps = {
@@ -862,121 +862,9 @@ long as the destination has an adapter implementation. File operations work
 across adapters — you can copy files between local and remote with the same
 buffer-editing workflow.
 
-SSH                                                              *canola-adapter-ssh*
-
-    Browse files over SSH, much like netrw. Open a buffer with: >
-        nvim canola-ssh://[username@]hostname[:port]/[path]
-<
-    This is the same URL format that netrw uses.
-
-    The SSH adapter does not support Windows machines, and it requires the
-    server to have `/bin/sh` as well as standard unix commands (`ls`, `rm`,
-    `mv`, `mkdir`, `chmod`, `cp`, `touch`, `ln`, `echo`).
-
-    How it works ~
-
-    Canola opens a persistent SSH connection to the remote host and runs shell
-    commands over stdin/stdout. Nothing is mounted locally. Directory listings
-    come from `ls -la`; file reads and writes go through `scp`. One connection
-    is maintained per unique host/port/user combination and reused across
-    buffers.
-
-    If the connection takes longer than 2 seconds (e.g. waiting for a password
-    or host-key confirmation), canola automatically opens a floating terminal so
-    you can interact with the SSH prompt.
-
-    The underlying `ssh` command respects `~/.ssh/config`, so per-host
-    settings like `IdentityFile`, `ProxyJump`, and `Port` work as expected.
-
-    The adapter supports the `size`, `permissions`, `owner`, and `group`
-    columns. Permission changes use `chmod` on the remote host. The
-    `owner` and `group` columns display numeric UIDs/GIDs from `ls -lan`.
-
-    See |vim.g.canola_ssh| in the canola-collection docs for adapter-specific
-    configuration (extra SCP args, per-host overrides, terminal border).
-
-    Limitations ~
-
-    The SSH adapter is self-contained. It does not expose a mount point or
-    local filesystem path, so other plugins (Telescope, tree views, LSP)
-    cannot access remote files through it. For full remote development,
-    consider mounting the remote filesystem with `sshfs` or using
-    `distant.nvim`.
-
-    Files can be copied between local and SSH adapters (uses `scp`), but
-    cross-adapter moves are not supported — use copy + delete instead.
-
-    Troubleshooting ~
-
-    Connection hangs: Check that key-based authentication is configured in
-    `~/.ssh/config`. Password prompts work but require interaction through
-    the floating terminal.
-
-    Permission denied on `scp`: Some hosts (notably Synology NAS) expose a
-    different directory tree over SFTP than over SSH. Try adding `-O` to
-    `extra_scp_args` to force the legacy SCP protocol.
-
-S3                                                                *canola-adapter-s3*
-
-    Browse files stored in AWS S3. Make sure `aws` is configured correctly,
-    then open a buffer with: >
-        nvim canola-s3://[bucket]/[path]
-<
-    Older versions of Neovim (0.11 and earlier) don't support numbers in the
-    URL scheme, so use `canola-sss` instead of `canola-s3`.
-
-    The adapter supports the `size` and `birthtime` columns.
-
-    See |vim.g.canola_s3| in the canola-collection docs for adapter-specific
-    configuration (extra AWS CLI args, per-bucket overrides).
-
-FTP                                                              *canola-adapter-ftp*
-
-    Browse files over FTP or FTPS (FTP over TLS). Open a buffer with: >
-        nvim canola-ftp://[username[:password]@]hostname[:port]/[path]/
-        nvim canola-ftps://[username[:password]@]hostname[:port]/[path]/
-<
-    The `canola-ftps://` scheme uses explicit TLS (STARTTLS / AUTH TLS, RFC 4217).
-    The server must support the `AUTH TLS` command on port 21. Servers using
-    implicit TLS (port 990) are not supported. Use `canola-ftp://` for plain FTP.
-
-    Authentication ~
-
-    Credentials can be supplied in the URL (`user:pass@host`) or stored in
-    `~/.netrc` (recommended — keeps passwords out of shell history): >
-        machine ftp.example.com login myuser password mypass
-<
-    How it works ~
-
-    The FTP adapter uses `curl` to perform all operations. Directory listings
-    come from FTP LIST output (Unix and IIS/Windows formats are both supported).
-    File reads download to a local tempfile; file writes upload from a tempfile.
-    Renames on the same server use the FTP RNFR/RNTO commands. File copies
-    between servers go through a local tempfile.
-
-    Limitations ~
-
-    Symbolic links cannot be created over FTP. Directory copies are not
-    supported (copy individual files instead). Moving or copying directories
-    across different FTP hosts is not supported. Deleting non-empty directories
-    requires MLSD support (RFC 3659); supported by vsftpd, ProFTPD, FileZilla
-    Server, and most servers from 2007 onwards.
-
-    The adapter supports the `size`, `mtime`, `permissions`, `owner`, and
-    `group` columns. Permission changes use the FTP `SITE CHMOD` command;
-    not all servers support it. The `owner` and `group` columns are only
-    available on servers that return Unix-style directory listings.
-
-    See |vim.g.canola_ftp| in the canola-collection docs for adapter-specific
-    configuration (extra curl args, per-host overrides).
-
-    Dependencies ~
-
-    Requires `curl` (standard on Linux and macOS).
-
-Trash                                                        *canola-adapter-trash*
-
-    See |canola-trash| for details on the built-in trash adapter.
+The local filesystem adapter ships with canola. Additional adapters (SSH, S3,
+FTP, trash) are provided by canola-collection. See `:help canola-collection`
+for adapter documentation and configuration.
 
 --------------------------------------------------------------------------------
 RECIPES                                                              *canola-recipes*
@@ -1365,7 +1253,7 @@ https://github.com/s1n7ax/nvim-window-picker. Add to `after/ftplugin/canola.lua`
 EVENTS                                                                *canola-events*
 
 Canola emits the following |User| autocmd events. Listen for them with
-|nvim_create_autocmd|: >lua
+|nvim_create_autocmd()|: >lua
     vim.api.nvim_create_autocmd("User", {
       pattern = "CanolaEnter",
       callback = function(args)
@@ -1412,7 +1300,7 @@ CanolaFileCreated                                             *CanolaFileCreated
 TRASH                                                                  *canola-trash*
 
 Trash support is provided by canola-collection. Install it and set
-`delete_to_trash = true` in |vim.g.canola| to enable. Deleted files are sent
+`delete_to_trash = true` in |canola-config| to enable. Deleted files are sent
 to the system trash instead of being permanently deleted.
 
 You can browse the trash for a directory using the `toggle_trash` action
