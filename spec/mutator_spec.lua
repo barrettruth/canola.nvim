@@ -165,6 +165,148 @@ describe('mutator', function()
         },
       }, actions)
     end)
+
+    describe('extglob', function()
+      it('expands simple alternation on new file', function()
+        vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+        local bufnr = vim.api.nvim_get_current_buf()
+        local diffs = {
+          { type = 'new', name = 'bar.{js,ts}', entry_type = 'file' },
+        }
+        local actions = mutator.create_actions_from_diffs({
+          [bufnr] = diffs,
+        })
+        assert.are.same({
+          { type = 'create', entry_type = 'file', url = 'canola-test:///foo/bar.js' },
+          { type = 'create', entry_type = 'file', url = 'canola-test:///foo/bar.ts' },
+        }, actions)
+      end)
+
+      it('expands braces on non-last path segment', function()
+        vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+        local bufnr = vim.api.nvim_get_current_buf()
+        local diffs = {
+          { type = 'new', name = '{src,test}/main.lua', entry_type = 'file' },
+        }
+        local actions = mutator.create_actions_from_diffs({
+          [bufnr] = diffs,
+        })
+        assert.are.same({
+          { type = 'create', entry_type = 'directory', url = 'canola-test:///foo/src' },
+          { type = 'create', entry_type = 'file', url = 'canola-test:///foo/src/main.lua' },
+          { type = 'create', entry_type = 'directory', url = 'canola-test:///foo/test' },
+          { type = 'create', entry_type = 'file', url = 'canola-test:///foo/test/main.lua' },
+        }, actions)
+      end)
+
+      it('expands numeric range', function()
+        vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+        local bufnr = vim.api.nvim_get_current_buf()
+        local diffs = {
+          { type = 'new', name = 'file{1..3}.txt', entry_type = 'file' },
+        }
+        local actions = mutator.create_actions_from_diffs({
+          [bufnr] = diffs,
+        })
+        assert.are.same({
+          { type = 'create', entry_type = 'file', url = 'canola-test:///foo/file1.txt' },
+          { type = 'create', entry_type = 'file', url = 'canola-test:///foo/file2.txt' },
+          { type = 'create', entry_type = 'file', url = 'canola-test:///foo/file3.txt' },
+        }, actions)
+      end)
+
+      it('expands cartesian product across segments', function()
+        vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+        local bufnr = vim.api.nvim_get_current_buf()
+        local diffs = {
+          { type = 'new', name = '{a,b}/{x,y}.txt', entry_type = 'file' },
+        }
+        local actions = mutator.create_actions_from_diffs({
+          [bufnr] = diffs,
+        })
+        assert.are.same({
+          { type = 'create', entry_type = 'directory', url = 'canola-test:///foo/a' },
+          { type = 'create', entry_type = 'file', url = 'canola-test:///foo/a/x.txt' },
+          { type = 'create', entry_type = 'file', url = 'canola-test:///foo/a/y.txt' },
+          { type = 'create', entry_type = 'directory', url = 'canola-test:///foo/b' },
+          { type = 'create', entry_type = 'file', url = 'canola-test:///foo/b/x.txt' },
+          { type = 'create', entry_type = 'file', url = 'canola-test:///foo/b/y.txt' },
+        }, actions)
+      end)
+
+      it('treats braces as literal when extglob is false', function()
+        vim.g.canola = vim.tbl_deep_extend('force', vim.g.canola, { extglob = false })
+        require('canola').init()
+        vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+        local bufnr = vim.api.nvim_get_current_buf()
+        local diffs = {
+          { type = 'new', name = '{a,b}.txt', entry_type = 'file' },
+        }
+        local actions = mutator.create_actions_from_diffs({
+          [bufnr] = diffs,
+        })
+        assert.are.same({
+          { type = 'create', entry_type = 'file', url = 'canola-test:///foo/{a,b}.txt' },
+        }, actions)
+      end)
+
+      it('expands braces on rename to produce move + copies', function()
+        local file = test_adapter.test_set('/foo/a.txt', 'file')
+        vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+        local bufnr = vim.api.nvim_get_current_buf()
+        local diffs = {
+          { type = 'delete', name = 'a.txt', id = file[FIELD_ID] },
+          { type = 'new', name = 'b.{js,ts}', entry_type = 'file', id = file[FIELD_ID] },
+        }
+        local actions = mutator.create_actions_from_diffs({
+          [bufnr] = diffs,
+        })
+        assert.are.same({
+          {
+            type = 'copy',
+            entry_type = 'file',
+            src_url = 'canola-test:///foo/a.txt',
+            dest_url = 'canola-test:///foo/b.js',
+          },
+          {
+            type = 'move',
+            entry_type = 'file',
+            src_url = 'canola-test:///foo/a.txt',
+            dest_url = 'canola-test:///foo/b.ts',
+          },
+        }, actions)
+      end)
+
+      it('deduplicates directory creates from expansion', function()
+        vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+        local bufnr = vim.api.nvim_get_current_buf()
+        local diffs = {
+          { type = 'new', name = 'dir/{a,b}.txt', entry_type = 'file' },
+        }
+        local actions = mutator.create_actions_from_diffs({
+          [bufnr] = diffs,
+        })
+        assert.are.same({
+          { type = 'create', entry_type = 'directory', url = 'canola-test:///foo/dir' },
+          { type = 'create', entry_type = 'file', url = 'canola-test:///foo/dir/a.txt' },
+          { type = 'create', entry_type = 'file', url = 'canola-test:///foo/dir/b.txt' },
+        }, actions)
+      end)
+
+      it('treats single-item braces as literal', function()
+        vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+        local bufnr = vim.api.nvim_get_current_buf()
+        local diffs = {
+          { type = 'new', name = '{single}.txt', entry_type = 'file' },
+        }
+        local actions = mutator.create_actions_from_diffs({
+          [bufnr] = diffs,
+        })
+        assert.are.same({
+          { type = 'create', entry_type = 'file', url = 'canola-test:///foo/{single}.txt' },
+        }, actions)
+      end)
+    end)
   end)
 
   describe('order actions', function()
