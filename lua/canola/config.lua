@@ -40,7 +40,7 @@ local default_config = {
   save = 'prompt',
   delete = { wipe = false },
   create = { file_mode = 420, dir_mode = 493 },
-  extglob = 1000,
+  extglob = false,
 
   keymaps = {},
 
