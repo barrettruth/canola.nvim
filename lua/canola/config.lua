@@ -34,7 +34,7 @@ local default_config = {
   hidden = { enabled = true, patterns = { '^%.' }, always = {} },
 
   sort = 'default',
-  highlights = {},
+  highlights = { filename = {}, columns = true },
 
   confirm = true,
   save = 'prompt',
@@ -109,7 +109,7 @@ local default_config = {
 ---@field border? string|string[]
 ---@field hidden canola.HiddenConfig
 ---@field sort string|canola.SortConfig
----@field highlights canola.HighlightPattern[]
+---@field highlights canola.HighlightsConfig
 ---@field confirm boolean|"delete"
 ---@field save "prompt"|"auto"|false
 ---@field delete canola.DeleteConfig
@@ -143,6 +143,10 @@ local M = {}
 ---@field by canola.SortSpec[]
 ---@field natural? boolean|"fast"
 ---@field ignore_case? boolean
+
+---@class (exact) canola.HighlightsConfig
+---@field filename canola.HighlightPattern[]
+---@field columns boolean
 
 ---@alias canola.HighlightPattern { [1]: string, [2]: string }
 
@@ -277,6 +281,10 @@ local default_adapters = {
 
 M.init = function()
   local opts = vim.g.canola or {}
+
+  if opts.highlights and vim.islist(opts.highlights) then
+    opts.highlights = { filename = opts.highlights, columns = true }
+  end
 
   local new_conf = vim.tbl_deep_extend('keep', opts, default_config)
 

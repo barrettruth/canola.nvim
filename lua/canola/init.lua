@@ -1150,6 +1150,101 @@ M._get_highlights = function()
       link = 'Special',
       desc = 'Change action in the oil preview window',
     },
+    {
+      name = 'CanolaPermUserRead',
+      link = 'DiagnosticWarn',
+      desc = 'User read permission',
+    },
+    {
+      name = 'CanolaPermUserWrite',
+      link = 'DiagnosticError',
+      desc = 'User write permission',
+    },
+    {
+      name = 'CanolaPermUserExec',
+      link = 'DiagnosticOk',
+      desc = 'User execute permission',
+    },
+    {
+      name = 'CanolaPermGroupRead',
+      link = 'DiagnosticWarn',
+      desc = 'Group read permission',
+    },
+    {
+      name = 'CanolaPermGroupWrite',
+      link = 'DiagnosticError',
+      desc = 'Group write permission',
+    },
+    {
+      name = 'CanolaPermGroupExec',
+      link = 'DiagnosticOk',
+      desc = 'Group execute permission',
+    },
+    {
+      name = 'CanolaPermOtherRead',
+      link = 'DiagnosticWarn',
+      desc = 'Other read permission',
+    },
+    {
+      name = 'CanolaPermOtherWrite',
+      link = 'DiagnosticError',
+      desc = 'Other write permission',
+    },
+    {
+      name = 'CanolaPermOtherExec',
+      link = 'DiagnosticOk',
+      desc = 'Other execute permission',
+    },
+    {
+      name = 'CanolaPermNone',
+      link = 'Comment',
+      desc = 'No permission (dash)',
+    },
+    {
+      name = 'CanolaPermSpecial',
+      link = 'Special',
+      desc = 'Special permission bit (setuid/setgid/sticky)',
+    },
+    {
+      name = 'CanolaSizeBytes',
+      link = 'DiagnosticOk',
+      desc = 'File size in bytes',
+    },
+    {
+      name = 'CanolaSizeKilo',
+      link = 'DiagnosticOk',
+      desc = 'File size in kilobytes',
+    },
+    {
+      name = 'CanolaSizeMega',
+      link = 'DiagnosticWarn',
+      desc = 'File size in megabytes',
+    },
+    {
+      name = 'CanolaSizeGiga',
+      link = 'DiagnosticError',
+      desc = 'File size in gigabytes',
+    },
+    {
+      name = 'CanolaOwnerSelf',
+      link = 'DiagnosticWarn',
+      desc = 'File owner matching current user',
+    },
+    {
+      name = 'CanolaOwnerOther',
+      link = nil,
+      desc = 'File owner not matching current user',
+    },
+    {
+      name = 'CanolaGroupSelf',
+      link = 'DiagnosticWarn',
+      desc = 'File group matching current user group',
+    },
+    {
+      name = 'CanolaGroupOther',
+      link = nil,
+      desc = 'File group not matching current user group',
+    },
   }
 end
 
