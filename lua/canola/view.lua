@@ -168,7 +168,7 @@ end
 ---@field fs_event? any uv_fs_event_t
 ---@field col_width? integer[]
 ---@field col_align? canola.ColumnAlign[]
----@field hl_cache? table<integer, { line: string, highlights: table[] }>
+---@field hl_cache? table<integer, { line: string, name_highlights: table[], virt_chunks: table[] }>
 
 -- List of bufnrs
 ---@type table<integer, canola.ViewData>
@@ -297,41 +297,16 @@ M.delete_hidden_buffers = function()
   cache.clear_everything()
 end
 
----@param adapter canola.Adapter
----@param ranges table<string, integer[]>
----@return integer
-local function get_first_mutable_column_col(adapter, ranges)
-  local min_col = ranges.name[1]
-  for col_name, start_len in pairs(ranges) do
-    local start = start_len[1]
-    local col_spec = columns.get_column(adapter, col_name)
-    local is_col_mutable = col_spec and col_spec.perform_action ~= nil
-    if is_col_mutable and start < min_col then
-      min_col = start
-    end
-  end
-  return min_col
-end
-
 --- @param bufnr integer
 --- @param adapter canola.Adapter
 --- @param mode false|"name"|"editable"
 --- @param cur integer[]
---- @return integer[] | nil
+--- @return integer[]|nil
 local function calc_constrained_cursor_pos(bufnr, adapter, mode, cur)
-  local parser = require('canola.mutator.parser')
   local line = vim.api.nvim_buf_get_lines(bufnr, cur[1] - 1, cur[1], true)[1]
-  local column_defs = columns.get_supported_columns(adapter)
-  local result = parser.parse_line(adapter, line, column_defs)
-  if result and result.ranges then
-    local min_col
-    if mode == 'editable' then
-      min_col = get_first_mutable_column_col(adapter, result.ranges)
-    elseif mode == 'name' then
-      min_col = result.ranges.name[1]
-    else
-      error(string.format('Unexpected value "%s" for option constrain_cursor', mode))
-    end
+  local id_prefix = line:match('^/%d+ ')
+  if id_prefix then
+    local min_col = #id_prefix
     if cur[2] < min_col then
       return { cur[1], min_col }
     end
@@ -413,16 +388,11 @@ local function show_insert_guide(bufnr)
     return
   end
 
-  local parser = require('canola.mutator.parser')
-  local column_defs = columns.get_supported_columns(adapter)
-  local result = parser.parse_line(adapter, ref_line, column_defs)
-  if not result or not result.ranges then
+  local id_prefix = ref_line:match('^/%d+ ')
+  if not id_prefix then
     return
   end
 
-  local id_end = result.ranges.id[2] + 1
-  local col_prefix = ref_line:sub(id_end + 1, result.ranges.name[1])
-  local col_width = vim.api.nvim_strwidth(col_prefix)
   local id_width
   local cole = vim.wo.conceallevel
   if cole >= 2 then
@@ -430,9 +400,17 @@ local function show_insert_guide(bufnr)
   elseif cole == 1 then
     id_width = 1
   else
-    id_width = vim.api.nvim_strwidth(ref_line:sub(1, id_end))
+    id_width = vim.api.nvim_strwidth(ref_line:sub(1, #id_prefix - 1))
   end
-  local virtual_col = id_width + col_width
+
+  local sess = session[bufnr]
+  local virt_width = 0
+  if sess and sess.col_width then
+    for _, w in ipairs(sess.col_width) do
+      virt_width = virt_width + w + 1
+    end
+  end
+  local virtual_col = id_width + virt_width
   if virtual_col <= 0 then
     return
   end
@@ -468,14 +446,9 @@ local function update_insert_boundary(bufnr)
     return 0
   end
 
-  local parser = require('canola.mutator.parser')
   local line = vim.api.nvim_buf_get_lines(bufnr, cur[1] - 1, cur[1], true)[1]
-  local column_defs = columns.get_supported_columns(adapter)
-  local result = parser.parse_line(adapter, line, column_defs)
-  local min_col = 0
-  if result and result.ranges then
-    min_col = result.ranges.name[1]
-  end
+  local id_prefix = line:match('^/%d+ ')
+  local min_col = id_prefix and #id_prefix or 0
   insert_boundary[bufnr] = { lnum = cur[1], min_col = min_col }
   return min_col
 end
@@ -833,22 +806,31 @@ local function render_buffer(bufnr, opts)
   local col_width = {}
   local col_align = {}
   for i, col_def in ipairs(column_defs) do
-    col_width[i + 1] = 1
+    col_width[i] = 1
     local _, conf = util.split_config(col_def)
-    col_align[i + 1] = conf and conf.align or 'left'
+    col_align[i] = conf and conf.align or 'left'
+  end
+
+  local function collect_entry(entry, is_hidden)
+    local cols = M.format_entry_line(entry, adapter, is_hidden, bufnr)
+    table.insert(line_table, cols)
+    for i, col_def in ipairs(column_defs) do
+      local chunk = columns.render_col(adapter, col_def, entry, bufnr)
+      local text = type(chunk) == 'table' and chunk[1] or chunk
+      ---@cast text string
+      col_width[i] = math.max(col_width[i], vim.api.nvim_strwidth(text))
+    end
   end
 
   local parent_entry = { 0, '..', 'directory' }
   if M.should_display(bufnr, parent_entry) then
-    local cols = M.format_entry_cols(parent_entry, column_defs, col_width, adapter, true, bufnr)
-    table.insert(line_table, cols)
+    collect_entry(parent_entry, true)
   end
 
   for _, entry in ipairs(entry_list) do
     local should_display, is_hidden = M.should_display(bufnr, entry)
     if should_display then
-      local cols = M.format_entry_cols(entry, column_defs, col_width, adapter, is_hidden, bufnr)
-      table.insert(line_table, cols)
+      collect_entry(entry, is_hidden)
 
       local name = entry[FIELD_NAME]
       if seek_after_render == name then
@@ -858,7 +840,7 @@ local function render_buffer(bufnr, opts)
     end
   end
 
-  local lines = util.render_table(line_table, col_width, col_align)
+  local lines = util.render_table(line_table, {})
 
   _rendering[bufnr] = true
   vim.bo[bufnr].modifiable = true
@@ -922,15 +904,12 @@ local function get_link_text(name, meta)
   return name, link_text
 end
 
----@private
 ---@param entry canola.InternalEntry
----@param column_defs table[]
----@param col_width integer[]
 ---@param adapter canola.Adapter
 ---@param is_hidden boolean
 ---@param bufnr integer
 ---@return canola.TextChunk[]
-M.format_entry_cols = function(entry, column_defs, col_width, adapter, is_hidden, bufnr)
+M.format_entry_line = function(entry, adapter, is_hidden, bufnr)
   local name = entry[FIELD_NAME]
   local meta = entry[FIELD_META]
   local hl_suffix = ''
@@ -945,16 +924,7 @@ M.format_entry_cols = function(entry, column_defs, col_width, adapter, is_hidden
   -- First put the unique ID
   local cols = {}
   local id_key = cache.format_id(entry[FIELD_ID])
-  col_width[1] = id_key:len()
   table.insert(cols, id_key)
-  -- Then add all the configured columns
-  for i, column in ipairs(column_defs) do
-    local chunk = columns.render_col(adapter, column, entry, bufnr)
-    local text = type(chunk) == 'table' and chunk[1] or chunk
-    ---@cast text string
-    col_width[i + 1] = math.max(col_width[i + 1], vim.api.nvim_strwidth(text))
-    table.insert(cols, chunk)
-  end
   -- Always add the entry name at the end
   local entry_type = entry[FIELD_TYPE]
 
@@ -1200,7 +1170,7 @@ M.setup_decoration_provider = function()
     end,
     on_win = function(_, winid, bufnr, toprow, botrow)
       local sess = session[bufnr]
-      if not sess or not sess.col_width or not sess.col_align then
+      if not sess then
         return false
       end
       if decor_ctx[bufnr] then
@@ -1218,8 +1188,8 @@ M.setup_decoration_provider = function()
       decor_ctx[bufnr] = {
         adapter = adapter,
         column_defs = columns.get_supported_columns(scheme),
-        col_width = sess.col_width,
-        col_align = sess.col_align,
+        col_width = sess.col_width or {},
+        col_align = sess.col_align or {},
       }
     end,
     on_line = function(_, winid, bufnr, row)
@@ -1238,25 +1208,42 @@ M.setup_decoration_provider = function()
       local sess = session[bufnr]
       local hl_cache = sess and sess.hl_cache
       local cached = hl_cache and hl_cache[id]
-      local highlights
+      local name_highlights, virt_chunks
       if cached and cached.line == line then
-        highlights = cached.highlights
+        name_highlights = cached.name_highlights
+        virt_chunks = cached.virt_chunks
       else
         local entry = id == 0 and { 0, '..', 'directory' } or cache.get_entry_by_id(id)
         if not entry then
           return
         end
         local _, is_hidden = M.should_display(bufnr, entry)
-        local cols =
-          M.format_entry_cols(entry, ctx.column_defs, ctx.col_width, ctx.adapter, is_hidden, bufnr)
-        highlights = compute_highlights_for_cols(cols, ctx.col_width, ctx.col_align, #line)
+        local cols = M.format_entry_line(entry, ctx.adapter, is_hidden, bufnr)
+        name_highlights = compute_highlights_for_cols(cols, {}, {}, #line)
+        virt_chunks = {}
+        for i, col_def in ipairs(ctx.column_defs) do
+          local chunk = columns.render_col(ctx.adapter, col_def, entry, bufnr)
+          local text = type(chunk) == 'table' and chunk[1] or chunk
+          ---@cast text string
+          local hl = type(chunk) == 'table' and chunk[2] or nil
+          local padded = util.pad_align(text, ctx.col_width[i], ctx.col_align[i] or 'left')
+          table.insert(virt_chunks, { padded .. ' ', hl })
+        end
         if not hl_cache then
           hl_cache = {}
           sess.hl_cache = hl_cache
         end
-        hl_cache[id] = { line = line, highlights = highlights }
+        hl_cache[id] = { line = line, name_highlights = name_highlights, virt_chunks = virt_chunks }
       end
-      for _, hl in ipairs(highlights) do
+      local id_prefix = line:match('^/%d+ ')
+      if id_prefix and #virt_chunks > 0 then
+        vim.api.nvim_buf_set_extmark(bufnr, decor_ns, row, #id_prefix, {
+          virt_text = virt_chunks,
+          virt_text_pos = 'inline',
+          ephemeral = true,
+        })
+      end
+      for _, hl in ipairs(name_highlights) do
         vim.api.nvim_buf_set_extmark(bufnr, decor_ns, row, hl[2], {
           end_col = hl[3],
           hl_group = hl[1],

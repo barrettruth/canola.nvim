@@ -13,7 +13,6 @@ local all_columns = {}
 
 ---@class (exact) canola.ColumnDefinition
 ---@field render fun(entry: canola.InternalEntry, conf: nil|table, bufnr: integer): nil|canola.TextChunk
----@field parse fun(line: string, conf: nil|table): nil|string, nil|string
 ---@field compare? fun(entry: canola.InternalEntry, parsed_value: any): boolean
 ---@field render_action? fun(action: canola.ChangeAction): string
 ---@field perform_action? fun(action: canola.ChangeAction, callback: fun(err: nil|string))
@@ -88,24 +87,6 @@ M.render_col = function(adapter, col_def, entry, bufnr)
     end
   end
   return chunk
-end
-
----@param adapter canola.Adapter
----@param line string
----@param col_def canola.ColumnSpec
----@return nil|string
----@return nil|string
-M.parse_col = function(adapter, line, col_def)
-  local name, conf = util.split_config(col_def)
-  -- If rendering failed, there will just be a "-"
-  local empty_col, rem = line:match('^%s*(-%s+)(.*)$')
-  if empty_col then
-    return nil, rem
-  end
-  local column = M.get_column(adapter, name)
-  if column then
-    return column.parse(line:gsub('^%s+', ''), conf)
-  end
 end
 
 ---@param adapter canola.Adapter
@@ -194,10 +175,6 @@ if icon_provider then
       end
       return { icon, hl }
     end,
-
-    parse = function(line, conf)
-      return line:match('^(%S+)%s+(.*)$')
-    end,
   })
 end
 
@@ -226,10 +203,6 @@ M.register('type', {
     else
       return default_type_icons[entry_type] or entry_type
     end
-  end,
-
-  parse = function(line, conf)
-    return line:match('^(%S+)%s+(.*)$')
   end,
 
   get_sort_value = function(entry)
