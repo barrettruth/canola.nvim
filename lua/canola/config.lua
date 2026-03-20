@@ -40,6 +40,7 @@ local default_config = {
   save = 'prompt',
   delete = { wipe = false },
   create = { file_mode = 420, dir_mode = 493 },
+  extglob = 1000,
 
   keymaps = {},
 
@@ -113,6 +114,7 @@ local default_config = {
 ---@field save "prompt"|"auto"|false
 ---@field delete canola.DeleteConfig
 ---@field create canola.CreateConfig
+---@field extglob boolean|integer
 ---@field keymaps table<string, any>
 ---@field lsp canola.LspConfig
 ---@field float canola.FloatConfig
