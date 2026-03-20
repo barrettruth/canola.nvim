@@ -17,6 +17,32 @@ local FIELD_META = constants.FIELD_META
 -- map of path->last entry under cursor
 local last_cursor_entry = {}
 
+local non_canola_enter_count = 0
+
+M.setup_cleanup_autocmd = function()
+  vim.api.nvim_create_autocmd('BufEnter', {
+    desc = 'Clean up hidden canola buffers after leaving canola',
+    group = 'Canola',
+    pattern = '*',
+    callback = function()
+      if vim.bo.filetype == 'canola' then
+        non_canola_enter_count = 0
+        return
+      end
+      non_canola_enter_count = non_canola_enter_count + 1
+      if non_canola_enter_count >= 2 then
+        non_canola_enter_count = 0
+        vim.defer_fn(function()
+          local mutator = require('canola.mutator')
+          if not mutator.is_mutating() then
+            M.delete_hidden_buffers()
+          end
+        end, 100)
+      end
+    end,
+  })
+end
+
 ---@param bufnr integer
 ---@param entry canola.InternalEntry
 ---@return boolean display
@@ -24,11 +50,11 @@ local last_cursor_entry = {}
 M.should_display = function(bufnr, entry)
   local name = entry[FIELD_NAME]
   local public_entry = util.export_entry(entry)
-  if config.view_options.is_always_hidden(name, bufnr, public_entry) then
+  if config._is_always_hidden(name, bufnr, public_entry) then
     return false, true
   else
-    local is_hidden = config.view_options.is_hidden_file(name, bufnr, public_entry)
-    local display = config.view_options.show_hidden or not is_hidden
+    local is_hidden = config._is_hidden_file(name, bufnr, public_entry)
+    local display = config.show_hidden or not is_hidden
     return display, is_hidden
   end
 end
@@ -100,7 +126,7 @@ M.toggle_hidden = function()
   if any_modified then
     vim.notify('Cannot toggle hidden files when you have unsaved changes', vim.log.levels.WARN)
   else
-    config.view_options.show_hidden = not config.view_options.show_hidden
+    config.show_hidden = not config.show_hidden
     M.rerender_all_oil_buffers({ refetch = false })
   end
 end
@@ -111,7 +137,7 @@ M.set_is_hidden_file = function(is_hidden_file)
   if any_modified then
     vim.notify('Cannot change is_hidden_file when you have unsaved changes', vim.log.levels.WARN)
   else
-    config.view_options.is_hidden_file = is_hidden_file
+    config._is_hidden_file = is_hidden_file
     M.rerender_all_oil_buffers({ refetch = false })
   end
 end
@@ -132,7 +158,7 @@ M.set_sort = function(new_sort)
   if any_modified then
     vim.notify('Cannot change sorting when you have unsaved changes', vim.log.levels.WARN)
   else
-    config.view_options.sort = new_sort
+    config._sort_spec = new_sort
     -- TODO only refetch if we don't have all the necessary data for the columns
     M.rerender_all_oil_buffers({ refetch = true })
   end
@@ -219,7 +245,7 @@ M.set_win_options = function()
     vim.api.nvim_set_option_value(k, v, { scope = 'local', win = winid })
   end
   if vim.wo[winid].previewwindow then -- apply preview window options last
-    for k, v in pairs(config.preview_win.win_options) do
+    for k, v in pairs(config.preview.win_options) do
       vim.api.nvim_set_option_value(k, v, { scope = 'local', win = winid })
     end
   end
@@ -348,7 +374,7 @@ end
 
 ---@param bufnr integer
 local function show_insert_guide(bufnr)
-  if not config.constrain_cursor then
+  if not config._constrain_cursor then
     return
   end
   if bufnr ~= vim.api.nvim_get_current_buf() then
@@ -452,7 +478,7 @@ end
 
 ---@param bufnr integer
 local function setup_insert_constraints(bufnr)
-  if not config.constrain_cursor then
+  if not config._constrain_cursor then
     return
   end
 
@@ -604,31 +630,6 @@ M.initialize = function(bufnr)
   end
   vim.api.nvim_buf_call(bufnr, M.set_win_options)
 
-  vim.api.nvim_create_autocmd('BufHidden', {
-    desc = 'Delete oil buffers when no longer in use',
-    group = 'Canola',
-    nested = true,
-    buffer = bufnr,
-    callback = function()
-      -- First wait a short time (100ms) for the buffer change to settle
-      vim.defer_fn(function()
-        local visible_buffers = get_visible_hidden_buffers()
-        -- Only delete oil buffers if none of them are visible
-        if visible_buffers and next(visible_buffers) == nil then
-          -- Check if cleanup is enabled
-          if type(config.cleanup_delay_ms) == 'number' then
-            if config.cleanup_delay_ms > 0 then
-              vim.defer_fn(function()
-                M.delete_hidden_buffers()
-              end, config.cleanup_delay_ms)
-            else
-              M.delete_hidden_buffers()
-            end
-          end
-        end
-      end, 100)
-    end,
-  })
   vim.api.nvim_create_autocmd('BufUnload', {
     group = 'Canola',
     nested = true,
@@ -663,7 +664,7 @@ M.initialize = function(bufnr)
       -- For some reason the cursor bounces back to its original position,
       -- so we have to defer the call
       vim.schedule(function()
-        constrain_cursor(bufnr, config.constrain_cursor)
+        constrain_cursor(bufnr, config._constrain_cursor)
         show_insert_guide(bufnr)
       end)
     end,
@@ -689,9 +690,9 @@ M.initialize = function(bufnr)
         return
       end
 
-      constrain_cursor(bufnr, config.constrain_cursor)
+      constrain_cursor(bufnr, config._constrain_cursor)
 
-      if config.preview_win.update_on_cursor_moved then
+      if config._preview_update_on_cursor_moved then
         -- Debounce and update the preview window
         if timer then
           timer:again()
@@ -729,12 +730,7 @@ M.initialize = function(bufnr)
   local adapter = util.get_adapter(bufnr, true)
 
   -- Set up a watcher that will refresh the directory
-  if
-    adapter
-    and adapter.name == 'files'
-    and config.watch_for_changes
-    and not session[bufnr].fs_event
-  then
+  if adapter and adapter.name == 'files' and config.watch and not session[bufnr].fs_event then
     local fs_event = assert(uv.new_fs_event())
     local bufname = vim.api.nvim_buf_get_name(bufnr)
     local _, dir = util.parse_url(bufname)
@@ -831,7 +827,7 @@ end
 ---@return fun(a: canola.InternalEntry, b: canola.InternalEntry): boolean
 local function get_sort_function(adapter, num_entries)
   local idx_funs = {}
-  local sort_config = config.view_options.sort
+  local sort_config = config._sort_spec
 
   -- If empty, default to type + name sorting
   if next(sort_config) == nil then
@@ -945,21 +941,6 @@ local function render_buffer(bufnr, opts)
     end
   end
 
-  if config.view_options.show_hidden_when_empty and #line_table <= 1 then
-    for _, entry in ipairs(entry_list) do
-      local name = entry[FIELD_NAME]
-      local public_entry = util.export_entry(entry)
-      if not config.view_options.is_always_hidden(name, bufnr, public_entry) then
-        local cols = M.format_entry_cols(entry, column_defs, col_width, adapter, true, bufnr)
-        table.insert(line_table, cols)
-        if seek_after_render == name then
-          seek_after_render_found = true
-          jump_idx = #line_table
-        end
-      end
-    end
-  end
-
   local lines, highlights = util.render_table(line_table, col_width, col_align)
 
   _rendering[bufnr] = true
@@ -1059,31 +1040,28 @@ M.format_entry_cols = function(entry, column_defs, col_width, adapter, is_hidden
   -- Always add the entry name at the end
   local entry_type = entry[FIELD_TYPE]
 
-  local get_custom_hl = config.view_options.highlight_filename
-  local link_name, link_name_hl, link_target, link_target_hl
-  if get_custom_hl then
-    local external_entry = util.export_entry(entry)
+  local custom_hl
+  for _, pair in ipairs(config.highlights) do
+    if name:match(pair[1]) then
+      custom_hl = pair[2]
+      break
+    end
+  end
 
+  local link_name, link_name_hl, link_target, link_target_hl
+  if custom_hl then
     if entry_type == 'link' then
       link_name, link_target = get_link_text(name, meta)
-      local is_orphan = not (meta and meta.link_stat)
-      link_name_hl = get_custom_hl(external_entry, is_hidden, false, is_orphan, bufnr)
-
+      link_name_hl = custom_hl
       if link_target then
-        link_target_hl = get_custom_hl(external_entry, is_hidden, true, is_orphan, bufnr)
+        link_target_hl = custom_hl
       end
-
-      -- intentional fallthrough
     else
-      local hl = get_custom_hl(external_entry, is_hidden, false, false, bufnr)
-      if hl then
-        -- Add the trailing / if this is a directory, this is important
-        if entry_type == 'directory' then
-          name = name .. '/'
-        end
-        table.insert(cols, { name, hl })
-        return cols
+      if entry_type == 'directory' then
+        name = name .. '/'
       end
+      table.insert(cols, { name, custom_hl })
+      return cols
     end
   end
 
@@ -1145,7 +1123,7 @@ local function get_used_columns()
     local name = util.split_config(def)
     table.insert(cols, name)
   end
-  for _, sort_pair in ipairs(config.view_options.sort) do
+  for _, sort_pair in ipairs(config._sort_spec) do
     local name = sort_pair[1]
     table.insert(cols, name)
   end

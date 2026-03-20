@@ -474,7 +474,7 @@ end
 M.open = function(dir, opts, cb)
   opts = opts or {}
   local config = require('canola.config')
-  if config.default_to_float then
+  if config.float.default then
     return M.open_float(dir, opts, cb)
   end
   local util = require('canola.util')
@@ -683,7 +683,7 @@ M.open_preview = function(opts, callback)
     local entry_is_file = not vim.endswith(normalized_url, '/')
     local filebufnr
     if entry_is_file then
-      local max_mb = config.preview_win.max_file_size
+      local max_mb = config.preview.max_file_size_mb
       local _size = entry.meta and entry.meta.stat and entry.meta.stat.size
       if not _size then
         local _st = vim.uv.fs_stat(normalized_url)
@@ -699,17 +699,16 @@ M.open_preview = function(opts, callback)
           vim.notify('File too large to preview', vim.log.levels.WARN)
           return finish()
         end
-      elseif config.preview_win.disable_preview(normalized_url) then
+      elseif config._disable_preview(normalized_url) then
         filebufnr = vim.api.nvim_create_buf(false, true)
         vim.bo[filebufnr].bufhidden = 'wipe'
         vim.bo[filebufnr].buftype = 'nofile'
         util.render_text(filebufnr, 'Preview disabled', { winid = preview_win })
       elseif
-        config.preview_win.preview_method ~= 'load'
+        config._preview_method ~= 'load'
         and not util.file_matches_bufreadcmd(normalized_url)
       then
-        filebufnr =
-          util.read_file_to_scratch_buffer(normalized_url, config.preview_win.preview_method)
+        filebufnr = util.read_file_to_scratch_buffer(normalized_url, config._preview_method)
       end
     end
 
@@ -740,7 +739,7 @@ M.open_preview = function(opts, callback)
 
     vim.api.nvim_set_option_value('previewwindow', true, { scope = 'local', win = 0 })
     vim.api.nvim_win_set_var(0, 'oil_preview', true)
-    for k, v in pairs(config.preview_win.win_options) do
+    for k, v in pairs(config.preview.win_options) do
       vim.api.nvim_set_option_value(k, v, { scope = 'local', win = preview_win })
     end
     vim.w.canola_entry_id = entry.id
@@ -844,8 +843,8 @@ M.select = function(opts, callback)
       end
     end
   end
-  if any_moved and config.prompt_save_on_select_new_entry then
-    if config.auto_save_on_select_new_entry then
+  if any_moved and config.save ~= false then
+    if config.save == 'auto' then
       M.save()
       return finish()
     end
@@ -981,9 +980,6 @@ local function maybe_hijack_directory_buffer(bufnr)
   local config = require('canola.config')
   local fs = require('canola.fs')
   local util = require('canola.util')
-  if not config.default_file_explorer then
-    return false
-  end
   local bufname = vim.api.nvim_buf_get_name(bufnr)
   if bufname == '' then
     return false
@@ -1372,13 +1368,12 @@ M.init = function()
   })
   local aug = vim.api.nvim_create_augroup('Canola', {})
 
-  if config.default_file_explorer then
-    vim.g.loaded_netrw = 1
-    vim.g.loaded_netrwPlugin = 1
-    -- If netrw was already loaded, clear this augroup
-    if vim.fn.exists('#FileExplorer') then
-      vim.api.nvim_create_augroup('FileExplorer', { clear = true })
-    end
+  require('canola.view').setup_cleanup_autocmd()
+
+  vim.g.loaded_netrw = 1
+  vim.g.loaded_netrwPlugin = 1
+  if vim.fn.exists('#FileExplorer') then
+    vim.api.nvim_create_augroup('FileExplorer', { clear = true })
   end
 
   local patterns = {}
@@ -1517,20 +1512,6 @@ M.init = function()
       end
     end,
   })
-  if not config.silence_scp_warning then
-    vim.api.nvim_create_autocmd('BufNew', {
-      desc = 'Warn about scp:// usage',
-      group = aug,
-      pattern = 'scp://*',
-      once = true,
-      callback = function()
-        vim.notify(
-          'If you are trying to browse using Canola, use canola-ssh:// instead of scp://\nSet `silence_scp_warning = true` in vim.g.canola to disable this message.\nSee https://github.com/stevearc/oil.nvim/issues/27 for more information.',
-          vim.log.levels.WARN
-        )
-      end,
-    })
-  end
   vim.api.nvim_create_autocmd('WinNew', {
     desc = 'Restore window options when splitting an oil window',
     group = aug,
@@ -1586,7 +1567,7 @@ M.init = function()
     end,
   })
 
-  if config.default_to_float then
+  if config.float.default then
     vim.api.nvim_create_autocmd('VimEnter', {
       desc = 'Open oil in a float when starting on a directory',
       group = aug,
@@ -1603,23 +1584,21 @@ M.init = function()
     })
   end
 
-  if config.default_file_explorer then
-    vim.api.nvim_create_autocmd('BufAdd', {
-      desc = 'Detect directory buffer and open oil file browser',
-      group = aug,
-      pattern = '*',
-      nested = true,
-      callback = function(params)
-        if maybe_hijack_directory_buffer(params.buf) and vim.v.vim_did_enter == 1 then
-          M.load_oil_buffer(params.buf)
-        end
-      end,
-    })
-
-    for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-      if maybe_hijack_directory_buffer(bufnr) and vim.v.vim_did_enter == 1 then
-        M.load_oil_buffer(bufnr)
+  vim.api.nvim_create_autocmd('BufAdd', {
+    desc = 'Detect directory buffer and open oil file browser',
+    group = aug,
+    pattern = '*',
+    nested = true,
+    callback = function(params)
+      if maybe_hijack_directory_buffer(params.buf) and vim.v.vim_did_enter == 1 then
+        M.load_oil_buffer(params.buf)
       end
+    end,
+  })
+
+  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+    if maybe_hijack_directory_buffer(bufnr) and vim.v.vim_did_enter == 1 then
+      M.load_oil_buffer(bufnr)
     end
   end
 end

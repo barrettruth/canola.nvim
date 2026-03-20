@@ -392,7 +392,7 @@ M.process_actions = function(actions, cb)
   )
 
   local did_complete = nil
-  if config.lsp_file_methods.enabled then
+  if config.lsp.enabled then
     did_complete = lsp_helpers.will_perform_file_operations(actions)
   end
 
@@ -420,7 +420,7 @@ M.process_actions = function(actions, cb)
       finished = true
       progress:close()
       progress = nil
-      if config.cleanup_buffers_on_delete and not err then
+      if config.delete.wipe_buffers and not err then
         for _, action in ipairs(actions) do
           if action.type == 'delete' then
             local scheme, path = util.parse_url(action.url)

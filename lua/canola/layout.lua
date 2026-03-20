@@ -135,7 +135,7 @@ M.get_fullscreen_win_opts = function()
     border = config.float.border,
     zindex = 45,
   }
-  return config.float.override(win_opts) or win_opts
+  return win_opts
 end
 
 ---@param winid integer

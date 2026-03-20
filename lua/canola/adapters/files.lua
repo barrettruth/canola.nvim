@@ -3,7 +3,6 @@ local columns = require('canola.columns')
 local config = require('canola.config')
 local constants = require('canola.constants')
 local fs = require('canola.fs')
-local git = require('canola.git')
 local log = require('canola.log')
 local permissions = require('canola.adapters.files.permissions')
 local util = require('canola.util')
@@ -599,19 +598,8 @@ M.perform_action = function(action, cb)
     assert(path)
     path = fs.posix_to_os_path(path)
 
-    if config.git.add(path) then
-      local old_cb = cb
-      cb = vim.schedule_wrap(function(err)
-        if not err then
-          git.add(path, old_cb)
-        else
-          old_cb(err)
-        end
-      end)
-    end
-
     if action.entry_type == 'directory' then
-      uv.fs_mkdir(path, config.new_dir_mode, function(err)
+      uv.fs_mkdir(path, config.create.dir_mode, function(err)
         -- Ignore if the directory already exists
         if not err or err:match('^EEXIST:') then
           cb()
@@ -633,7 +621,7 @@ M.perform_action = function(action, cb)
     else
       fs.touch(
         path,
-        config.new_file_mode,
+        config.create.file_mode,
         vim.schedule_wrap(function(err)
           if not err then
             vim.api.nvim_exec_autocmds(
@@ -650,17 +638,6 @@ M.perform_action = function(action, cb)
     assert(path)
     path = fs.posix_to_os_path(path)
 
-    if config.git.rm(path) then
-      local old_cb = cb
-      cb = vim.schedule_wrap(function(err)
-        if not err then
-          git.rm(path, old_cb)
-        else
-          old_cb(err)
-        end
-      end)
-    end
-
     if config.delete_to_trash then
       require('canola.adapters.trash').delete_to_trash(path, cb)
     else
@@ -675,11 +652,7 @@ M.perform_action = function(action, cb)
       assert(dest_path)
       src_path = fs.posix_to_os_path(src_path)
       dest_path = fs.posix_to_os_path(dest_path)
-      if config.git.mv(src_path, dest_path) then
-        git.mv(action.entry_type, src_path, dest_path, cb)
-      else
-        fs.recursive_move(action.entry_type, src_path, dest_path, cb)
-      end
+      fs.recursive_move(action.entry_type, src_path, dest_path, cb)
     else
       -- We should never hit this because we don't implement supported_cross_adapter_actions
       cb("files adapter doesn't support cross-adapter move")
