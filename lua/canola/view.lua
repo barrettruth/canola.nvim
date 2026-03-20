@@ -168,11 +168,15 @@ end
 ---@field fs_event? any uv_fs_event_t
 ---@field col_width? integer[]
 ---@field col_align? canola.ColumnAlign[]
+---@field hl_cache? table<integer, { line: string, highlights: table[] }>
 
 -- List of bufnrs
 ---@type table<integer, canola.ViewData>
 local session = {}
 local _rendering = {}
+
+local decor_ns = vim.api.nvim_create_namespace('CanolaDecor')
+local decor_ctx = {}
 
 ---@type table<integer, { lnum: integer, min_col: integer }>
 local insert_boundary = {}
@@ -524,52 +528,6 @@ local function setup_insert_constraints(bufnr)
 end
 
 ---@param bufnr integer
-M.reapply_highlights = function(bufnr)
-  local sess = session[bufnr]
-  if not sess or not sess.col_width or not sess.col_align then
-    return
-  end
-  local parser = require('canola.mutator.parser')
-  local adapter = util.get_adapter(bufnr)
-  if not adapter then
-    return
-  end
-  local bufname = vim.api.nvim_buf_get_name(bufnr)
-  local scheme = util.parse_url(bufname)
-  if not scheme then
-    return
-  end
-  local column_defs = columns.get_supported_columns(scheme)
-  local col_width = vim.deepcopy(sess.col_width)
-  ---@cast col_width integer[]
-  local col_align = sess.col_align
-  local buf_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
-  local line_table = {}
-  for _, line in ipairs(buf_lines) do
-    local result = parser.parse_line(adapter, line, column_defs)
-    if result then
-      local entry
-      if result.data.id == 0 then
-        entry = { 0, '..', 'directory' }
-      else
-        entry = cache.get_entry_by_id(result.data.id)
-      end
-      if entry then
-        local _, is_hidden = M.should_display(bufnr, entry)
-        local cols = M.format_entry_cols(entry, column_defs, col_width, adapter, is_hidden, bufnr)
-        table.insert(line_table, cols)
-      else
-        table.insert(line_table, {})
-      end
-    else
-      table.insert(line_table, {})
-    end
-  end
-  local _, highlights = util.render_table(line_table, col_width, col_align)
-  util.set_highlights(bufnr, highlights)
-end
-
----@param bufnr integer
 M.initialize = function(bufnr)
   if bufnr == 0 then
     bufnr = vim.api.nvim_get_current_buf()
@@ -729,16 +687,6 @@ M.initialize = function(bufnr)
     session[bufnr].fs_event = fs_event
   end
 
-  vim.api.nvim_create_autocmd('TextChanged', {
-    desc = 'Reapply oil column highlights after buffer edits',
-    group = 'Canola',
-    buffer = bufnr,
-    callback = function()
-      if not _rendering[bufnr] then
-        M.reapply_highlights(bufnr)
-      end
-    end,
-  })
   M.render_buffer_async(bufnr, {}, function(err)
     if err then
       vim.notify(
@@ -810,6 +758,40 @@ local function get_sort_function(adapter, num_entries)
   end
 end
 
+local function compute_highlights_for_cols(cols, col_width, col_align, line_len)
+  local highlights = {}
+  local col = 0
+  for i, chunk in ipairs(cols) do
+    local text, hl
+    if type(chunk) == 'table' then
+      text = chunk[1]
+      hl = chunk[2]
+    else
+      text = chunk
+    end
+    local unpadded_len = #text
+    local padded_text, padding = util.pad_align(text, col_width[i], (col_align or {})[i] or 'left')
+    if hl then
+      local hl_end = col + padding + unpadded_len
+      if i == #cols and line_len then
+        hl_end = line_len
+      end
+      if type(hl) == 'table' then
+        for _, sub_hl in ipairs(hl) do
+          table.insert(
+            highlights,
+            { sub_hl[1], col + padding + sub_hl[2], col + padding + sub_hl[3] }
+          )
+        end
+      else
+        table.insert(highlights, { hl, col + padding, hl_end })
+      end
+    end
+    col = col + #padded_text + 1
+  end
+  return highlights
+end
+
 ---@param bufnr integer
 ---@param opts nil|table
 ---    jump boolean
@@ -876,17 +858,18 @@ local function render_buffer(bufnr, opts)
     end
   end
 
-  local lines, highlights = util.render_table(line_table, col_width, col_align)
+  local lines = util.render_table(line_table, col_width, col_align)
 
   _rendering[bufnr] = true
   vim.bo[bufnr].modifiable = true
   vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, lines)
   vim.bo[bufnr].modifiable = false
   vim.bo[bufnr].modified = false
-  util.set_highlights(bufnr, highlights)
+  vim.api.nvim_buf_clear_namespace(bufnr, vim.api.nvim_create_namespace('Canola'), 0, -1)
   _rendering[bufnr] = nil
   session[bufnr].col_width = col_width
   session[bufnr].col_align = col_align
+  session[bufnr].hl_cache = nil
 
   if opts.jump then
     -- TODO why is the schedule necessary?
@@ -1207,6 +1190,81 @@ M.render_buffer_async = function(bufnr, opts, caller_callback)
       finish()
     end
   end)
+end
+
+M.setup_decoration_provider = function()
+  vim.api.nvim_set_decoration_provider(decor_ns, {
+    on_start = function()
+      decor_ctx = {}
+      return true
+    end,
+    on_win = function(_, winid, bufnr, toprow, botrow)
+      local sess = session[bufnr]
+      if not sess or not sess.col_width or not sess.col_align then
+        return false
+      end
+      if decor_ctx[bufnr] then
+        return
+      end
+      local adapter = util.get_adapter(bufnr, true)
+      if not adapter then
+        return false
+      end
+      local bufname = vim.api.nvim_buf_get_name(bufnr)
+      local scheme = util.parse_url(bufname)
+      if not scheme then
+        return false
+      end
+      decor_ctx[bufnr] = {
+        adapter = adapter,
+        column_defs = columns.get_supported_columns(scheme),
+        col_width = sess.col_width,
+        col_align = sess.col_align,
+      }
+    end,
+    on_line = function(_, winid, bufnr, row)
+      local ctx = decor_ctx[bufnr]
+      if not ctx then
+        return
+      end
+      local line = vim.api.nvim_buf_get_lines(bufnr, row, row + 1, false)[1]
+      if not line or line == '' then
+        return
+      end
+      local id = tonumber(line:match('^/(%d+)'))
+      if not id then
+        return
+      end
+      local sess = session[bufnr]
+      local hl_cache = sess and sess.hl_cache
+      local cached = hl_cache and hl_cache[id]
+      local highlights
+      if cached and cached.line == line then
+        highlights = cached.highlights
+      else
+        local entry = id == 0 and { 0, '..', 'directory' } or cache.get_entry_by_id(id)
+        if not entry then
+          return
+        end
+        local _, is_hidden = M.should_display(bufnr, entry)
+        local cols =
+          M.format_entry_cols(entry, ctx.column_defs, ctx.col_width, ctx.adapter, is_hidden, bufnr)
+        highlights = compute_highlights_for_cols(cols, ctx.col_width, ctx.col_align, #line)
+        if not hl_cache then
+          hl_cache = {}
+          sess.hl_cache = hl_cache
+        end
+        hl_cache[id] = { line = line, highlights = highlights }
+      end
+      for _, hl in ipairs(highlights) do
+        vim.api.nvim_buf_set_extmark(bufnr, decor_ns, row, hl[2], {
+          end_col = hl[3],
+          hl_group = hl[1],
+          ephemeral = true,
+        })
+      end
+    end,
+  })
 end
 
 return M
