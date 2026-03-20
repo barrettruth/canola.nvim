@@ -7,21 +7,22 @@ local sort_presets = {
 }
 
 local default_keymaps = {
-  ['g?'] = { 'actions.show_help', mode = 'n' },
+  ['g?'] = { callback = 'actions.show_help', mode = 'n' },
   ['<CR>'] = 'actions.select',
-  ['<C-s>'] = { 'actions.select', opts = { vertical = true } },
-  ['<C-h>'] = { 'actions.select', opts = { horizontal = true } },
-  ['<C-t>'] = { 'actions.select', opts = { tab = true } },
+  ['<C-s>'] = { callback = 'actions.select', opts = { vertical = true } },
+  ['<C-h>'] = { callback = 'actions.select', opts = { horizontal = true } },
+  ['<C-t>'] = { callback = 'actions.select', opts = { tab = true } },
   ['<C-p>'] = 'actions.preview',
-  ['<C-c>'] = { 'actions.close', mode = 'n' },
+  ['<C-c>'] = { callback = 'actions.close', mode = 'n' },
   ['<C-l>'] = 'actions.refresh',
-  ['-'] = { 'actions.parent', mode = 'n' },
-  ['_'] = { 'actions.open_cwd', mode = 'n' },
-  ['`'] = { 'actions.cd', mode = 'n' },
-  ['g~'] = { 'actions.cd', opts = { scope = 'tab' }, mode = 'n' },
-  ['gs'] = { 'actions.change_sort', mode = 'n' },
+  ['-'] = { callback = 'actions.parent', mode = 'n' },
+  ['_'] = { callback = 'actions.open_cwd', mode = 'n' },
+  ['`'] = { callback = 'actions.cd', mode = 'n' },
+  ['g~'] = { callback = 'actions.cd', opts = { scope = 'tab' }, mode = 'n' },
+  ['gs'] = { callback = 'actions.change_sort', mode = 'n' },
   ['gx'] = 'actions.open_external',
-  ['g.'] = { 'actions.toggle_hidden', mode = 'n' },
+  ['g.'] = { callback = 'actions.toggle_hidden', mode = 'n' },
+  ['q'] = { callback = 'actions.close', mode = 'n' },
 }
 
 local default_config = {
