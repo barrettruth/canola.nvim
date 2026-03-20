@@ -69,7 +69,7 @@ The full list of options with their defaults:
 
       confirm = true,
       save = "prompt",
-      delete = { wipe = false },
+      delete = { wipe = false, recursive = false },
       create = { file_mode = 420, dir_mode = 493 },
 
       keymaps = {
@@ -222,9 +222,12 @@ save                                                          *canola.save_opt*
     - `false`: open the original file without saving
 
 delete                                                            *canola.delete*
-    type: `canola.DeleteConfig` default: `{ wipe = false }`
+    type: `canola.DeleteConfig` default: `{ wipe = false, recursive = false }`
     `wipe`: when `true`, wipe any open buffer whose path matches a file
     deleted via canola.
+    `recursive`: when `true`, allow recursive deletion of directories via
+    remote adapters (SSH, S3, FTP). Can be overridden per-adapter via
+    `vim.g.canola_ssh.recursive` etc. Default: `false`.
 
 create                                                            *canola.create*
     type: `canola.CreateConfig`
