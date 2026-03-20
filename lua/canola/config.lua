@@ -269,13 +269,8 @@ local function resolve_sort(sort_input)
   return spec, natural, case_insensitive
 end
 
-local canola_s3_string = vim.fn.has('nvim-0.12') == 1 and 'canola-s3://' or 'canola-sss://'
 local default_adapters = {
   ['canola://'] = 'files',
-  ['canola-ssh://'] = 'ssh',
-  [canola_s3_string] = 's3',
-  ['canola-ftp://'] = 'ftp',
-  ['canola-ftps://'] = 'ftps',
 }
 
 M.init = function()
