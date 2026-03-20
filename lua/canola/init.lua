@@ -279,7 +279,7 @@ M.open_float = function(dir, opts, cb)
   local winid = vim.api.nvim_open_win(bufnr, true, win_opts)
   vim.w[winid].is_canola_win = true
   vim.w[winid].canola_original_win = original_winid
-  for k, v in pairs(config.float.win_options) do
+  for k, v in pairs(config.float.win) do
     vim.api.nvim_set_option_value(k, v, { scope = 'local', win = winid })
   end
   local autocmds = {}
@@ -322,7 +322,7 @@ M.open_float = function(dir, opts, cb)
         if not vim.api.nvim_win_is_valid(winid) or vim.api.nvim_win_get_buf(winid) ~= winbuf then
           return
         end
-        for k, v in pairs(config.float.win_options) do
+        for k, v in pairs(config.float.win) do
           vim.api.nvim_set_option_value(k, v, { scope = 'local', win = winid })
         end
 
@@ -345,8 +345,8 @@ M.open_float = function(dir, opts, cb)
 
   vim.cmd.edit({ args = { util.escape_filename(parent_url) }, mods = { keepalt = true } })
   -- :edit will set buflisted = true, but we may not want that
-  if config.buf_options.buflisted ~= nil then
-    vim.api.nvim_set_option_value('buflisted', config.buf_options.buflisted, { buf = 0 })
+  if config.buf.buflisted ~= nil then
+    vim.api.nvim_set_option_value('buflisted', config.buf.buflisted, { buf = 0 })
   end
 
   util.run_after_load(0, function()
@@ -422,8 +422,8 @@ M.open_split = function(dir, opts, cb)
   vim.w[winid].canola_original_win = original_winid
 
   vim.cmd.edit({ args = { util.escape_filename(parent_url) }, mods = { keepalt = true } })
-  if config.buf_options.buflisted ~= nil then
-    vim.api.nvim_set_option_value('buflisted', config.buf_options.buflisted, { buf = 0 })
+  if config.buf.buflisted ~= nil then
+    vim.api.nvim_set_option_value('buflisted', config.buf.buflisted, { buf = 0 })
   end
 
   util.run_after_load(0, function()
@@ -488,8 +488,8 @@ M.open = function(dir, opts, cb)
   end
   vim.cmd.edit({ args = { util.escape_filename(parent_url) }, mods = { keepalt = true } })
   -- :edit will set buflisted = true, but we may not want that
-  if config.buf_options.buflisted ~= nil then
-    vim.api.nvim_set_option_value('buflisted', config.buf_options.buflisted, { buf = 0 })
+  if config.buf.buflisted ~= nil then
+    vim.api.nvim_set_option_value('buflisted', config.buf.buflisted, { buf = 0 })
   end
 
   util.run_after_load(0, function()
@@ -739,7 +739,7 @@ M.open_preview = function(opts, callback)
 
     vim.api.nvim_set_option_value('previewwindow', true, { scope = 'local', win = 0 })
     vim.api.nvim_win_set_var(0, 'oil_preview', true)
-    for k, v in pairs(config.preview.win_options) do
+    for k, v in pairs(config.preview.win) do
       vim.api.nvim_set_option_value(k, v, { scope = 'local', win = preview_win })
     end
     vim.w.canola_entry_id = entry.id
@@ -902,7 +902,7 @@ M.select = function(opts, callback)
 
       -- The :buffer command doesn't set buflisted=true
       -- So do that for normal files or for oil dirs if config set buflisted=true
-      if entry_is_file or config.buf_options.buflisted then
+      if entry_is_file or config.buf.buflisted then
         vim.bo[filebufnr].buflisted = true
       end
 
@@ -1456,8 +1456,8 @@ M.init = function()
           vim.fn.setreg('#', orig_buffer)
         end
         view.set_win_options()
-        if config.buf_options.buflisted ~= nil then
-          vim.api.nvim_set_option_value('buflisted', config.buf_options.buflisted, { buf = 0 })
+        if config.buf.buflisted ~= nil then
+          vim.api.nvim_set_option_value('buflisted', config.buf.buflisted, { buf = 0 })
         end
         vim.w.canola_did_enter = true
       elseif vim.fn.isdirectory(bufname) == 0 then
