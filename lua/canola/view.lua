@@ -523,43 +523,6 @@ local function setup_insert_constraints(bufnr)
   vim.keymap.set('i', '<C-w>', make_cw_rhs(bufnr), opts)
 end
 
----Redraw original path virtual text for trash buffer
----@param bufnr integer
-local function redraw_trash_virtual_text(bufnr)
-  if not vim.api.nvim_buf_is_valid(bufnr) or not vim.api.nvim_buf_is_loaded(bufnr) then
-    return
-  end
-  local parser = require('canola.mutator.parser')
-  local adapter = util.get_adapter(bufnr, true)
-  if not adapter or adapter.name ~= 'trash' then
-    return
-  end
-  local _, buf_path = util.parse_url(vim.api.nvim_buf_get_name(bufnr))
-  local os_path = fs.posix_to_os_path(assert(buf_path))
-  local ns = vim.api.nvim_create_namespace('CanolaVtext')
-  vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
-  local column_defs = columns.get_supported_columns(adapter)
-  for lnum, line in ipairs(vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)) do
-    local result = parser.parse_line(adapter, line, column_defs)
-    local entry = result and result.entry
-    if entry then
-      local meta = entry[FIELD_META]
-      ---@type nil|canola.TrashInfo
-      local trash_info = meta and meta.trash_info
-      if trash_info then
-        vim.api.nvim_buf_set_extmark(bufnr, ns, lnum - 1, 0, {
-          virt_text = {
-            {
-              '➜ ' .. fs.shorten_path(trash_info.original_path, os_path),
-              'CanolaTrashSourcePath',
-            },
-          },
-        })
-      end
-    end
-  end
-end
-
 ---@param bufnr integer
 M.reapply_highlights = function(bufnr)
   local sess = session[bufnr]
@@ -766,34 +729,6 @@ M.initialize = function(bufnr)
     session[bufnr].fs_event = fs_event
   end
 
-  -- Watch for TextChanged and update the trash original path extmarks
-  if adapter and adapter.name == 'trash' then
-    local debounce_timer = assert(uv.new_timer())
-    local pending = false
-    vim.api.nvim_create_autocmd('TextChanged', {
-      desc = 'Update oil virtual text of original path',
-      buffer = bufnr,
-      callback = function()
-        -- Respond immediately to prevent flickering, the set the timer for a "cooldown period"
-        -- If this is called again during the cooldown window, we will rerender after cooldown.
-        if debounce_timer:is_active() then
-          pending = true
-        else
-          redraw_trash_virtual_text(bufnr)
-        end
-        debounce_timer:start(
-          50,
-          0,
-          vim.schedule_wrap(function()
-            if pending then
-              pending = false
-              redraw_trash_virtual_text(bufnr)
-            end
-          end)
-        )
-      end,
-    })
-  end
   vim.api.nvim_create_autocmd('TextChanged', {
     desc = 'Reapply oil column highlights after buffer edits',
     group = 'Canola',

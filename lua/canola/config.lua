@@ -22,7 +22,6 @@ local default_keymaps = {
   ['gs'] = { 'actions.change_sort', mode = 'n' },
   ['gx'] = 'actions.open_external',
   ['g.'] = { 'actions.toggle_hidden', mode = 'n' },
-  ['g\\'] = { 'actions.toggle_trash', mode = 'n' },
 }
 
 local default_config = {
@@ -98,8 +97,6 @@ local default_config = {
     conceallevel = 3,
     concealcursor = 'nvic',
   },
-
-  delete_to_trash = false,
 }
 
 ---@class canola.Config
@@ -125,7 +122,6 @@ local default_config = {
 ---@field progress canola.ProgressWindowConfig
 ---@field buf_options table<string, any>
 ---@field win_options table<string, any>
----@field delete_to_trash boolean
 ---@field _constrain_cursor false|"name"|"editable"
 ---@field _sort_spec canola.SortSpec[]
 ---@field _natural_order boolean|"fast"
@@ -245,7 +241,7 @@ end
 ---@param sort_input string|canola.SortConfig
 ---@return canola.SortSpec[], boolean|"fast", boolean
 local function resolve_sort(sort_input)
-  local natural = 'fast'
+  local natural = 'fast' ---@type boolean|"fast"
   local case_insensitive = false
   local spec
 
@@ -261,10 +257,10 @@ local function resolve_sort(sort_input)
   elseif type(sort_input) == 'table' then
     spec = sort_input.by or sort_presets.default
     if sort_input.natural ~= nil then
-      natural = sort_input.natural
+      natural = sort_input.natural --[[@as boolean|"fast"]]
     end
     if sort_input.ignore_case ~= nil then
-      case_insensitive = sort_input.ignore_case
+      case_insensitive = sort_input.ignore_case --[[@as boolean]]
     end
   else
     spec = sort_presets.default
@@ -278,7 +274,6 @@ local default_adapters = {
   ['canola://'] = 'files',
   ['canola-ssh://'] = 'ssh',
   [canola_s3_string] = 's3',
-  ['canola-trash://'] = 'trash',
   ['canola-ftp://'] = 'ftp',
   ['canola-ftps://'] = 'ftps',
 }

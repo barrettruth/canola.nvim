@@ -563,11 +563,7 @@ M.render_action = function(action)
     local _, path = util.parse_url(action.url)
     assert(path)
     local short_path = M.to_short_os_path(path, action.entry_type)
-    if config.delete_to_trash then
-      return string.format(' TRASH %s', short_path)
-    else
-      return string.format('DELETE %s', short_path)
-    end
+    return string.format('DELETE %s', short_path)
   elseif action.type == 'move' or action.type == 'copy' then
     local dest_adapter = assert(config.get_adapter_by_scheme(action.dest_url))
     if dest_adapter == M then
@@ -638,11 +634,7 @@ M.perform_action = function(action, cb)
     assert(path)
     path = fs.posix_to_os_path(path)
 
-    if config.delete_to_trash then
-      require('canola.adapters.trash').delete_to_trash(path, cb)
-    else
-      fs.recursive_delete(action.entry_type, path, cb)
-    end
+    fs.recursive_delete(action.entry_type, path, cb)
   elseif action.type == 'move' then
     local dest_adapter = assert(config.get_adapter_by_scheme(action.dest_url))
     if dest_adapter == M then

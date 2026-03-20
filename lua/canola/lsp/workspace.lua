@@ -9,7 +9,7 @@ local function get_clients(method)
   return vim.lsp.get_clients({ method = method })
 end
 
----@param glob string|vim.lpeg.Pattern
+---@param glob vim.lpeg.Pattern
 ---@param path string
 ---@return boolean
 local function match_glob(glob, path)
