@@ -168,6 +168,7 @@ end
 ---@field fs_event? any uv_fs_event_t
 ---@field col_width? integer[]
 ---@field col_align? canola.ColumnAlign[]
+---@field hl_cache? table<integer, { line: string, highlights: table[] }>
 
 -- List of bufnrs
 ---@type table<integer, canola.ViewData>
@@ -868,6 +869,7 @@ local function render_buffer(bufnr, opts)
   _rendering[bufnr] = nil
   session[bufnr].col_width = col_width
   session[bufnr].col_align = col_align
+  session[bufnr].hl_cache = nil
 
   if opts.jump then
     -- TODO why is the schedule necessary?
@@ -1233,14 +1235,27 @@ M.setup_decoration_provider = function()
       if not id then
         return
       end
-      local entry = id == 0 and { 0, '..', 'directory' } or cache.get_entry_by_id(id)
-      if not entry then
-        return
+      local sess = session[bufnr]
+      local hl_cache = sess and sess.hl_cache
+      local cached = hl_cache and hl_cache[id]
+      local highlights
+      if cached and cached.line == line then
+        highlights = cached.highlights
+      else
+        local entry = id == 0 and { 0, '..', 'directory' } or cache.get_entry_by_id(id)
+        if not entry then
+          return
+        end
+        local _, is_hidden = M.should_display(bufnr, entry)
+        local cols =
+          M.format_entry_cols(entry, ctx.column_defs, ctx.col_width, ctx.adapter, is_hidden, bufnr)
+        highlights = compute_highlights_for_cols(cols, ctx.col_width, ctx.col_align, #line)
+        if not hl_cache then
+          hl_cache = {}
+          sess.hl_cache = hl_cache
+        end
+        hl_cache[id] = { line = line, highlights = highlights }
       end
-      local _, is_hidden = M.should_display(bufnr, entry)
-      local cols =
-        M.format_entry_cols(entry, ctx.column_defs, ctx.col_width, ctx.adapter, is_hidden, bufnr)
-      local highlights = compute_highlights_for_cols(cols, ctx.col_width, ctx.col_align, #line)
       for _, hl in ipairs(highlights) do
         vim.api.nvim_buf_set_extmark(bufnr, decor_ns, row, hl[2], {
           end_col = hl[3],
