@@ -48,6 +48,62 @@ local FIELD_TYPE = constants.FIELD_TYPE
 ---@field column string
 ---@field value any
 
+local EXTGLOB_HARD_CAP = 10000
+
+---@param name string
+---@return string[][]
+local function expand_path_segments(name)
+  local extglob_setting = config.extglob
+  local path_sep = fs.is_windows and '[/\\]' or '/'
+  local segments = vim.split(name, path_sep)
+
+  if extglob_setting == false then
+    return { segments }
+  end
+
+  local extglob = require('canola.extglob')
+  local expanded_segments = {}
+  for _, seg in ipairs(segments) do
+    table.insert(expanded_segments, extglob.expand(seg))
+  end
+
+  local results = { {} }
+  for _, alternatives in ipairs(expanded_segments) do
+    local new_results = {}
+    for _, partial in ipairs(results) do
+      for _, alt in ipairs(alternatives) do
+        local new = vim.list_extend({}, partial)
+        table.insert(new, alt)
+        table.insert(new_results, new)
+      end
+    end
+    results = new_results
+    if #results > EXTGLOB_HARD_CAP then
+      vim.notify(
+        string.format(
+          '[canola] Brace expansion exceeds hard cap of %d entries, aborting',
+          EXTGLOB_HARD_CAP
+        ),
+        vim.log.levels.ERROR
+      )
+      return { segments }
+    end
+  end
+
+  if type(extglob_setting) == 'number' and #results > extglob_setting then
+    local choice = vim.fn.confirm(
+      string.format('Brace expansion will create %d entries. Continue?', #results),
+      '&Yes\n&No',
+      2
+    )
+    if choice ~= 1 then
+      return { segments }
+    end
+  end
+
+  return results
+end
+
 ---@param all_diffs table<integer, canola.Diff[]>
 ---@return canola.Action[]
 M.create_actions_from_diffs = function(all_diffs)
@@ -93,38 +149,29 @@ M.create_actions_from_diffs = function(all_diffs)
     for _, diff in ipairs(diffs) do
       if diff.type == 'new' then
         if diff.id then
-          local by_id = diff_by_id[diff.id]
-          ---HACK: set the destination on this diff for use later
-          ---@diagnostic disable-next-line: inject-field
-          diff.dest = parent_url .. diff.name
-          table.insert(by_id, diff)
+          local expanded_names = expand_path_segments(diff.name)
+          for _, segments in ipairs(expanded_names) do
+            local expanded_name = table.concat(segments, '/')
+            local cloned = vim.deepcopy(diff)
+            local by_id = diff_by_id[diff.id]
+            ---HACK: set the destination on this diff for use later
+            ---@diagnostic disable-next-line: inject-field
+            cloned.dest = parent_url .. expanded_name
+            table.insert(by_id, cloned)
+          end
         else
-          -- Parse nested files like foo/bar/baz
-          local path_sep = fs.is_windows and '[/\\]' or '/'
-          local pieces = vim.split(diff.name, path_sep)
-          local url = parent_url:gsub('/$', '')
-          for i, v in ipairs(pieces) do
-            local is_last = i == #pieces
-            local entry_type = is_last and diff.entry_type or 'directory'
-            local alternation = v:match('{([^}]+)}')
-            if is_last and alternation then
-              -- Parse alternations like foo.{js,test.js}
-              for _, alt in ipairs(vim.split(alternation, ',')) do
-                local alt_url = url .. '/' .. v:gsub('{[^}]+}', alt)
-                add_action({
-                  type = 'create',
-                  url = alt_url,
-                  entry_type = entry_type,
-                  link = diff.link,
-                })
-              end
-            else
-              url = url .. '/' .. v
+          local expanded_paths = expand_path_segments(diff.name)
+          for _, segments in ipairs(expanded_paths) do
+            local url = parent_url:gsub('/$', '')
+            for i, seg in ipairs(segments) do
+              local is_last = i == #segments
+              local entry_type = is_last and diff.entry_type or 'directory'
+              url = url .. '/' .. seg
               add_action({
                 type = 'create',
                 url = url,
                 entry_type = entry_type,
-                link = diff.link,
+                link = is_last and diff.link or nil,
               })
             end
           end
