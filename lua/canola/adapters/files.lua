@@ -62,15 +62,24 @@ file_columns.size = {
     if entry[FIELD_TYPE] == 'directory' then
       return columns.EMPTY
     end
+    local text, hl
     if stat.size >= 1e9 then
-      return string.format('%.1fG', stat.size / 1e9)
+      text = string.format('%.1fG', stat.size / 1e9)
+      hl = 'CanolaSizeGiga'
     elseif stat.size >= 1e6 then
-      return string.format('%.1fM', stat.size / 1e6)
+      text = string.format('%.1fM', stat.size / 1e6)
+      hl = 'CanolaSizeMega'
     elseif stat.size >= 1e3 then
-      return string.format('%.1fk', stat.size / 1e3)
+      text = string.format('%.1fk', stat.size / 1e3)
+      hl = 'CanolaSizeKilo'
     else
-      return string.format('%d', stat.size)
+      text = string.format('%d', stat.size)
+      hl = 'CanolaSizeBytes'
     end
+    if config.highlights.columns then
+      return { text, { { hl, 0, #text } } }
+    end
+    return text
   end,
 
   get_sort_value = function(entry)
@@ -91,6 +100,8 @@ file_columns.size = {
 -- TODO support file permissions on windows
 if not fs.is_windows then
   local ids = require('canola.adapters.files.ids')
+  local current_uid = vim.uv.getuid()
+  local current_gid = vim.uv.getgid()
 
   file_columns.owner = {
     require_stat = true,
@@ -101,7 +112,12 @@ if not fs.is_windows then
       if not stat then
         return columns.EMPTY
       end
-      return ids.get_user(stat.uid)
+      local name = ids.get_user(stat.uid)
+      if config.highlights.columns then
+        local hl = stat.uid == current_uid and 'CanolaOwnerSelf' or 'CanolaOwnerOther'
+        return { name, { { hl, 0, #name } } }
+      end
+      return name
     end,
 
     parse = function(line, conf)
@@ -118,7 +134,12 @@ if not fs.is_windows then
       if not stat then
         return columns.EMPTY
       end
-      return ids.get_group(stat.gid)
+      local name = ids.get_group(stat.gid)
+      if config.highlights.columns then
+        local hl = stat.gid == current_gid and 'CanolaGroupSelf' or 'CanolaGroupOther'
+        return { name, { { hl, 0, #name } } }
+      end
+      return name
     end,
 
     parse = function(line, conf)
@@ -134,6 +155,9 @@ if not fs.is_windows then
       local stat = meta and meta.stat
       if not stat then
         return columns.EMPTY
+      end
+      if config.highlights.columns then
+        return permissions.mode_to_highlighted(stat.mode)
       end
       return permissions.mode_to_str(stat.mode)
     end,

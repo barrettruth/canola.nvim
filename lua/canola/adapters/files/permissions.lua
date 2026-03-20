@@ -25,6 +25,42 @@ M.mode_to_str = function(mode)
     .. perm_to_str(bit.band(extra, 1) ~= 0 and 't', mode)
 end
 
+local perm_hl_map = {
+  { 'CanolaPermUserRead', 'CanolaPermUserWrite', 'CanolaPermUserExec' },
+  { 'CanolaPermGroupRead', 'CanolaPermGroupWrite', 'CanolaPermGroupExec' },
+  { 'CanolaPermOtherRead', 'CanolaPermOtherWrite', 'CanolaPermOtherExec' },
+}
+
+---@param mode integer
+---@return canola.HlRangeTuple
+M.mode_to_highlighted = function(mode)
+  local str = M.mode_to_str(mode)
+  local ranges = {}
+  for group_idx = 0, 2 do
+    local hls = perm_hl_map[group_idx + 1]
+    for char_idx = 0, 2 do
+      local pos = group_idx * 3 + char_idx
+      local ch = str:sub(pos + 1, pos + 1)
+      local hl
+      if ch == '-' then
+        hl = 'CanolaPermNone'
+      elseif ch == 'r' then
+        hl = hls[1]
+      elseif ch == 'w' then
+        hl = hls[2]
+      elseif ch == 'x' then
+        hl = hls[3]
+      elseif ch == 's' or ch == 'S' or ch == 't' or ch == 'T' then
+        hl = 'CanolaPermSpecial'
+      else
+        hl = hls[char_idx + 1]
+      end
+      table.insert(ranges, { hl, pos, pos + 1 })
+    end
+  end
+  return { str, ranges }
+end
+
 ---@param mode integer
 ---@return string
 M.mode_to_octal_str = function(mode)

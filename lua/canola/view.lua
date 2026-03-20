@@ -976,7 +976,7 @@ M.format_entry_cols = function(entry, column_defs, col_width, adapter, is_hidden
   local entry_type = entry[FIELD_TYPE]
 
   local custom_hl
-  for _, pair in ipairs(config.highlights) do
+  for _, pair in ipairs(config.highlights.filename) do
     if name:match(pair[1]) then
       custom_hl = pair[2]
       break
