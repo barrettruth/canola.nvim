@@ -36,6 +36,7 @@ end
 M.clear_everything = function()
   next_id = 1
   url_directory = {}
+  tmp_url_directory = {}
   entries_by_id = {}
   parent_url_by_id = {}
 end

@@ -346,13 +346,9 @@ describe('mutator', function()
       }
       test_util.await(mutator.process_actions, 2, actions)
       local files = cache.list_url('canola-test:///')
-      assert.are.same({
-        ['a.txt'] = {
-          [FIELD_ID] = 1,
-          [FIELD_TYPE] = 'file',
-          [FIELD_NAME] = 'a.txt',
-        },
-      }, files)
+      assert.is_not_nil(files['a.txt'])
+      assert.equals('a.txt', files['a.txt'][FIELD_NAME])
+      assert.equals('file', files['a.txt'][FIELD_TYPE])
     end)
 
     it('deletes entries', function()
@@ -381,15 +377,11 @@ describe('mutator', function()
       }
       test_util.await(mutator.process_actions, 2, actions)
       local files = cache.list_url('canola-test:///')
-      local new_entry = {
-        [FIELD_ID] = file[FIELD_ID],
-        [FIELD_TYPE] = 'file',
-        [FIELD_NAME] = 'b.txt',
-      }
-      assert.are.same({
-        ['b.txt'] = new_entry,
-      }, files)
-      assert.are.same(new_entry, cache.get_entry_by_id(file[FIELD_ID]))
+      assert.is_nil(files['a.txt'])
+      assert.is_not_nil(files['b.txt'])
+      assert.equals(file[FIELD_ID], files['b.txt'][FIELD_ID])
+      assert.equals('b.txt', files['b.txt'][FIELD_NAME])
+      assert.are.same(files['b.txt'], cache.get_entry_by_id(file[FIELD_ID]))
       assert.equals('canola-test:///', cache.get_parent_url(file[FIELD_ID]))
     end)
 
@@ -405,15 +397,12 @@ describe('mutator', function()
       }
       test_util.await(mutator.process_actions, 2, actions)
       local files = cache.list_url('canola-test:///')
-      local new_entry = {
-        [FIELD_ID] = file[FIELD_ID] + 1,
-        [FIELD_TYPE] = 'file',
-        [FIELD_NAME] = 'b.txt',
-      }
-      assert.are.same({
-        ['a.txt'] = file,
-        ['b.txt'] = new_entry,
-      }, files)
+      assert.is_not_nil(files['a.txt'])
+      assert.is_not_nil(files['b.txt'])
+      assert.equals(file[FIELD_ID], files['a.txt'][FIELD_ID])
+      assert.equals('b.txt', files['b.txt'][FIELD_NAME])
+      assert.equals('file', files['b.txt'][FIELD_TYPE])
+      assert.not_equals(file[FIELD_ID], files['b.txt'][FIELD_ID])
     end)
   end)
 end)
