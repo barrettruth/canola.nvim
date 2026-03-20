@@ -167,6 +167,11 @@ describe('mutator', function()
     end)
 
     describe('extglob', function()
+      before_each(function()
+        vim.g.canola = vim.tbl_deep_extend('force', vim.g.canola, { extglob = 1000 })
+        require('canola').init()
+      end)
+
       it('expands simple alternation on new file', function()
         vim.cmd.edit({ args = { 'canola-test:///foo/' } })
         local bufnr = vim.api.nvim_get_current_buf()
