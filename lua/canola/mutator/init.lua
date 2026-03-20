@@ -420,7 +420,7 @@ M.process_actions = function(actions, cb)
       finished = true
       progress:close()
       progress = nil
-      if config.delete.wipe_buffers and not err then
+      if config.delete.wipe and not err then
         for _, action in ipairs(actions) do
           if action.type == 'delete' then
             local scheme, path = util.parse_url(action.url)

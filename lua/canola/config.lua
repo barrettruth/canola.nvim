@@ -31,15 +31,14 @@ local default_config = {
   watch = false,
   border = nil,
 
-  show_hidden = false,
-  hidden = { patterns = { '^%.' }, always = {} },
+  hidden = { enabled = true, patterns = { '^%.' }, always = {} },
 
   sort = 'default',
   highlights = {},
 
   confirm = true,
   save = 'prompt',
-  delete = { wipe_buffers = false },
+  delete = { wipe = false },
   create = { file_mode = 420, dir_mode = 493 },
 
   keymaps = {},
@@ -53,7 +52,7 @@ local default_config = {
     max_height = 0,
     border = nil,
     preview_split = 'auto',
-    win_options = { winblend = 0 },
+    win = { winblend = 0 },
   },
 
   preview = {
@@ -61,7 +60,7 @@ local default_config = {
     live = false,
     max_file_size_mb = 10,
     disable = {},
-    win_options = {},
+    win = {},
   },
 
   confirmation = {
@@ -72,7 +71,7 @@ local default_config = {
     min_height = { 5, 0.1 },
     height = nil,
     border = nil,
-    win_options = { winblend = 0 },
+    win = { winblend = 0 },
   },
 
   progress = {
@@ -84,11 +83,11 @@ local default_config = {
     height = nil,
     border = nil,
     minimized_border = 'none',
-    win_options = { winblend = 0 },
+    win = { winblend = 0 },
   },
 
-  buf_options = { buflisted = false, bufhidden = 'hide' },
-  win_options = {
+  buf = { buflisted = false, bufhidden = 'hide' },
+  win = {
     wrap = false,
     signcolumn = 'no',
     cursorcolumn = false,
@@ -107,7 +106,6 @@ local default_config = {
 ---@field cursor boolean
 ---@field watch boolean
 ---@field border? string|string[]
----@field show_hidden boolean
 ---@field hidden canola.HiddenConfig
 ---@field sort string|canola.SortConfig
 ---@field highlights canola.HighlightPattern[]
@@ -121,8 +119,8 @@ local default_config = {
 ---@field preview canola.PreviewConfig
 ---@field confirmation canola.ConfirmationWindowConfig
 ---@field progress canola.ProgressWindowConfig
----@field buf_options table<string, any>
----@field win_options table<string, any>
+---@field buf table<string, any>
+---@field win table<string, any>
 ---@field _constrain_cursor false|"name"|"editable"
 ---@field _sort_spec canola.SortSpec[]
 ---@field _natural_order boolean|"fast"
@@ -135,6 +133,7 @@ local default_config = {
 local M = {}
 
 ---@class (exact) canola.HiddenConfig
+---@field enabled boolean
 ---@field patterns string[]
 ---@field always string[]
 
@@ -146,7 +145,7 @@ local M = {}
 ---@alias canola.HighlightPattern { [1]: string, [2]: string }
 
 ---@class (exact) canola.DeleteConfig
----@field wipe_buffers boolean
+---@field wipe boolean
 
 ---@class (exact) canola.CreateConfig
 ---@field file_mode integer
@@ -164,14 +163,14 @@ local M = {}
 ---@field max_height integer
 ---@field border? string|string[]
 ---@field preview_split "auto"|"left"|"right"|"above"|"below"
----@field win_options table<string, any>
+---@field win table<string, any>
 
 ---@class (exact) canola.PreviewConfig
 ---@field follow boolean
 ---@field live boolean
 ---@field max_file_size_mb? number
 ---@field disable string[]
----@field win_options table<string, any>
+---@field win table<string, any>
 
 ---@class (exact) canola.SortSpec
 ---@field [1] string
@@ -191,7 +190,7 @@ local M = {}
 ---@field min_height canola.WindowDimension
 ---@field height? number
 ---@field border? string|string[]
----@field win_options table<string, any>
+---@field win table<string, any>
 
 ---@alias canola.PreviewMethod
 ---| '"load"'

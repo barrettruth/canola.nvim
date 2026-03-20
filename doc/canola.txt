@@ -62,15 +62,14 @@ The full list of options with their defaults:
       watch = false,
       border = nil,
 
-      show_hidden = false,
-      hidden = { patterns = { "^%." }, always = {} },
+      hidden = { enabled = true, patterns = { "^%." }, always = {} },
 
       sort = "default",
       highlights = {},
 
       confirm = true,
       save = "prompt",
-      delete = { wipe_buffers = false },
+      delete = { wipe = false },
       create = { file_mode = 420, dir_mode = 493 },
 
       keymaps = {
@@ -101,7 +100,7 @@ The full list of options with their defaults:
         max_height = 0,
         border = nil,
         preview_split = "auto",
-        win_options = { winblend = 0 },
+        win = { winblend = 0 },
       },
 
       preview = {
@@ -109,7 +108,7 @@ The full list of options with their defaults:
         live = false,
         max_file_size_mb = 10,
         disable = {},
-        win_options = {},
+        win = {},
       },
 
       confirmation = {
@@ -120,7 +119,7 @@ The full list of options with their defaults:
         min_height = { 5, 0.1 },
         height = nil,
         border = nil,
-        win_options = { winblend = 0 },
+        win = { winblend = 0 },
       },
 
       progress = {
@@ -132,11 +131,11 @@ The full list of options with their defaults:
         height = nil,
         border = nil,
         minimized_border = "none",
-        win_options = { winblend = 0 },
+        win = { winblend = 0 },
       },
 
-      buf_options = { buflisted = false, bufhidden = "hide" },
-      win_options = {
+      buf = { buflisted = false, bufhidden = "hide" },
+      win = {
         wrap = false,
         signcolumn = "no",
         cursorcolumn = false,
@@ -171,17 +170,14 @@ border                                                            *canola.border
     Global border style. Falls through to `float.border`,
     `confirmation.border`, and `progress.border` when those are nil.
 
-show_hidden                                                  *canola.show_hidden*
-    type: `boolean` default: `false`
-    When `true`, show hidden files by default. Toggle at runtime with `g.`.
-
 hidden                                                            *canola.hidden*
     type: `canola.HiddenConfig`
-    default: `{ patterns = { "^%." }, always = {} }`
-    `patterns` is a list of Lua patterns. A file matching any pattern is
-    considered hidden (dimmed when `show_hidden` is true, invisible when
-    false). `always` is a list of Lua patterns for files that are never
-    shown, even when hidden files are visible.
+    default: `{ enabled = true, patterns = { "^%." }, always = {} }`
+    `enabled`: when `true`, files matching `patterns` are hidden. Toggle at
+    runtime with `g.`. `patterns` is a list of Lua patterns. A file matching
+    any pattern is considered hidden (dimmed when `enabled` is false,
+    invisible when true). `always` is a list of Lua patterns for files that
+    are never shown, even when hidden files are visible.
 
 sort                                                                *canola.sort*
     type: `string|canola.SortConfig` default: `"default"`
@@ -226,9 +222,9 @@ save                                                          *canola.save_opt*
     - `false`: open the original file without saving
 
 delete                                                            *canola.delete*
-    type: `canola.DeleteConfig` default: `{ wipe_buffers = false }`
-    `wipe_buffers`: when `true`, wipe any open buffer whose path matches a
-    file deleted via canola.
+    type: `canola.DeleteConfig` default: `{ wipe = false }`
+    `wipe`: when `true`, wipe any open buffer whose path matches a file
+    deleted via canola.
 
 create                                                            *canola.create*
     type: `canola.CreateConfig`
@@ -258,7 +254,7 @@ float                                                              *canola.float
     `border`: border style (falls back to global `border`).
     `preview_split`: where to put the preview when floating (`"auto"`,
     `"left"`, `"right"`, `"above"`, `"below"`).
-    `win_options`: window-local options for the float.
+    `win`: window-local options for the float.
 
 preview                                                          *canola.preview*
     type: `canola.PreviewConfig`
@@ -266,7 +262,7 @@ preview                                                          *canola.preview
     `live`: when `true`, load files into real buffers (enables LSP, treesitter).
     `max_file_size_mb`: skip preview for files larger than this (MB).
     `disable`: list of Lua patterns; matching filenames skip preview.
-    `win_options`: window-local options for the preview window.
+    `win`: window-local options for the preview window.
 
 confirmation                                                *canola.confirmation*
     type: `canola.ConfirmationWindowConfig`
@@ -279,12 +275,12 @@ progress                                                        *canola.progress
     `border` falls back to global `border` when nil.
     `minimized_border`: border style when the progress window is minimized.
 
-buf_options                                                  *canola.buf_options*
+buf                                                                  *canola.buf*
     type: `table<string, any>`
     default: `{ buflisted = false, bufhidden = "hide" }`
     Buffer-local options applied to every canola buffer.
 
-win_options                                                  *canola.win_options*
+win                                                                  *canola.win*
     type: `table<string, any>`
     Window-local options applied to every canola window. See |canola-config|
     for the full default list.
@@ -880,7 +876,7 @@ Show CWD in the winbar ~
     end
 
     vim.g.canola = {
-      win_options = {
+      win = {
         winbar = "%!v:lua.get_canola_winbar()",
       },
     }

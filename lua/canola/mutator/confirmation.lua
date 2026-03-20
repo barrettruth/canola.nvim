@@ -124,7 +124,7 @@ M.show = vim.schedule_wrap(function(actions, should_confirm, cb)
   end
   vim.bo[bufnr].filetype = 'oil_preview'
   vim.bo[bufnr].syntax = 'oil_preview'
-  for k, v in pairs(config.confirmation.win_options) do
+  for k, v in pairs(config.confirmation.win) do
     vim.api.nvim_set_option_value(k, v, { scope = 'local', win = winid })
   end
 

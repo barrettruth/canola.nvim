@@ -54,7 +54,7 @@ M.should_display = function(bufnr, entry)
     return false, true
   else
     local is_hidden = config._is_hidden_file(name, bufnr, public_entry)
-    local display = config.show_hidden or not is_hidden
+    local display = not config.hidden.enabled or not is_hidden
     return display, is_hidden
   end
 end
@@ -126,7 +126,7 @@ M.toggle_hidden = function()
   if any_modified then
     vim.notify('Cannot toggle hidden files when you have unsaved changes', vim.log.levels.WARN)
   else
-    config.show_hidden = not config.show_hidden
+    config.hidden.enabled = not config.hidden.enabled
     M.rerender_all_oil_buffers({ refetch = false })
   end
 end
@@ -241,11 +241,11 @@ M.set_win_options = function()
   -- work around https://github.com/neovim/neovim/pull/27422
   vim.api.nvim_set_option_value('foldmethod', 'manual', { scope = 'local', win = winid })
 
-  for k, v in pairs(config.win_options) do
+  for k, v in pairs(config.win) do
     vim.api.nvim_set_option_value(k, v, { scope = 'local', win = winid })
   end
-  if vim.wo[winid].previewwindow then -- apply preview window options last
-    for k, v in pairs(config.preview.win_options) do
+  if vim.wo[winid].previewwindow then
+    for k, v in pairs(config.preview.win) do
       vim.api.nvim_set_option_value(k, v, { scope = 'local', win = winid })
     end
   end
@@ -588,7 +588,7 @@ M.initialize = function(bufnr)
   vim.bo[bufnr].filetype = 'canola'
   vim.b[bufnr].EditorConfig_disable = 1
   session[bufnr] = session[bufnr] or {}
-  for k, v in pairs(config.buf_options) do
+  for k, v in pairs(config.buf) do
     vim.bo[bufnr][k] = v
   end
   vim.api.nvim_buf_call(bufnr, M.set_win_options)
