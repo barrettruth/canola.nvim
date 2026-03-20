@@ -143,7 +143,7 @@ M.show_help = function(keymaps)
     height = math.min(editor_height, #lines),
     zindex = 150,
     style = 'minimal',
-    border = config.keymaps_help.border,
+    border = config.border,
   })
   local function close()
     if vim.api.nvim_win_is_valid(winid) then

@@ -1,5 +1,4 @@
 local cache = require('canola.cache')
-local config = require('canola.config')
 local constants = require('canola.constants')
 local shell = require('canola.shell')
 local util = require('canola.util')
@@ -53,11 +52,13 @@ local function create_s3_command(cmd)
       break
     end
   end
-  local extra = vim.deepcopy(config.extra_s3_args)
+  local cfg = vim.g.canola_s3 or {}
+  local extra = vim.deepcopy(cfg.extra_args or {})
   if bucket then
-    local bucket_cfg = config.s3_buckets[bucket]
-    if bucket_cfg and bucket_cfg.extra_s3_args then
-      vim.list_extend(extra, bucket_cfg.extra_s3_args)
+    local bucket_overrides = cfg.buckets or {}
+    local bucket_cfg = bucket_overrides[bucket]
+    if bucket_cfg and bucket_cfg.extra_args then
+      vim.list_extend(extra, bucket_cfg.extra_args)
     end
   end
   local full_cmd = vim.list_extend({ 'aws', 's3' }, cmd)

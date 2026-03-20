@@ -256,10 +256,10 @@ M.register('name', {
 
   create_sort_value_factory = function(num_entries)
     if
-      config.view_options.natural_order == false
-      or (config.view_options.natural_order == 'fast' and num_entries > 5000)
+      config._natural_order == false
+      or (config._natural_order == 'fast' and num_entries > 5000)
     then
-      if config.view_options.case_insensitive then
+      if config._case_insensitive then
         return function(entry)
           return entry[FIELD_NAME]:lower()
         end
@@ -273,7 +273,7 @@ M.register('name', {
       return function(entry)
         if memo[entry] == nil then
           local name = entry[FIELD_NAME]:gsub('0*(%d+)', adjust_number)
-          if config.view_options.case_insensitive then
+          if config._case_insensitive then
             name = name:lower()
           end
           memo[entry] = name

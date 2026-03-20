@@ -109,10 +109,12 @@ end
 ---@param host string
 ---@return string[]
 local function resolved_curl_args(host)
-  local extra = vim.deepcopy(config.extra_curl_args)
-  local host_cfg = config.ftp_hosts[host]
-  if host_cfg and host_cfg.extra_curl_args then
-    vim.list_extend(extra, host_cfg.extra_curl_args)
+  local cfg = vim.g.canola_ftp or {}
+  local extra = vim.deepcopy(cfg.extra_args or {})
+  local host_overrides = cfg.hosts or {}
+  local host_cfg = host_overrides[host]
+  if host_cfg and host_cfg.extra_args then
+    vim.list_extend(extra, host_cfg.extra_args)
   end
   return extra
 end

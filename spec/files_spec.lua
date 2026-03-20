@@ -170,11 +170,11 @@ describe('files adapter', function()
     local mutator = require('canola.mutator')
 
     before_each(function()
-      config.cleanup_buffers_on_delete = true
+      config.delete.wipe_buffers = true
     end)
 
     after_each(function()
-      config.cleanup_buffers_on_delete = false
+      config.delete.wipe_buffers = false
     end)
 
     it('wipes the buffer for a deleted file', function()
@@ -192,7 +192,7 @@ describe('files adapter', function()
     end)
 
     it('does not wipe the buffer when disabled', function()
-      config.cleanup_buffers_on_delete = false
+      config.delete.wipe_buffers = false
       tmpdir:create({ 'b.txt' })
       local dirurl = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p')
       local filepath = vim.fn.fnamemodify(tmpdir.path, ':p') .. 'b.txt'

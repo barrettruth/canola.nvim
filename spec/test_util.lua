@@ -9,7 +9,7 @@ M.reset_editor = function()
     adapters = {
       ['canola-test://'] = 'test',
     },
-    prompt_save_on_select_new_entry = false,
+    save = false,
   }
   require('canola').init()
   vim.cmd.tabonly({ mods = { silent = true } })

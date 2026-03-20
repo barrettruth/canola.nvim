@@ -1,22 +1,93 @@
+local sort_presets = {
+  default = { { 'type', 'asc' }, { 'name', 'asc' } },
+  name = { { 'name', 'asc' } },
+  modified = { { 'mtime', 'desc' }, { 'name', 'asc' } },
+  size = { { 'size', 'desc' }, { 'name', 'asc' } },
+  extension = { { 'name', 'asc' } },
+}
+
+local default_keymaps = {
+  ['g?'] = { 'actions.show_help', mode = 'n' },
+  ['<CR>'] = 'actions.select',
+  ['<C-s>'] = { 'actions.select', opts = { vertical = true } },
+  ['<C-h>'] = { 'actions.select', opts = { horizontal = true } },
+  ['<C-t>'] = { 'actions.select', opts = { tab = true } },
+  ['<C-p>'] = 'actions.preview',
+  ['<C-c>'] = { 'actions.close', mode = 'n' },
+  ['<C-l>'] = 'actions.refresh',
+  ['-'] = { 'actions.parent', mode = 'n' },
+  ['_'] = { 'actions.open_cwd', mode = 'n' },
+  ['`'] = { 'actions.cd', mode = 'n' },
+  ['g~'] = { 'actions.cd', opts = { scope = 'tab' }, mode = 'n' },
+  ['gs'] = { 'actions.change_sort', mode = 'n' },
+  ['gx'] = 'actions.open_external',
+  ['g.'] = { 'actions.toggle_hidden', mode = 'n' },
+  ['g\\'] = { 'actions.toggle_trash', mode = 'n' },
+}
+
 local default_config = {
-  -- Oil will take over directory buffers (e.g. `vim .` or `:e src/`)
-  -- Set to false if you want some other plugin (e.g. netrw) to open when you edit directories.
-  default_file_explorer = true,
-  default_to_float = false,
-  -- Id is automatically added at the beginning, and name at the end
-  -- See :help oil-columns
-  columns = {
-    'icon',
-    -- "permissions",
-    -- "size",
-    -- "mtime",
+  columns = { 'icon' },
+  cursor = true,
+  watch = false,
+  border = nil,
+
+  show_hidden = false,
+  hidden = { patterns = { '^%.' }, always = {} },
+
+  sort = 'default',
+  highlights = {},
+
+  confirm = true,
+  save = 'prompt',
+  delete = { wipe_buffers = false },
+  create = { file_mode = 420, dir_mode = 493 },
+
+  keymaps = {},
+
+  lsp = { enabled = true, timeout_ms = 1000, autosave = false },
+
+  float = {
+    default = false,
+    padding = 2,
+    max_width = 0,
+    max_height = 0,
+    border = nil,
+    preview_split = 'auto',
+    win_options = { winblend = 0 },
   },
-  -- Buffer-local options to use for oil buffers
-  buf_options = {
-    buflisted = false,
-    bufhidden = 'hide',
+
+  preview = {
+    follow = true,
+    live = false,
+    max_file_size_mb = 10,
+    disable = {},
+    win_options = {},
   },
-  -- Window-local options to use for oil buffers
+
+  confirmation = {
+    max_width = 0.9,
+    min_width = { 40, 0.4 },
+    width = nil,
+    max_height = 0.9,
+    min_height = { 5, 0.1 },
+    height = nil,
+    border = nil,
+    win_options = { winblend = 0 },
+  },
+
+  progress = {
+    max_width = 0.9,
+    min_width = { 40, 0.4 },
+    width = nil,
+    max_height = { 10, 0.9 },
+    min_height = { 5, 0.1 },
+    height = nil,
+    border = nil,
+    minimized_border = 'none',
+    win_options = { winblend = 0 },
+  },
+
+  buf_options = { buflisted = false, bufhidden = 'hide' },
   win_options = {
     wrap = false,
     signcolumn = 'no',
@@ -27,342 +98,87 @@ local default_config = {
     conceallevel = 3,
     concealcursor = 'nvic',
   },
-  -- Send deleted files to the trash instead of permanently deleting them (:help oil-trash)
+
   delete_to_trash = false,
-  -- Wipe open buffers for files deleted via oil (:help oil.cleanup_buffers_on_delete)
-  cleanup_buffers_on_delete = false,
-  -- Skip the confirmation popup for simple operations (:help oil.skip_confirm_for_simple_edits)
-  skip_confirm_for_simple_edits = false,
-  skip_confirm_for_delete = false,
-  -- Selecting a new/moved/renamed file or directory will prompt you to save changes first
-  -- (:help prompt_save_on_select_new_entry)
-  prompt_save_on_select_new_entry = true,
-  auto_save_on_select_new_entry = false,
-  -- Oil will automatically delete hidden buffers after this delay
-  -- You can set the delay to false to disable cleanup entirely
-  -- Note that the cleanup process only starts when none of the oil buffers are currently displayed
-  cleanup_delay_ms = 2000,
-  lsp_file_methods = {
-    -- Enable or disable LSP file operations
-    enabled = true,
-    -- Time to wait for LSP file operations to complete before skipping
-    timeout_ms = 1000,
-    -- Set to true to autosave buffers that are updated with LSP willRenameFiles
-    -- Set to "unmodified" to only save unmodified buffers
-    autosave_changes = false,
-  },
-  -- Constrain the cursor to the editable parts of the oil buffer
-  -- Set to `false` to disable, or "name" to keep it on the file names
-  constrain_cursor = 'editable',
-  -- Set to true to watch the filesystem for changes and reload oil
-  watch_for_changes = false,
-  -- Keymaps in oil buffer. Can be any value that `vim.keymap.set` accepts OR a table of keymap
-  -- options with a `callback` (e.g. { callback = function() ... end, desc = "", mode = "n" })
-  -- Additionally, if it is a string that matches "actions.<name>",
-  -- it will use the mapping at require("canola.actions").<name>
-  -- Set to `false` to remove a keymap
-  -- See :help oil-actions for a list of all available actions
-  keymaps = {
-    ['g?'] = { 'actions.show_help', mode = 'n' },
-    ['<CR>'] = 'actions.select',
-    ['<C-s>'] = { 'actions.select', opts = { vertical = true } },
-    ['<C-h>'] = { 'actions.select', opts = { horizontal = true } },
-    ['<C-t>'] = { 'actions.select', opts = { tab = true } },
-    ['<C-p>'] = 'actions.preview',
-    ['<C-c>'] = { 'actions.close', mode = 'n' },
-    ['<C-l>'] = 'actions.refresh',
-    ['-'] = { 'actions.parent', mode = 'n' },
-    ['_'] = { 'actions.open_cwd', mode = 'n' },
-    ['`'] = { 'actions.cd', mode = 'n' },
-    ['g~'] = { 'actions.cd', opts = { scope = 'tab' }, mode = 'n' },
-    ['gs'] = { 'actions.change_sort', mode = 'n' },
-    ['gx'] = 'actions.open_external',
-    ['g.'] = { 'actions.toggle_hidden', mode = 'n' },
-    ['g\\'] = { 'actions.toggle_trash', mode = 'n' },
-  },
-  -- Set to false to disable all of the above keymaps
-  use_default_keymaps = true,
-  view_options = {
-    -- Show files and directories that start with "."
-    show_hidden = false,
-    show_hidden_when_empty = false,
-    -- This function defines what is considered a "hidden" file
-    is_hidden_file = function(name, bufnr)
-      local m = name:match('^%.')
-      return m ~= nil
-    end,
-    -- This function defines what will never be shown, even when `show_hidden` is set
-    is_always_hidden = function(name, bufnr)
-      return false
-    end,
-    -- Sort file names with numbers in a more intuitive order for humans.
-    -- Can be "fast", true, or false. "fast" will turn it off for large directories.
-    natural_order = 'fast',
-    -- Sort file and directory names case insensitive
-    case_insensitive = false,
-    sort = {
-      -- sort order can be "asc" or "desc"
-      -- see :help oil-columns to see which columns are sortable
-      { 'type', 'asc' },
-      { 'name', 'asc' },
-    },
-    -- Customize the highlight group for the file name
-    highlight_filename = function(entry, is_hidden, is_link_target, is_link_orphan)
-      return nil
-    end,
-  },
-  new_file_mode = 420,
-  new_dir_mode = 493,
-  -- Extra arguments to pass to SCP when moving/copying files over SSH
-  extra_scp_args = {},
-  -- Extra arguments to pass to aws s3 when creating/deleting/moving/copying files using aws s3
-  extra_s3_args = {},
-  -- Extra arguments to pass to curl for FTP operations
-  extra_curl_args = {},
-  ssh_hosts = {},
-  s3_buckets = {},
-  ftp_hosts = {},
-  -- EXPERIMENTAL support for performing file operations with git
-  git = {
-    -- Return true to automatically git add/mv/rm files
-    add = function(path)
-      return false
-    end,
-    mv = function(src_path, dest_path)
-      return false
-    end,
-    rm = function(path)
-      return false
-    end,
-  },
-  -- Configuration for the floating window in canola.open_float
-  float = {
-    -- Padding around the floating window
-    padding = 2,
-    -- max_width and max_height can be integers or a float between 0 and 1 (e.g. 0.4 for 40%)
-    max_width = 0,
-    max_height = 0,
-    border = nil,
-    win_options = {
-      winblend = 0,
-    },
-    -- optionally override the oil buffers window title with custom function: fun(winid: integer): string
-    get_win_title = nil,
-    -- preview_split: Split direction: "auto", "left", "right", "above", "below".
-    preview_split = 'auto',
-    -- This is the config that will be passed to nvim_open_win.
-    -- Change values here to customize the layout
-    override = function(conf)
-      return conf
-    end,
-  },
-  -- Configuration for the file preview window
-  preview_win = {
-    -- Whether the preview window is automatically updated when the cursor is moved
-    update_on_cursor_moved = true,
-    -- How to open the preview window "load"|"scratch"|"fast_scratch"
-    preview_method = 'fast_scratch',
-    -- A function that returns true to disable preview on a file e.g. to avoid lag
-    disable_preview = function(filename)
-      return false
-    end,
-    max_file_size = 10,
-    -- Window-local options to use for preview window buffers
-    win_options = {},
-  },
-  -- Configuration for the floating action confirmation window
-  confirmation = {
-    -- Width dimensions can be integers or a float between 0 and 1 (e.g. 0.4 for 40%)
-    -- min_width and max_width can be a single value or a list of mixed integer/float types.
-    -- max_width = {100, 0.8} means "the lesser of 100 columns or 80% of total"
-    max_width = 0.9,
-    -- min_width = {40, 0.4} means "the greater of 40 columns or 40% of total"
-    min_width = { 40, 0.4 },
-    -- optionally define an integer/float for the exact width of the preview window
-    width = nil,
-    -- Height dimensions can be integers or a float between 0 and 1 (e.g. 0.4 for 40%)
-    -- min_height and max_height can be a single value or a list of mixed integer/float types.
-    -- max_height = {80, 0.9} means "the lesser of 80 columns or 90% of total"
-    max_height = 0.9,
-    -- min_height = {5, 0.1} means "the greater of 5 columns or 10% of total"
-    min_height = { 5, 0.1 },
-    -- optionally define an integer/float for the exact height of the preview window
-    height = nil,
-    border = nil,
-    win_options = {
-      winblend = 0,
-    },
-  },
-  -- Configuration for the floating progress window
-  progress = {
-    max_width = 0.9,
-    min_width = { 40, 0.4 },
-    width = nil,
-    max_height = { 10, 0.9 },
-    min_height = { 5, 0.1 },
-    height = nil,
-    border = nil,
-    minimized_border = 'none',
-    win_options = {
-      winblend = 0,
-    },
-  },
-  -- Configuration for the floating SSH window
-  ssh = {
-    border = nil,
-  },
-  -- Configuration for the floating keymaps help window
-  keymaps_help = {
-    border = nil,
-  },
 }
-
--- The adapter API hasn't really stabilized yet. We're not ready to advertise or encourage people to
--- write their own adapters, and so there's no real reason to edit these config options. For that
--- reason, I'm taking them out of the section above so they won't show up in the autogen docs.
-
--- not "canola-s3://" on older neovim versions, since it doesn't open buffers correctly with a number
--- in the name
-local canola_s3_string = vim.fn.has('nvim-0.12') == 1 and 'canola-s3://' or 'canola-sss://'
-default_config.adapters = {
-  ['canola://'] = 'files',
-  ['canola-ssh://'] = 'ssh',
-  [canola_s3_string] = 's3',
-  ['canola-trash://'] = 'trash',
-  ['canola-ftp://'] = 'ftp',
-  ['canola-ftps://'] = 'ftps',
-}
-default_config.adapter_aliases = {}
--- We want the function in the default config for documentation generation, but if we nil it out
--- here we can get some performance wins
-default_config.view_options.highlight_filename = nil
-
----@class (exact) canola.SshHostConfig
----@field extra_scp_args? string[]
-
----@class (exact) canola.S3BucketConfig
----@field extra_s3_args? string[]
-
----@class (exact) canola.FtpHostConfig
----@field extra_curl_args? string[]
 
 ---@class canola.Config
----@field adapters table<string, string> Hidden from SetupOpts
----@field adapter_aliases table<string, string> Hidden from SetupOpts
----@field silence_scp_warning? boolean Undocumented option
----@field default_file_explorer boolean
----@field default_to_float boolean
+---@field adapters table<string, string>
+---@field adapter_aliases table<string, string>
 ---@field columns canola.ColumnSpec[]
+---@field cursor boolean
+---@field watch boolean
+---@field border? string|string[]
+---@field show_hidden boolean
+---@field hidden canola.HiddenConfig
+---@field sort string|canola.SortConfig
+---@field highlights canola.HighlightPattern[]
+---@field confirm boolean|"delete"
+---@field save "prompt"|"auto"|false
+---@field delete canola.DeleteConfig
+---@field create canola.CreateConfig
+---@field keymaps table<string, any>
+---@field lsp canola.LspConfig
+---@field float canola.FloatConfig
+---@field preview canola.PreviewConfig
+---@field confirmation canola.ConfirmationWindowConfig
+---@field progress canola.ProgressWindowConfig
 ---@field buf_options table<string, any>
 ---@field win_options table<string, any>
 ---@field delete_to_trash boolean
----@field cleanup_buffers_on_delete boolean
----@field skip_confirm_for_simple_edits boolean
----@field skip_confirm_for_delete boolean
----@field prompt_save_on_select_new_entry boolean
----@field auto_save_on_select_new_entry boolean
----@field cleanup_delay_ms integer
----@field lsp_file_methods canola.LspFileMethods
----@field constrain_cursor false|"name"|"editable"
----@field watch_for_changes boolean
----@field keymaps table<string, any>
----@field use_default_keymaps boolean
----@field view_options canola.ViewOptions
----@field new_file_mode integer
----@field new_dir_mode integer
----@field extra_scp_args string[]
----@field extra_s3_args string[]
----@field extra_curl_args string[]
----@field ssh_hosts table<string, canola.SshHostConfig>
----@field s3_buckets table<string, canola.S3BucketConfig>
----@field ftp_hosts table<string, canola.FtpHostConfig>
----@field git canola.GitOptions
----@field float canola.FloatWindowConfig
----@field preview_win canola.PreviewWindowConfig
----@field confirmation canola.ConfirmationWindowConfig
----@field progress canola.ProgressWindowConfig
----@field ssh canola.SimpleWindowConfig
----@field keymaps_help canola.SimpleWindowConfig
+---@field _constrain_cursor false|"name"|"editable"
+---@field _sort_spec canola.SortSpec[]
+---@field _natural_order boolean|"fast"
+---@field _case_insensitive boolean
+---@field _is_hidden_file fun(name: string, bufnr: integer, entry: canola.Entry): boolean
+---@field _is_always_hidden fun(name: string, bufnr: integer, entry: canola.Entry): boolean
+---@field _disable_preview fun(filename: string): boolean
+---@field _preview_method canola.PreviewMethod
+---@field _preview_update_on_cursor_moved boolean
 local M = {}
 
----@class (exact) canola.SetupOpts
----@field default_file_explorer? boolean Oil will take over directory buffers (e.g. `vim .` or `:e src/`). Set to false if you still want to use netrw.
----@field default_to_float? boolean When true, oil always opens in a floating window
----@field columns? canola.ColumnSpec[] The columns to display. See :help oil-columns.
----@field buf_options? table<string, any> Buffer-local options to use for oil buffers
----@field win_options? table<string, any> Window-local options to use for oil buffers
----@field delete_to_trash? boolean Send deleted files to the trash instead of permanently deleting them (:help oil-trash).
----@field cleanup_buffers_on_delete? boolean Wipe open buffers for files deleted via oil (:help oil.cleanup_buffers_on_delete).
----@field skip_confirm_for_simple_edits? boolean Skip the confirmation popup for simple operations (:help oil.skip_confirm_for_simple_edits).
----@field skip_confirm_for_delete? boolean Skip the confirmation popup when all pending actions are deletes (:help oil.skip_confirm_for_delete).
----@field prompt_save_on_select_new_entry? boolean Selecting a new/moved/renamed file or directory will prompt you to save changes first (:help prompt_save_on_select_new_entry).
----@field auto_save_on_select_new_entry? boolean Automatically save changes when selecting a new/moved/renamed entry, instead of prompting (:help oil.auto_save_on_select_new_entry).
----@field cleanup_delay_ms? integer Oil will automatically delete hidden buffers after this delay. You can set the delay to false to disable cleanup entirely. Note that the cleanup process only starts when none of the oil buffers are currently displayed.
----@field lsp_file_methods? canola.SetupLspFileMethods Configure LSP file operation integration.
----@field constrain_cursor? false|"name"|"editable" Constrain the cursor to the editable parts of the oil buffer. Set to `false` to disable, or "name" to keep it on the file names.
----@field watch_for_changes? boolean Set to true to watch the filesystem for changes and reload oil.
----@field keymaps? table<string, any>
----@field use_default_keymaps? boolean Set to false to disable all of the above keymaps
----@field view_options? canola.SetupViewOptions Configure which files are shown and how they are shown.
----@field new_file_mode? integer Permission mode for new files in decimal (default 420 = 0644)
----@field new_dir_mode? integer Permission mode for new directories in decimal (default 493 = 0755)
----@field extra_scp_args? string[] Extra arguments to pass to SCP when moving/copying files over SSH
----@field extra_s3_args? string[] Extra arguments to pass to aws s3 when moving/copying files using aws s3
----@field extra_curl_args? string[] Extra arguments to pass to curl for FTP operations
----@field ssh_hosts? table<string, canola.SshHostConfig> Per-host SCP arg overrides
----@field s3_buckets? table<string, canola.S3BucketConfig> Per-bucket S3 arg overrides
----@field ftp_hosts? table<string, canola.FtpHostConfig> Per-host curl arg overrides
----@field git? canola.SetupGitOptions EXPERIMENTAL support for performing file operations with git
----@field float? canola.SetupFloatWindowConfig Configuration for the floating window in canola.open_float
----@field preview_win? canola.SetupPreviewWindowConfig Configuration for the file preview window
----@field confirmation? canola.SetupConfirmationWindowConfig Configuration for the floating action confirmation window
----@field progress? canola.SetupProgressWindowConfig Configuration for the floating progress window
----@field ssh? canola.SetupSimpleWindowConfig Configuration for the floating SSH window
----@field keymaps_help? canola.SetupSimpleWindowConfig Configuration for the floating keymaps help window
+---@class (exact) canola.HiddenConfig
+---@field patterns string[]
+---@field always string[]
 
----@class (exact) canola.LspFileMethods
+---@class (exact) canola.SortConfig
+---@field by canola.SortSpec[]
+---@field natural? boolean|"fast"
+---@field ignore_case? boolean
+
+---@alias canola.HighlightPattern { [1]: string, [2]: string }
+
+---@class (exact) canola.DeleteConfig
+---@field wipe_buffers boolean
+
+---@class (exact) canola.CreateConfig
+---@field file_mode integer
+---@field dir_mode integer
+
+---@class (exact) canola.LspConfig
 ---@field enabled boolean
 ---@field timeout_ms integer
----@field autosave_changes boolean|"unmodified" Set to true to autosave buffers that are updated with LSP willRenameFiles. Set to "unmodified" to only save unmodified buffers.
+---@field autosave boolean|"unmodified"
 
----@class (exact) canola.SetupLspFileMethods
----@field enabled? boolean Enable or disable LSP file operations
----@field timeout_ms? integer Time to wait for LSP file operations to complete before skipping.
----@field autosave_changes? boolean|"unmodified" Set to true to autosave buffers that are updated with LSP willRenameFiles. Set to "unmodified" to only save unmodified buffers.
+---@class (exact) canola.FloatConfig
+---@field default boolean
+---@field padding integer
+---@field max_width integer
+---@field max_height integer
+---@field border? string|string[]
+---@field preview_split "auto"|"left"|"right"|"above"|"below"
+---@field win_options table<string, any>
 
----@class (exact) canola.ViewOptions
----@field show_hidden boolean
----@field show_hidden_when_empty boolean
----@field is_hidden_file fun(name: string, bufnr: integer, entry: canola.Entry): boolean
----@field is_always_hidden fun(name: string, bufnr: integer, entry: canola.Entry): boolean
----@field natural_order boolean|"fast"
----@field case_insensitive boolean
----@field sort canola.SortSpec[]
----@field highlight_filename? fun(entry: canola.Entry, is_hidden: boolean, is_link_target: boolean, is_link_orphan: boolean, bufnr: integer): string|nil
-
----@class (exact) canola.SetupViewOptions
----@field show_hidden? boolean Show files and directories that start with "."
----@field show_hidden_when_empty? boolean When true and the directory has no visible entries, show hidden entries instead of an empty listing (:help oil.show_hidden_when_empty).
----@field is_hidden_file? fun(name: string, bufnr: integer): boolean This function defines what is considered a "hidden" file
----@field is_always_hidden? fun(name: string, bufnr: integer): boolean This function defines what will never be shown, even when `show_hidden` is set
----@field natural_order? boolean|"fast" Sort file names with numbers in a more intuitive order for humans. Can be slow for large directories.
----@field case_insensitive? boolean Sort file and directory names case insensitive
----@field sort? canola.SortSpec[] Sort order for the file list
----@field highlight_filename? fun(entry: canola.Entry, is_hidden: boolean, is_link_target: boolean, is_link_orphan: boolean): string|nil Customize the highlight group for the file name
+---@class (exact) canola.PreviewConfig
+---@field follow boolean
+---@field live boolean
+---@field max_file_size_mb? number
+---@field disable string[]
+---@field win_options table<string, any>
 
 ---@class (exact) canola.SortSpec
 ---@field [1] string
 ---@field [2] "asc"|"desc"
-
----@class (exact) canola.GitOptions
----@field add fun(path: string): boolean
----@field mv fun(src_path: string, dest_path: string): boolean
----@field rm fun(path: string): boolean
-
----@class (exact) canola.SetupGitOptions
----@field add? fun(path: string): boolean Return true to automatically git add a new file
----@field mv? fun(src_path: string, dest_path: string): boolean Return true to automatically git mv a moved file
----@field rm? fun(path: string): boolean Return true to automatically git rm a deleted file
 
 ---@class (exact) canola.WindowDimensionDualConstraint
 ---@field [1] number
@@ -377,97 +193,149 @@ local M = {}
 ---@field max_height canola.WindowDimension
 ---@field min_height canola.WindowDimension
 ---@field height? number
----@field border string|string[]
+---@field border? string|string[]
 ---@field win_options table<string, any>
-
----@class (exact) canola.SetupWindowConfig
----@field max_width? canola.WindowDimension Width dimensions can be integers or a float between 0 and 1 (e.g. 0.4 for 40%). Can be a single value or a list of mixed integer/float types. max_width = {100, 0.8} means "the lesser of 100 columns or 80% of total"
----@field min_width? canola.WindowDimension Width dimensions can be integers or a float between 0 and 1 (e.g. 0.4 for 40%). Can be a single value or a list of mixed integer/float types. min_width = {40, 0.4} means "the greater of 40 columns or 40% of total"
----@field width? number Define an integer/float for the exact width of the preview window
----@field max_height? canola.WindowDimension Height dimensions can be integers or a float between 0 and 1 (e.g. 0.4 for 40%). Can be a single value or a list of mixed integer/float types. max_height = {80, 0.9} means "the lesser of 80 columns or 90% of total"
----@field min_height? canola.WindowDimension Height dimensions can be integers or a float between 0 and 1 (e.g. 0.4 for 40%). Can be a single value or a list of mixed integer/float types. min_height = {5, 0.1} means "the greater of 5 columns or 10% of total"
----@field height? number Define an integer/float for the exact height of the preview window
----@field border? string|string[] Window border
----@field win_options? table<string, any>
 
 ---@alias canola.PreviewMethod
----| '"load"' # Load the previewed file into a buffer
----| '"scratch"' # Put the text into a scratch buffer to avoid LSP attaching
----| '"fast_scratch"' # Put only the visible text into a scratch buffer
-
----@class (exact) canola.PreviewWindowConfig
----@field update_on_cursor_moved boolean
----@field preview_method canola.PreviewMethod
----@field disable_preview fun(filename: string): boolean
----@field max_file_size number Maximum file size (in MB) to preview. Files larger than this will show a placeholder.
----@field win_options table<string, any>
+---| '"load"'
+---| '"scratch"'
+---| '"fast_scratch"'
 
 ---@class (exact) canola.ConfirmationWindowConfig : canola.WindowConfig
-
----@class (exact) canola.SetupPreviewWindowConfig
----@field update_on_cursor_moved? boolean Whether the preview window is automatically updated when the cursor is moved
----@field disable_preview? fun(filename: string): boolean A function that returns true to disable preview on a file e.g. to avoid lag
----@field max_file_size? number Maximum file size in MB to show in preview. Files exceeding this will not be loaded (:help oil.preview_win). Set to nil to disable the limit.
----@field preview_method? canola.PreviewMethod How to open the preview window
----@field win_options? table<string, any> Window-local options to use for preview window buffers
-
----@class (exact) canola.SetupConfirmationWindowConfig : canola.SetupWindowConfig
 
 ---@class (exact) canola.ProgressWindowConfig : canola.WindowConfig
 ---@field minimized_border string|string[]
 
----@class (exact) canola.SetupProgressWindowConfig : canola.SetupWindowConfig
----@field minimized_border? string|string[] The border for the minimized progress window
+---@param patterns string[]
+---@return fun(name: string, bufnr: integer, entry: canola.Entry): boolean
+local function compile_hidden_patterns(patterns)
+  if #patterns == 0 then
+    return function()
+      return false
+    end
+  end
+  return function(name, bufnr, entry)
+    for _, pat in ipairs(patterns) do
+      if name:match(pat) then
+        return true
+      end
+    end
+    return false
+  end
+end
 
----@class (exact) canola.FloatWindowConfig
----@field padding integer
----@field max_width integer
----@field max_height integer
----@field border string|string[]
----@field win_options table<string, any>
----@field get_win_title fun(winid: integer): string
----@field preview_split "auto"|"left"|"right"|"above"|"below"
----@field override fun(conf: table): table
+---@param disable_list string[]
+---@return fun(filename: string): boolean
+local function compile_disable_preview(disable_list)
+  if #disable_list == 0 then
+    return function()
+      return false
+    end
+  end
+  return function(filename)
+    for _, pat in ipairs(disable_list) do
+      if filename:match(pat) then
+        return true
+      end
+    end
+    return false
+  end
+end
 
----@class (exact) canola.SetupFloatWindowConfig
----@field padding? integer
----@field max_width? integer
----@field max_height? integer
----@field border? string|string[] Window border
----@field win_options? table<string, any>
----@field get_win_title? fun(winid: integer): string
----@field preview_split? "auto"|"left"|"right"|"above"|"below" Direction that the preview command will split the window
----@field override? fun(conf: table): table
+---@param sort_input string|canola.SortConfig
+---@return canola.SortSpec[], boolean|"fast", boolean
+local function resolve_sort(sort_input)
+  local natural = 'fast'
+  local case_insensitive = false
+  local spec
 
----@class (exact) canola.SimpleWindowConfig
----@field border string|string[]
+  if type(sort_input) == 'string' then
+    spec = sort_presets[sort_input]
+    if not spec then
+      vim.notify_once(
+        string.format("[canola] Unknown sort preset '%s', using 'default'", sort_input),
+        vim.log.levels.WARN
+      )
+      spec = sort_presets.default
+    end
+  elseif type(sort_input) == 'table' then
+    spec = sort_input.by or sort_presets.default
+    if sort_input.natural ~= nil then
+      natural = sort_input.natural
+    end
+    if sort_input.ignore_case ~= nil then
+      case_insensitive = sort_input.ignore_case
+    end
+  else
+    spec = sort_presets.default
+  end
 
----@class (exact) canola.SetupSimpleWindowConfig
----@field border? string|string[] Window border
+  return spec, natural, case_insensitive
+end
+
+local canola_s3_string = vim.fn.has('nvim-0.12') == 1 and 'canola-s3://' or 'canola-sss://'
+local default_adapters = {
+  ['canola://'] = 'files',
+  ['canola-ssh://'] = 'ssh',
+  [canola_s3_string] = 's3',
+  ['canola-trash://'] = 'trash',
+  ['canola-ftp://'] = 'ftp',
+  ['canola-ftps://'] = 'ftps',
+}
 
 M.init = function()
   local opts = vim.g.canola or {}
 
   local new_conf = vim.tbl_deep_extend('keep', opts, default_config)
-  if not new_conf.use_default_keymaps then
-    new_conf.keymaps = opts.keymaps or {}
-  elseif opts.keymaps then
-    for k, v in pairs(opts.keymaps) do
-      local normalized = vim.api.nvim_replace_termcodes(k, true, true, true)
-      for existing_k, _ in pairs(new_conf.keymaps) do
-        if
-          existing_k ~= k
-          and vim.api.nvim_replace_termcodes(existing_k, true, true, true) == normalized
-        then
-          new_conf.keymaps[existing_k] = nil
-        end
+
+  local user_keymaps = opts.keymaps or {}
+  new_conf.keymaps = vim.tbl_deep_extend('keep', {}, default_keymaps)
+  for k, v in pairs(user_keymaps) do
+    local normalized = vim.api.nvim_replace_termcodes(k, true, true, true)
+    for existing_k, _ in pairs(new_conf.keymaps) do
+      if
+        existing_k ~= k
+        and vim.api.nvim_replace_termcodes(existing_k, true, true, true) == normalized
+      then
+        new_conf.keymaps[existing_k] = nil
       end
-      new_conf.keymaps[k] = v
     end
+    new_conf.keymaps[k] = v
   end
+
+  new_conf.adapters = vim.tbl_deep_extend('keep', opts.adapters or {}, default_adapters)
+  new_conf.adapter_aliases = opts.adapter_aliases or {}
 
   for k, v in pairs(new_conf) do
     M[k] = v
+  end
+
+  M._constrain_cursor = new_conf.cursor and 'editable' or false
+
+  local sort_spec, natural, case_insensitive = resolve_sort(new_conf.sort)
+  M._sort_spec = sort_spec
+  M._natural_order = natural
+  M._case_insensitive = case_insensitive
+
+  M._is_hidden_file = compile_hidden_patterns(new_conf.hidden.patterns)
+  M._is_always_hidden = compile_hidden_patterns(new_conf.hidden.always)
+
+  M._disable_preview = compile_disable_preview(new_conf.preview.disable)
+
+  M._preview_method = new_conf.preview.live and 'load' or 'fast_scratch'
+  M._preview_update_on_cursor_moved = new_conf.preview.follow
+
+  if new_conf.confirmation.border == nil then
+    new_conf.confirmation.border = new_conf.border
+    M.confirmation = new_conf.confirmation
+  end
+  if new_conf.progress.border == nil then
+    new_conf.progress.border = new_conf.border
+    M.progress = new_conf.progress
+  end
+  if new_conf.float.border == nil then
+    new_conf.float.border = new_conf.border
+    M.float = new_conf.float
   end
 
   M.adapter_to_scheme = {}

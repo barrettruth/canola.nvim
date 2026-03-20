@@ -63,21 +63,22 @@ M.show = vim.schedule_wrap(function(actions, should_confirm, cb)
     cb(true)
     return
   end
-  if should_confirm == nil and config.skip_confirm_for_simple_edits and is_simple_edit(actions) then
-    cb(true)
-    return
-  end
-  if should_confirm == nil and config.skip_confirm_for_delete then
-    local all_deletes = true
-    for _, action in ipairs(actions) do
-      if action.type ~= 'delete' then
-        all_deletes = false
-        break
-      end
-    end
-    if all_deletes then
+  if should_confirm == nil then
+    if config.confirm == false then
       cb(true)
       return
+    elseif config.confirm == 'delete' then
+      local has_delete = false
+      for _, action in ipairs(actions) do
+        if action.type == 'delete' then
+          has_delete = true
+          break
+        end
+      end
+      if not has_delete then
+        cb(true)
+        return
+      end
     end
   end
 

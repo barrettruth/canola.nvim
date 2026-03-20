@@ -78,7 +78,7 @@ M.will_perform_file_operations = function(actions)
       end
     end
   end
-  local timeout_ms = config.lsp_file_methods.timeout_ms
+  local timeout_ms = config.lsp.timeout_ms
   accum(workspace.will_create_files(creates, { timeout_ms = timeout_ms }))
   accum(workspace.will_delete_files(deletes, { timeout_ms = timeout_ms }))
   accum(workspace.will_rename_files(moves, { timeout_ms = timeout_ms }))
@@ -94,7 +94,7 @@ M.will_perform_file_operations = function(actions)
     workspace.did_delete_files(deletes)
     workspace.did_rename_files(moves)
 
-    local autosave = config.lsp_file_methods.autosave_changes
+    local autosave = config.lsp.autosave
     if autosave == false then
       return
     end

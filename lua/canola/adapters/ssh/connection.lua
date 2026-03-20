@@ -280,7 +280,7 @@ function SSHConnection:open_terminal()
     row = row,
     col = col,
     style = 'minimal',
-    border = config.ssh.border,
+    border = config.border,
   })
   vim.cmd.startinsert()
 end

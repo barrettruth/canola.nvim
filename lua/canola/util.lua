@@ -403,10 +403,6 @@ end
 ---@param winid nil|integer
 ---@return string
 M.get_title = function(winid)
-  if config.float.get_win_title ~= nil then
-    return config.float.get_win_title(winid or 0)
-  end
-
   local src_buf = vim.api.nvim_win_get_buf(winid or 0)
   local title = vim.api.nvim_buf_get_name(src_buf)
   local scheme, path = M.parse_url(title)

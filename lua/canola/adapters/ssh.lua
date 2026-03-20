@@ -24,14 +24,16 @@ local FIELD_META = constants.FIELD_META
 ---@param hosts string[]
 ---@param args string[]
 local function scp(hosts, args, ...)
-  local extra = vim.deepcopy(config.extra_scp_args)
+  local cfg = vim.g.canola_ssh or {}
+  local extra = vim.deepcopy(cfg.extra_args or {})
+  local host_overrides = cfg.hosts or {}
   local seen = {}
   for _, host in ipairs(hosts) do
     if not seen[host] then
       seen[host] = true
-      local host_cfg = config.ssh_hosts[host]
-      if host_cfg and host_cfg.extra_scp_args then
-        vim.list_extend(extra, host_cfg.extra_scp_args)
+      local host_cfg = host_overrides[host]
+      if host_cfg and host_cfg.extra_args then
+        vim.list_extend(extra, host_cfg.extra_args)
       end
     end
   end
