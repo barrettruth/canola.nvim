@@ -2,9 +2,9 @@ name: test
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, canola]
   push:
-    branches: [main, ci/upstream-digest]
+    branches: [main, canola, ci/upstream-digest]
 
 jobs:
   test:
