@@ -425,35 +425,6 @@ M.change_sort = {
   },
 }
 
-M.toggle_trash = {
-  desc = 'Jump to and from the trash for the current directory',
-  callback = function()
-    local fs = require('canola.fs')
-    local bufname = vim.api.nvim_buf_get_name(0)
-    local scheme, path = util.parse_url(bufname)
-    local bufnr = vim.api.nvim_get_current_buf()
-    local url
-    if scheme == 'canola://' then
-      url = 'canola-trash://' .. path
-    elseif scheme == 'canola-trash://' then
-      url = 'canola://' .. path
-      -- The non-linux trash implementations don't support per-directory trash,
-      -- so jump back to the stored source buffer.
-      if not fs.is_linux then
-        local src_bufnr = vim.b.canola_trash_toggle_src
-        if src_bufnr and vim.api.nvim_buf_is_valid(src_bufnr) then
-          url = vim.api.nvim_buf_get_name(src_bufnr)
-        end
-      end
-    else
-      vim.notify('No trash found for buffer', vim.log.levels.WARN)
-      return
-    end
-    vim.cmd.edit({ args = { url } })
-    vim.b.canola_trash_toggle_src = bufnr
-  end,
-}
-
 M.send_to_qflist = {
   desc = 'Sends files in the current oil directory to the quickfix list, replacing the previous entries.',
   callback = function(opts)

@@ -1122,26 +1122,6 @@ M._get_highlights = function()
       link = 'Special',
       desc = 'Change action in the oil preview window',
     },
-    {
-      name = 'CanolaRestore',
-      link = 'CanolaCreate',
-      desc = 'Restore (from the trash) action in the oil preview window',
-    },
-    {
-      name = 'CanolaPurge',
-      link = 'CanolaDelete',
-      desc = 'Purge (Permanently delete a file from trash) action in the oil preview window',
-    },
-    {
-      name = 'CanolaTrash',
-      link = 'CanolaDelete',
-      desc = 'Trash (delete a file to trash) action in the oil preview window',
-    },
-    {
-      name = 'CanolaTrashSourcePath',
-      link = 'Comment',
-      desc = 'Virtual text that shows the original path of file in the trash',
-    },
   }
 end
 
@@ -1308,16 +1288,12 @@ M.init = function()
       vim.cmd.tabnew()
     end
     local float = false
-    local trash = false
     local preview = false
     local i = 1
     while i <= #args.fargs do
       local v = args.fargs[i]
       if v == '--float' then
         float = true
-        table.remove(args.fargs, i)
-      elseif v == '--trash' then
-        trash = true
         table.remove(args.fargs, i)
       elseif v == '--preview' then
         -- In the future we may want to support specifying options for the preview window (e.g.
@@ -1350,11 +1326,6 @@ M.init = function()
     local method = float and 'open_float' or 'open'
     local path = args.fargs[1]
     local open_opts = {}
-    if trash then
-      local url = M.get_url_for_path(path, false)
-      local _, new_path = util.parse_url(url)
-      path = 'canola-trash://' .. new_path
-    end
     if preview then
       open_opts.preview = {}
     end

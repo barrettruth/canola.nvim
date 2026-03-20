@@ -14,7 +14,6 @@ CONTENTS                                                            *canola-cont
   9. Adapters                                                   |canola-adapters|
   10. Recipes                                                    |canola-recipes|
   11. Events                                                      |canola-events|
-  12. Trash                                                        |canola-trash|
 
 --------------------------------------------------------------------------------
 INTRODUCTION                                                    *canola-introduction*
@@ -90,7 +89,6 @@ The full list of options with their defaults:
         ["gs"] = { "actions.change_sort", mode = "n" },
         ["gx"] = "actions.open_external",
         ["g."] = { "actions.toggle_hidden", mode = "n" },
-        ["g\\"] = { "actions.toggle_trash", mode = "n" },
       },
 
       lsp = { enabled = true, timeout_ms = 1000, autosave = false },
@@ -147,8 +145,6 @@ The full list of options with their defaults:
         conceallevel = 3,
         concealcursor = "nvic",
       },
-
-      delete_to_trash = false,
     }
 <
 
@@ -292,11 +288,6 @@ win_options                                                  *canola.win_options
     Window-local options applied to every canola window. See |canola-config|
     for the full default list.
 
-delete_to_trash                                          *canola.delete_to_trash*
-    type: `boolean` default: `false`
-    When `true`, deleted files are sent to the system trash instead of being
-    permanently deleted. See |canola-trash|.
-
 --------------------------------------------------------------------------------
 API                                                                      *canola-api*
 
@@ -345,7 +336,7 @@ toggle_hidden()                                                *canola.toggle_hi
 
 get_current_dir({bufnr}): nil|string                         *canola.get_current_dir*
     Get the current directory as a local filesystem path. Returns nil for
-    non-local adapters (SSH, S3, trash). See |canola.get_current_url| for an
+    non-local adapters (SSH, S3). See |canola.get_current_url| for an
     adapter-agnostic alternative.
 
     Parameters:
@@ -752,9 +743,6 @@ show_help                                                      *actions.show_hel
 toggle_hidden                                              *actions.toggle_hidden*
     Toggle hidden files and directories
 
-toggle_trash                                                *actions.toggle_trash*
-    Jump to and from the trash for the current directory
-
 yank_entry                                                    *actions.yank_entry*
     Yank the filepath of the entry under the cursor to a register
 
@@ -839,19 +827,6 @@ CanolaCopy                                                               *hl-Can
 
 CanolaChange                                                           *hl-CanolaChange*
     Change action in the mutation confirmation window
-
-CanolaRestore                                                         *hl-CanolaRestore*
-    Restore (from the trash) action in the mutation confirmation window
-
-CanolaPurge                                                             *hl-CanolaPurge*
-    Purge (Permanently delete a file from trash) action in the canola preview
-    window
-
-CanolaTrash                                                             *hl-CanolaTrash*
-    Trash (delete a file to trash) action in the mutation confirmation window
-
-CanolaTrashSourcePath                                         *hl-CanolaTrashSourcePath*
-    Virtual text that shows the original path of file in the trash
 
 --------------------------------------------------------------------------------
 ADAPTERS                                                            *canola-adapters*
@@ -1100,15 +1075,6 @@ variant:
         vim.api.nvim_set_hl(0, hl.name, { link = base })
       end
     end
-<
-
-Use FreeDesktop trash on macOS ~
-                                               *canola-recipe-macos-freedesktop-trash*
-
-For full FreeDesktop spec compliance on macOS (list, restore operations), or
-for compatibility with FreeDesktop-compliant trash programs like gtrash:
->lua
-    package.loaded["canola.adapters.trash.mac"] = require("canola.adapters.trash.freedesktop")
 <
 
 Flash highlight on opened file ~

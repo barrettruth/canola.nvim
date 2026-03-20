@@ -4,15 +4,13 @@ describe('config', function()
   it('uses defaults when vim.g.canola is nil', function()
     vim.g.canola = nil
     config.init()
-    assert.is_false(config.delete_to_trash)
     assert.is_false(config.show_hidden)
     assert.equals('editable', config._constrain_cursor)
   end)
 
   it('applies vim.g.canola values', function()
-    vim.g.canola = { delete_to_trash = true, show_hidden = true }
+    vim.g.canola = { show_hidden = true }
     config.init()
-    assert.is_true(config.delete_to_trash)
     assert.is_true(config.show_hidden)
   end)
 
