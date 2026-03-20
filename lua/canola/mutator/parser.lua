@@ -1,5 +1,4 @@
 local cache = require('canola.cache')
-local columns = require('canola.columns')
 local config = require('canola.config')
 local constants = require('canola.constants')
 local fs = require('canola.fs')
@@ -65,7 +64,7 @@ end
 ---Parse a single line in a buffer
 ---@param adapter canola.Adapter
 ---@param line string
----@param column_defs canola.ColumnSpec[]
+---@param column_defs nil|canola.ColumnSpec[]
 ---@return nil|canola.ParseResult
 ---@return nil|string Error
 M.parse_line = function(adapter, line, column_defs)
@@ -80,30 +79,6 @@ M.parse_line = function(adapter, line, column_defs)
   start = ranges.id[2] + 1
   ret.id = tonumber(value)
 
-  -- Right after a mutation and we reset the cache, the parent url may not be available
-  local ok, parent_url = pcall(cache.get_parent_url, ret.id)
-  if ok then
-    -- If this line was pasted from another adapter, it may have different columns
-    local line_adapter = assert(config.get_adapter_by_scheme(parent_url))
-    if adapter ~= line_adapter then
-      adapter = line_adapter
-      column_defs = columns.get_supported_columns(adapter)
-    end
-  end
-
-  for _, def in ipairs(column_defs) do
-    local name = util.split_config(def)
-    local range = { start }
-    local start_len = string.len(rem)
-    value, rem = columns.parse_col(adapter, assert(rem), def)
-    if not rem then
-      return nil, string.format('Parsing %s failed', name)
-    end
-    ret[name] = value
-    range[2] = range[1] + start_len - string.len(rem) - 1
-    ranges[name] = range
-    start = range[2] + 1
-  end
   local name = rem
   if name then
     local isdir
@@ -168,7 +143,6 @@ M.parse = function(bufnr)
 
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
   local scheme, path = util.parse_url(bufname)
-  local column_defs = columns.get_supported_columns(adapter)
   local parent_url = scheme .. path
   local children = cache.list_url(parent_url)
   -- map from name to entry ID for all entries previously in the buffer
@@ -201,7 +175,7 @@ M.parse = function(bufnr)
     (function()
       if line:match('^/%d+') then
         -- Parse the line for an existing entry
-        local result, err = M.parse_line(adapter, line, column_defs)
+        local result, err = M.parse_line(adapter, line, nil)
         if not result or err then
           table.insert(errors, {
             message = err,
@@ -263,19 +237,6 @@ M.parse = function(bufnr)
             id = parsed_entry.id,
             link = parsed_entry.link_target,
           })
-        end
-
-        for _, col_def in ipairs(column_defs) do
-          local col_name = util.split_config(col_def)
-          if columns.compare(adapter, col_name, entry, parsed_entry[col_name]) then
-            table.insert(diffs, {
-              type = 'change',
-              name = parsed_entry.name,
-              entry_type = entry[FIELD_TYPE],
-              column = col_name,
-              value = parsed_entry[col_name],
-            })
-          end
         end
       else
         -- Parse a new entry
