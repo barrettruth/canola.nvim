@@ -1232,7 +1232,7 @@ M._get_highlights = function()
     },
     {
       name = 'CanolaOwnerOther',
-      link = nil,
+      link = 'DiagnosticError',
       desc = 'File owner not matching current user',
     },
     {
@@ -1242,7 +1242,7 @@ M._get_highlights = function()
     },
     {
       name = 'CanolaGroupOther',
-      link = nil,
+      link = 'DiagnosticError',
       desc = 'File group not matching current user group',
     },
   }
@@ -1462,7 +1462,9 @@ M.init = function()
   })
   local aug = vim.api.nvim_create_augroup('Canola', {})
 
-  require('canola.view').setup_cleanup_autocmd()
+  local view = require('canola.view')
+  view.setup_cleanup_autocmd()
+  view.setup_decoration_provider()
 
   vim.g.loaded_netrw = 1
   vim.g.loaded_netrwPlugin = 1
@@ -1570,7 +1572,6 @@ M.init = function()
       -- We want to filter out oil buffers that are not directories (i.e. ssh files)
       local is_oil_dir_or_unknown = (vim.bo.filetype == 'canola' or vim.bo.filetype == '')
       if is_canola_buf and is_oil_dir_or_unknown then
-        local view = require('canola.view')
         view.maybe_set_cursor()
         -- While we are in an oil buffer, set the alternate file to the buffer we were in prior to
         -- opening oil

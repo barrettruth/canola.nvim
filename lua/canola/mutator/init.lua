@@ -157,6 +157,10 @@ M.create_actions_from_diffs = function(all_diffs)
             ---HACK: set the destination on this diff for use later
             ---@diagnostic disable-next-line: inject-field
             cloned.dest = parent_url .. expanded_name
+            ---@diagnostic disable-next-line: inject-field
+            cloned._segments = segments
+            ---@diagnostic disable-next-line: inject-field
+            cloned._parent_url = parent_url
             table.insert(by_id, cloned)
           end
         else
@@ -207,6 +211,17 @@ M.create_actions_from_diffs = function(all_diffs)
       if has_create then
         -- MOVE (+ optional copies) when has both creates and delete
         for i, diff in ipairs(diffs) do
+          ---@diagnostic disable-next-line: undefined-field
+          if diff._segments and #diff._segments > 1 then
+            ---@diagnostic disable-next-line: undefined-field
+            local url = diff._parent_url:gsub('/$', '')
+            ---@diagnostic disable-next-line: undefined-field
+            for j = 1, #diff._segments - 1 do
+              ---@diagnostic disable-next-line: undefined-field
+              url = url .. '/' .. diff._segments[j]
+              add_action({ type = 'create', url = url, entry_type = 'directory' })
+            end
+          end
           add_action({
             type = i == #diffs and 'move' or 'copy',
             entry_type = entry[FIELD_TYPE],
@@ -227,6 +242,17 @@ M.create_actions_from_diffs = function(all_diffs)
     else
       -- COPY when create but no delete
       for _, diff in ipairs(diffs) do
+        ---@diagnostic disable-next-line: undefined-field
+        if diff._segments and #diff._segments > 1 then
+          ---@diagnostic disable-next-line: undefined-field
+          local url = diff._parent_url:gsub('/$', '')
+          ---@diagnostic disable-next-line: undefined-field
+          for j = 1, #diff._segments - 1 do
+            ---@diagnostic disable-next-line: undefined-field
+            url = url .. '/' .. diff._segments[j]
+            add_action({ type = 'create', url = url, entry_type = 'directory' })
+          end
+        end
         add_action({
           type = 'copy',
           entry_type = entry[FIELD_TYPE],

@@ -312,6 +312,96 @@ describe('mutator', function()
         }, actions)
       end)
     end)
+
+    it('creates intermediate dir when moving into new subdir', function()
+      local file = test_adapter.test_set('/foo/a.txt', 'file')
+      vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+      local bufnr = vim.api.nvim_get_current_buf()
+      local diffs = {
+        { type = 'delete', name = 'a.txt', id = file[FIELD_ID] },
+        { type = 'new', name = 'sub/a.txt', entry_type = 'file', id = file[FIELD_ID] },
+      }
+      local actions = mutator.create_actions_from_diffs({
+        [bufnr] = diffs,
+      })
+      assert.are.same({
+        { type = 'create', entry_type = 'directory', url = 'canola-test:///foo/sub' },
+        {
+          type = 'move',
+          entry_type = 'file',
+          src_url = 'canola-test:///foo/a.txt',
+          dest_url = 'canola-test:///foo/sub/a.txt',
+        },
+      }, actions)
+    end)
+
+    it('creates all intermediate dirs for deeply nested move', function()
+      local file = test_adapter.test_set('/foo/a.txt', 'file')
+      vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+      local bufnr = vim.api.nvim_get_current_buf()
+      local diffs = {
+        { type = 'delete', name = 'a.txt', id = file[FIELD_ID] },
+        { type = 'new', name = 'a/b/c/a.txt', entry_type = 'file', id = file[FIELD_ID] },
+      }
+      local actions = mutator.create_actions_from_diffs({
+        [bufnr] = diffs,
+      })
+      assert.are.same({
+        { type = 'create', entry_type = 'directory', url = 'canola-test:///foo/a' },
+        { type = 'create', entry_type = 'directory', url = 'canola-test:///foo/a/b' },
+        { type = 'create', entry_type = 'directory', url = 'canola-test:///foo/a/b/c' },
+        {
+          type = 'move',
+          entry_type = 'file',
+          src_url = 'canola-test:///foo/a.txt',
+          dest_url = 'canola-test:///foo/a/b/c/a.txt',
+        },
+      }, actions)
+    end)
+
+    it('creates intermediate dir when copying into new subdir', function()
+      local file = test_adapter.test_set('/foo/a.txt', 'file')
+      vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+      local bufnr = vim.api.nvim_get_current_buf()
+      local diffs = {
+        { type = 'new', name = 'sub/a.txt', entry_type = 'file', id = file[FIELD_ID] },
+      }
+      local actions = mutator.create_actions_from_diffs({
+        [bufnr] = diffs,
+      })
+      assert.are.same({
+        { type = 'create', entry_type = 'directory', url = 'canola-test:///foo/sub' },
+        {
+          type = 'copy',
+          entry_type = 'file',
+          src_url = 'canola-test:///foo/a.txt',
+          dest_url = 'canola-test:///foo/sub/a.txt',
+        },
+      }, actions)
+    end)
+
+    it('deduplicates directory creates when two files move into same new subdir', function()
+      local afile = test_adapter.test_set('/foo/a.txt', 'file')
+      local bfile = test_adapter.test_set('/foo/b.txt', 'file')
+      vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+      local bufnr = vim.api.nvim_get_current_buf()
+      local diffs = {
+        { type = 'delete', name = 'a.txt', id = afile[FIELD_ID] },
+        { type = 'new', name = 'sub/a.txt', entry_type = 'file', id = afile[FIELD_ID] },
+        { type = 'delete', name = 'b.txt', id = bfile[FIELD_ID] },
+        { type = 'new', name = 'sub/b.txt', entry_type = 'file', id = bfile[FIELD_ID] },
+      }
+      local actions = mutator.create_actions_from_diffs({
+        [bufnr] = diffs,
+      })
+      local create_count = 0
+      for _, action in ipairs(actions) do
+        if action.type == 'create' and action.url == 'canola-test:///foo/sub' then
+          create_count = create_count + 1
+        end
+      end
+      assert.equals(1, create_count)
+    end)
   end)
 
   describe('order actions', function()
