@@ -332,6 +332,39 @@ set_is_hidden_file({is_hidden_file})                      *canola.set_is_hidden_
 toggle_hidden()                                                *canola.toggle_hidden*
     Toggle hidden files and directories
 
+register_column({name}, {column})                          *canola.register_column*
+    Register a custom column. The column will be available by name in the
+    `columns` config for all adapters. Call this before or during plugin
+    setup — columns registered after a buffer renders will not appear until
+    the next render.
+
+    Parameters:
+      {name}   `string` Unique column name (e.g. `"hardlinks"`)
+      {column} `canola.ColumnDefinition`
+          {render} `fun(entry, conf, bufnr): canola.TextChunk` (required)
+              Return value: plain string, `{text, hl_group}` pair, or
+              `columns.EMPTY` when the column has no value for this entry.
+              `entry` is `{id, name, type, meta}`. `conf` is the per-column
+              config table from the user's `columns` list.
+          {get_sort_value} `nil|fun(entry): number|string`
+              Returns a sortable scalar for this entry. Used when the user
+              sorts by this column name.
+          {create_sort_value_factory} `nil|fun(num_entries): fun(entry): number|string`
+              Alternative to `get_sort_value` for implementations that need
+              to precompute state across all entries. Takes precedence when
+              present.
+          {compare} `nil|fun(entry, parsed_value): boolean`
+              Returns true when the parsed value differs from the entry's
+              current state. Only needed for columns representing mutable
+              metadata.
+          {render_action} `nil|fun(action): string`
+              Human-readable description of a change action, shown in the
+              confirmation prompt.
+          {perform_action} `nil|fun(action, callback: fun(err: nil|string))`
+              Executes the change action. Only needed for mutable columns.
+
+    See |canola-recipe-custom-column| for a working example.
+
 register_adapter({scheme}, {name})                        *canola.register_adapter*
     Register an external adapter for a URL scheme. Used by canola-collection
     and other adapter plugins to make new schemes available at runtime.
@@ -1067,6 +1100,33 @@ Add custom column for file extension ~
           { "name", "asc" },
         },
       },
+    }
+<
+
+Add custom column for hardlink count ~
+                                                       *canola-recipe-custom-column*
+
+Registers a column that shows the number of hard links to each file, sourced
+from the libuv stat `nlink` field. The column is blank for entries without
+stat data (e.g. remote adapters). >lua
+    require("canola").register_column("hardlinks", {
+      render = function(entry)
+        local meta = entry[4]
+        local stat = meta and meta.stat
+        if not stat or stat.nlink <= 1 then
+          return require("canola.columns").EMPTY
+        end
+        return tostring(stat.nlink)
+      end,
+      get_sort_value = function(entry)
+        local meta = entry[4]
+        local stat = meta and meta.stat
+        return stat and stat.nlink or 0
+      end,
+    })
+
+    vim.g.canola = {
+      columns = { "hardlinks", "size", "icon" },
     }
 <
 
