@@ -36,15 +36,8 @@ https://user-images.githubusercontent.com/506791/209727111-6b4a11f4-634a-4efa-94
 
 ## Installation
 
-Clone into your `pack` directory:
-
-```sh
-git clone https://github.com/barrettruth/canola.nvim \
-  --branch canola \
-  ~/.local/share/nvim/site/pack/canola/start/canola.nvim
-```
-
-Or via [luarocks](https://luarocks.org/modules/barrettruth/canola.nvim):
+Install with your package manager of choice or via
+[luarocks](https://luarocks.org/modules/barrettruth/canola.nvim):
 
 ```
 luarocks install canola.nvim
