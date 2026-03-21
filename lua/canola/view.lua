@@ -168,6 +168,7 @@ end
 ---@field fs_event? any uv_fs_event_t
 ---@field col_width? integer[]
 ---@field col_align? canola.ColumnAlign[]
+---@field col_pad? integer
 ---@field hl_cache? table<integer, { line: string, name_highlights: table[], virt_chunks: table[] }>
 
 -- List of bufnrs
@@ -309,7 +310,8 @@ local function calc_constrained_cursor_pos(bufnr, adapter, mode, cur)
   local line = vim.api.nvim_buf_get_lines(bufnr, cur[1] - 1, cur[1], true)[1]
   local id_prefix = line:match('^/%d+ ')
   if id_prefix then
-    local min_col = #id_prefix
+    local sess = session[bufnr]
+    local min_col = #id_prefix + (sess and sess.col_pad or 0)
     if cur[2] < min_col then
       return { cur[1], min_col }
     end
@@ -453,7 +455,8 @@ local function update_insert_boundary(bufnr)
 
   local line = vim.api.nvim_buf_get_lines(bufnr, cur[1] - 1, cur[1], true)[1]
   local id_prefix = line:match('^/%d+ ')
-  local min_col = id_prefix and #id_prefix or 0
+  local sess = session[bufnr]
+  local min_col = (id_prefix and #id_prefix or 0) + (sess and sess.col_pad or 0)
   insert_boundary[bufnr] = { lnum = cur[1], min_col = min_col }
   return min_col
 end
@@ -861,13 +864,25 @@ local function render_buffer(bufnr, opts)
     end
   end
 
+  local col_pad = 0
   for i = 1, #col_width do
     if not col_has_data[i] then
       col_width[i] = 0
+    else
+      col_pad = col_pad + col_width[i] + 1
     end
   end
 
   local lines = util.render_table(line_table, {})
+  if col_pad > 0 then
+    local padding = string.rep(' ', col_pad)
+    for i, line in ipairs(lines) do
+      local id_end = line:match('^/%d+ ()')
+      if id_end then
+        lines[i] = line:sub(1, id_end - 1) .. padding .. line:sub(id_end)
+      end
+    end
+  end
 
   _rendering[bufnr] = true
   vim.bo[bufnr].modifiable = true
@@ -882,6 +897,7 @@ local function render_buffer(bufnr, opts)
   _rendering[bufnr] = nil
   session[bufnr].col_width = col_width
   session[bufnr].col_align = col_align
+  session[bufnr].col_pad = col_pad
   session[bufnr].hl_cache = nil
 
   if opts.jump then
@@ -1283,13 +1299,15 @@ M.setup_decoration_provider = function()
         end
         hl_cache[id] = { line = line, name_highlights = name_highlights, virt_chunks = virt_chunks }
       end
-      local id_prefix = line:match('^/%d+ ')
-      if id_prefix and #virt_chunks > 0 then
-        vim.api.nvim_buf_set_extmark(bufnr, decor_ns, row, #id_prefix, {
-          virt_text = virt_chunks,
-          virt_text_pos = 'inline',
-          ephemeral = true,
-        })
+      if #virt_chunks > 0 then
+        local id_prefix = line:match('^/%d+ ')
+        if id_prefix then
+          vim.api.nvim_buf_set_extmark(bufnr, decor_ns, row, #id_prefix, {
+            virt_text = virt_chunks,
+            virt_text_pos = 'overlay',
+            ephemeral = true,
+          })
+        end
       end
       for _, hl in ipairs(name_highlights) do
         vim.api.nvim_buf_set_extmark(bufnr, decor_ns, row, hl[2], {
