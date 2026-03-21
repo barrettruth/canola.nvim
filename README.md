@@ -1,6 +1,6 @@
 # canola.nvim
 
-A file manager for Neovim. Edit your filesystem like a buffer.
+A refined [`oil.nvim`](https://tihub.com/stevearc/oil.nvim)
 
 https://user-images.githubusercontent.com/506791/209727111-6b4a11f4-634a-4efa-9461-80e9717cea94.mp4
 
@@ -40,7 +40,7 @@ luarocks install canola.nvim
 
 ## Migration/Setup
 
-Configure via `vim.g.canola`:
+Configure via `vim.g.canola` before the plugin loads:
 
 ```lua
 -- Before (oil.nvim)
