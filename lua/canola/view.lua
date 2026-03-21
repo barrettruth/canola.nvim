@@ -291,6 +291,9 @@ M.delete_hidden_buffers = function()
   then
     return
   end
+  if #hidden_buffers == 0 then
+    return
+  end
   for _, bufnr in ipairs(hidden_buffers) do
     vim.api.nvim_buf_delete(bufnr, { force = true })
   end
