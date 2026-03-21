@@ -875,6 +875,11 @@ local function render_buffer(bufnr, opts)
   vim.bo[bufnr].modifiable = false
   vim.bo[bufnr].modified = false
   vim.api.nvim_buf_clear_namespace(bufnr, vim.api.nvim_create_namespace('Canola'), 0, -1)
+  vim.api.nvim_buf_clear_namespace(bufnr, decor_ns, 0, -1)
+  vim.api.nvim_buf_set_extmark(bufnr, decor_ns, 0, 0, {
+    virt_text = { { '' } },
+    virt_text_pos = 'inline',
+  })
   _rendering[bufnr] = nil
   session[bufnr].col_width = col_width
   session[bufnr].col_align = col_align
@@ -1257,7 +1262,7 @@ M.setup_decoration_provider = function()
         name_highlights = compute_highlights_for_cols(cols, {}, {}, #line)
         virt_chunks = {}
         for i, col_def in ipairs(ctx.column_defs) do
-          if ctx.col_width[i] > 0 then
+          if (ctx.col_width[i] or 0) > 0 then
             local chunk = columns.render_col(ctx.adapter, col_def, entry, bufnr)
             local text = type(chunk) == 'table' and chunk[1] or chunk
             ---@cast text string
