@@ -25,6 +25,19 @@
         default = pkgs.mkShell {
           packages = [
             pkgs.prettier
+            pkgs.stylua
+            pkgs.selene
+            vimdoc-language-server.packages.${pkgs.system}.default
+            (pkgs.luajit.withPackages (ps: [
+              ps.busted
+              ps.nlua
+            ]))
+          ];
+        };
+
+        ci = pkgs.mkShell {
+          packages = [
+            pkgs.prettier
             pkgs.neovim
             pkgs.stylua
             pkgs.selene
