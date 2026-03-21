@@ -18,6 +18,7 @@ local all_columns = {}
 ---@field perform_action? fun(action: canola.ChangeAction, callback: fun(err: nil|string))
 ---@field get_sort_value? fun(entry: canola.InternalEntry): number|string
 ---@field create_sort_value_factory? fun(num_entries: integer): fun(entry: canola.InternalEntry): number|string
+---@field default_align? canola.ColumnAlign
 
 ---@param name string
 ---@param column canola.ColumnDefinition

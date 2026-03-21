@@ -16,11 +16,23 @@ local function perm_to_str(exe_modifier, num)
   end
 end
 
+local type_char_map = {
+  directory = 'd',
+  link = 'l',
+  fifo = 'p',
+  socket = 's',
+  char = 'c',
+  block = 'b',
+}
+
 ---@param mode integer
+---@param entry_type? string
 ---@return string
-M.mode_to_str = function(mode)
+M.mode_to_str = function(mode, entry_type)
+  local prefix = type_char_map[entry_type] or '.'
   local extra = bit.rshift(mode, 9)
-  return perm_to_str(bit.band(extra, 4) ~= 0 and 's', bit.rshift(mode, 6))
+  return prefix
+    .. perm_to_str(bit.band(extra, 4) ~= 0 and 's', bit.rshift(mode, 6))
     .. perm_to_str(bit.band(extra, 2) ~= 0 and 's', bit.rshift(mode, 3))
     .. perm_to_str(bit.band(extra, 1) ~= 0 and 't', mode)
 end
@@ -31,15 +43,26 @@ local perm_hl_map = {
   { 'CanolaPermOtherRead', 'CanolaPermOtherWrite', 'CanolaPermOtherExec' },
 }
 
+local type_hl_map = {
+  directory = 'CanolaDir',
+  link = 'CanolaLink',
+  fifo = 'CanolaSocket',
+  socket = 'CanolaSocket',
+  char = 'CanolaSocket',
+  block = 'CanolaSocket',
+}
+
 ---@param mode integer
+---@param entry_type? string
 ---@return canola.HlRangeTuple
-M.mode_to_highlighted = function(mode)
-  local str = M.mode_to_str(mode)
+M.mode_to_highlighted = function(mode, entry_type)
+  local str = M.mode_to_str(mode, entry_type)
   local ranges = {}
+  table.insert(ranges, { type_hl_map[entry_type] or 'CanolaPermNone', 0, 1 })
   for group_idx = 0, 2 do
     local hls = perm_hl_map[group_idx + 1]
     for char_idx = 0, 2 do
-      local pos = group_idx * 3 + char_idx
+      local pos = 1 + group_idx * 3 + char_idx
       local ch = str:sub(pos + 1, pos + 1)
       local hl
       if ch == '-' then

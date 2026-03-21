@@ -1069,6 +1069,7 @@ M._get_highlights = function()
     {
       name = 'CanolaDir',
       link = 'Directory',
+      bold = true,
       desc = 'Directory names in an oil buffer',
     },
     {
@@ -1232,7 +1233,6 @@ M._get_highlights = function()
     {
       name = 'CanolaPermNone',
       link = 'Comment',
-      bold = true,
       desc = 'No permission (dash)',
     },
     {
@@ -1285,7 +1285,7 @@ M._get_highlights = function()
     },
     {
       name = 'CanolaDate',
-      link = 'Function',
+      link = 'Directory',
       desc = 'File modification date',
     },
   }
