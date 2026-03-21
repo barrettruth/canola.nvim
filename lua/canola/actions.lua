@@ -5,8 +5,7 @@ local M = {}
 
 M.show_help = {
   callback = function()
-    local config = require('canola.config')
-    require('canola.keymap_util').show_help(config.keymaps)
+    vim.cmd('help canola-keymaps')
   end,
   desc = 'Show default keymaps',
 }
