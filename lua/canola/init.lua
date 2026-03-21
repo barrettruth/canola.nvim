@@ -1249,7 +1249,7 @@ M._get_highlights = function()
     },
     {
       name = 'CanolaOwnerOther',
-      link = nil,
+      link = 'DiagnosticError',
       desc = 'File owner not matching current user',
     },
     {
@@ -1259,7 +1259,7 @@ M._get_highlights = function()
     },
     {
       name = 'CanolaGroupOther',
-      link = nil,
+      link = 'DiagnosticError',
       desc = 'File group not matching current user group',
     },
   }
