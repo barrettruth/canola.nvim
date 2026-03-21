@@ -234,7 +234,7 @@ for _, time_key in ipairs({ 'ctime', 'mtime', 'atime', 'birthtime' }) do
           ret = vim.fn.strftime('%b %d %H:%M', stat[time_key].sec)
         end
       end
-      return ret
+      return { ret, 'CanolaDate' }
     end,
 
     parse = function(line, conf)
