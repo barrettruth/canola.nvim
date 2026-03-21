@@ -38,11 +38,10 @@ describe('config', function()
     assert.is_false(config._is_hidden_file('readme.md', 0, {}))
   end)
 
-  it('compiles disable preview patterns', function()
-    vim.g.canola = { preview = { disable = { '%.iso$' } } }
+  it('does not have _disable_preview after removing preview.disable', function()
+    vim.g.canola = nil
     config.init()
-    assert.is_true(config._disable_preview('big.iso'))
-    assert.is_false(config._disable_preview('file.txt'))
+    assert.is_nil(config._disable_preview)
   end)
 
   it('maps cursor true to editable', function()

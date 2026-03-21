@@ -377,7 +377,8 @@ end
 ---@param winid nil|integer
 ---@return string
 M.get_title = function(winid)
-  local src_buf = vim.api.nvim_win_get_buf(winid or 0)
+  winid = winid or 0
+  local src_buf = vim.api.nvim_win_get_buf(winid)
   local title = vim.api.nvim_buf_get_name(src_buf)
   local scheme, path = M.parse_url(title)
 
@@ -386,7 +387,12 @@ M.get_title = function(winid)
     local fs = require('canola.fs')
     title = vim.fn.fnamemodify(fs.posix_to_os_path(path), ':~')
   end
-  return title
+  local ev_data = { winid = winid, bufnr = src_buf, title = title }
+  vim.api.nvim_exec_autocmds(
+    'User',
+    { pattern = 'CanolaWinTitle', modeline = false, data = ev_data }
+  )
+  return ev_data.title
 end
 
 local winid_map = {}

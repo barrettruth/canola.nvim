@@ -692,7 +692,7 @@ M.try_write_changes = function(confirm, cb)
           view.rerender_all_oil_buffers(nil, function(render_err)
             vim.api.nvim_exec_autocmds(
               'User',
-              { pattern = 'CanolaMutationComplete', modeline = false }
+              { pattern = 'CanolaMutationComplete', modeline = false, data = { actions = actions } }
             )
             cb(render_err)
           end)

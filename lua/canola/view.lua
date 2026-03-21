@@ -668,10 +668,18 @@ M.initialize = function(bufnr)
       )
     else
       vim.b[bufnr].canola_ready = true
-      vim.api.nvim_exec_autocmds(
-        'User',
-        { pattern = 'CanolaEnter', modeline = false, data = { buf = bufnr } }
-      )
+      local bufname = vim.api.nvim_buf_get_name(bufnr)
+      local scheme, path = util.parse_url(bufname)
+      vim.api.nvim_exec_autocmds('User', {
+        pattern = 'CanolaEnter',
+        modeline = false,
+        data = {
+          buf = bufnr,
+          url = bufname,
+          scheme = scheme,
+          dir = (config.adapters[scheme] == 'files') and path or nil,
+        },
+      })
     end
   end)
   keymap_util.set_keymaps(config.keymaps, bufnr)
@@ -1028,10 +1036,18 @@ local pending_renders = {}
 M.render_buffer_async = function(bufnr, opts, caller_callback)
   local function callback(err)
     if not err then
-      vim.api.nvim_exec_autocmds(
-        'User',
-        { pattern = 'CanolaReadPost', modeline = false, data = { buf = bufnr } }
-      )
+      local is_first = not vim.b[bufnr].canola_ready
+      local bufname = vim.api.nvim_buf_get_name(bufnr)
+      vim.api.nvim_exec_autocmds('User', {
+        pattern = 'CanolaReadPost',
+        modeline = false,
+        data = {
+          buf = bufnr,
+          url = bufname,
+          entry_count = vim.api.nvim_buf_line_count(bufnr),
+          first = is_first,
+        },
+      })
     end
     if caller_callback then
       caller_callback(err)

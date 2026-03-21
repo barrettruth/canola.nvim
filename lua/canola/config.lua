@@ -60,7 +60,6 @@ local default_config = {
     follow = true,
     live = false,
     max_file_size_mb = 10,
-    disable = {},
     win = {},
   },
 
@@ -129,7 +128,6 @@ local default_config = {
 ---@field _case_insensitive boolean
 ---@field _is_hidden_file fun(name: string, bufnr: integer, entry: canola.Entry): boolean
 ---@field _is_always_hidden fun(name: string, bufnr: integer, entry: canola.Entry): boolean
----@field _disable_preview fun(filename: string): boolean
 ---@field _preview_method canola.PreviewMethod
 ---@field _preview_update_on_cursor_moved boolean
 local M = {}
@@ -176,7 +174,6 @@ local M = {}
 ---@field follow boolean
 ---@field live boolean
 ---@field max_file_size_mb? number
----@field disable string[]
 ---@field win table<string, any>
 
 ---@class (exact) canola.SortSpec
@@ -220,24 +217,6 @@ local function compile_hidden_patterns(patterns)
   return function(name, bufnr, entry)
     for _, pat in ipairs(patterns) do
       if name:match(pat) then
-        return true
-      end
-    end
-    return false
-  end
-end
-
----@param disable_list string[]
----@return fun(filename: string): boolean
-local function compile_disable_preview(disable_list)
-  if #disable_list == 0 then
-    return function()
-      return false
-    end
-  end
-  return function(filename)
-    for _, pat in ipairs(disable_list) do
-      if filename:match(pat) then
         return true
       end
     end
@@ -320,8 +299,6 @@ M.init = function()
 
   M._is_hidden_file = compile_hidden_patterns(new_conf.hidden.patterns)
   M._is_always_hidden = compile_hidden_patterns(new_conf.hidden.always)
-
-  M._disable_preview = compile_disable_preview(new_conf.preview.disable)
 
   M._preview_method = new_conf.preview.live and 'load' or 'fast_scratch'
   M._preview_update_on_cursor_moved = new_conf.preview.follow

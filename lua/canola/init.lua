@@ -304,7 +304,12 @@ M.open_float = function(dir, opts, cb)
   local win_opts = layout.get_fullscreen_win_opts()
 
   local original_winid = vim.api.nvim_get_current_win()
-  local winid = vim.api.nvim_open_win(bufnr, true, win_opts)
+  local ev_data = { buf = bufnr, conf = win_opts }
+  vim.api.nvim_exec_autocmds(
+    'User',
+    { pattern = 'CanolaFloatConfig', modeline = false, data = ev_data }
+  )
+  local winid = vim.api.nvim_open_win(bufnr, true, ev_data.conf)
   vim.w[winid].is_canola_win = true
   vim.w[winid].canola_original_win = original_winid
   for k, v in pairs(config.float.win) do
@@ -672,7 +677,12 @@ M.open_preview = function(opts, callback)
 
       win_opts.title = entry_title
 
-      preview_win = vim.api.nvim_open_win(bufnr, true, win_opts)
+      local preview_ev_data = { buf = bufnr, conf = win_opts }
+      vim.api.nvim_exec_autocmds(
+        'User',
+        { pattern = 'CanolaFloatConfig', modeline = false, data = preview_ev_data }
+      )
+      preview_win = vim.api.nvim_open_win(bufnr, true, preview_ev_data.conf)
       vim.api.nvim_set_option_value('previewwindow', true, { scope = 'local', win = preview_win })
       vim.api.nvim_win_set_var(preview_win, 'oil_preview', true)
       vim.api.nvim_set_current_win(prev_win)
@@ -727,16 +737,23 @@ M.open_preview = function(opts, callback)
           vim.notify('File too large to preview', vim.log.levels.WARN)
           return finish()
         end
-      elseif config._disable_preview(normalized_url) then
-        filebufnr = vim.api.nvim_create_buf(false, true)
-        vim.bo[filebufnr].bufhidden = 'wipe'
-        vim.bo[filebufnr].buftype = 'nofile'
-        util.render_text(filebufnr, 'Preview disabled', { winid = preview_win })
-      elseif
-        config._preview_method ~= 'load'
-        and not util.file_matches_bufreadcmd(normalized_url)
-      then
-        filebufnr = util.read_file_to_scratch_buffer(normalized_url, config._preview_method)
+      else
+        local disable_ev = { filename = normalized_url, result = false }
+        vim.api.nvim_exec_autocmds(
+          'User',
+          { pattern = 'CanolaPreviewDisable', modeline = false, data = disable_ev }
+        )
+        if disable_ev.result then
+          filebufnr = vim.api.nvim_create_buf(false, true)
+          vim.bo[filebufnr].bufhidden = 'wipe'
+          vim.bo[filebufnr].buftype = 'nofile'
+          util.render_text(filebufnr, 'Preview disabled', { winid = preview_win })
+        elseif
+          config._preview_method ~= 'load'
+          and not util.file_matches_bufreadcmd(normalized_url)
+        then
+          filebufnr = util.read_file_to_scratch_buffer(normalized_url, config._preview_method)
+        end
       end
     end
 
