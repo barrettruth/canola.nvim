@@ -22,6 +22,7 @@ local default_keymaps = {
   ['gs'] = { callback = 'actions.change_sort', mode = 'n' },
   ['gx'] = 'actions.open_external',
   ['g.'] = { callback = 'actions.toggle_hidden', mode = 'n' },
+  ['gy'] = { callback = 'actions.yank_entry', mode = 'n' },
   ['q'] = { callback = 'actions.close', mode = 'n' },
 }
 
