@@ -520,6 +520,9 @@ M.initialize = function(bufnr)
   vim.bo[bufnr].swapfile = false
   vim.bo[bufnr].syntax = 'canola'
   vim.bo[bufnr].filetype = 'canola'
+  vim.bo[bufnr].cindent = false
+  vim.bo[bufnr].smartindent = false
+  vim.bo[bufnr].indentexpr = ''
   vim.b[bufnr].EditorConfig_disable = 1
   session[bufnr] = session[bufnr] or {}
   for k, v in pairs(config.buf) do
