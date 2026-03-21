@@ -1243,7 +1243,14 @@ M.setup_decoration_provider = function()
           ---@cast text string
           local hl = type(chunk) == 'table' and chunk[2] or nil
           local padded = util.pad_align(text, ctx.col_width[i], ctx.col_align[i] or 'left')
-          table.insert(virt_chunks, { padded .. ' ', hl })
+          if type(hl) == 'table' then
+            for _, range in ipairs(hl) do
+              table.insert(virt_chunks, { text:sub(range[2] + 1, range[3]), range[1] })
+            end
+            table.insert(virt_chunks, { padded:sub(#text + 1) .. ' ' })
+          else
+            table.insert(virt_chunks, { padded .. ' ', hl })
+          end
         end
         if not hl_cache then
           hl_cache = {}
