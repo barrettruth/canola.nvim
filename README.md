@@ -59,6 +59,33 @@ vim.g.canola = {
 Defaults work out of the box. See `:help canola.nvim` for the full option
 reference.
 
+## Migrating from oil.nvim
+
+canola.nvim is a fork of oil.nvim with a redesigned config surface. The core
+editing model is identical — you still edit directory buffers and `:w` to apply
+mutations.
+
+```lua
+-- Before (oil.nvim)
+require('oil').setup({ columns = { 'icon' } })
+
+-- After (canola.nvim)
+vim.g.canola = { columns = { 'icon' } }
+```
+
+Key differences:
+
+- **No `setup()` call** — configure entirely via `vim.g.canola`
+- **Flat config keys** — `view_options.is_hidden_file` → `hidden.patterns`,
+  `lsp_file_methods.timeout_ms` → `lsp.timeout_ms`
+- **Hooks → events** — `float.override` → `CanolaFloatConfig` autocmd,
+  `preview_win.disable_preview` → `CanolaPreviewDisable` autocmd
+- **Adapters out of core** — SSH, S3, trash, FTP live in
+  [canola-collection](https://github.com/barrettruth/canola-collection)
+
+See `:help canola-migration` for the full mapping of every oil.nvim option to
+its canola equivalent.
+
 ## Documentation
 
 ```vim
