@@ -1330,6 +1330,9 @@ M.setup = function(opts)
         -- vertical/horizontal), but if you want that level of control maybe just use the API
         preview = true
         table.remove(args.fargs, i)
+      elseif v == '--migrate' then
+        require('oil.migrate').print()
+        return
       elseif v == '--progress' then
         local mutator = require('oil.mutator')
         if mutator.is_mutating() then
