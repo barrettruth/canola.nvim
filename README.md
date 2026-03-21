@@ -8,23 +8,18 @@ https://user-images.githubusercontent.com/506791/209727111-6b4a11f4-634a-4efa-94
 
 - Edit directory listings as normal text — rename with `cw`, delete with `dd`,
   create with `o`
-- Mutations are derived by diffing the buffer against cached state on `:w`
-- Cross-directory move, copy, and rename — cut a line in one directory, paste it
-  in another
-- Move files into new directories by adding `/` to the name
-- Inline virtual text columns with eza-like highlighting (permissions, size,
-  owner, timestamps)
-- Custom columns via `register_column()`
-- Decoration provider for semantic name highlights (executable, hidden,
-  directory, symlink)
-- File preview in split or floating window
-- Brace expansion in the mutation pipeline (`{a,b,c}.txt`)
-- Rich User autocmd events (`CanolaEnter`, `CanolaReadPost`,
-  `CanolaMutationComplete`, `CanolaFloatConfig`, `CanolaWinTitle`,
-  `CanolaPreviewDisable`)
+- Advanced move, copy, and rename (enhanced from oil.nvim)
+- Inline virtual text columns with
+  [eza](https://github.com/eza-community/eza)-like highlighting (permissions,
+  size, owner, timestamps)
+- Custom column API
+- Improved decorations for semantic name highlights (executable, hidden,
+  directory, symlink, etc.)
+- File preview in split/floating window
+- Extended-glob file-creation syntax
 - External adapters via
-  [canola-collection](https://github.com/barrettruth/canola-collection) (SSH,
-  S3, FTP, trash)
+  [canola-collection](https://github.com/barrettruth/canola-collection) (git,
+  SSH, trash, etc.)
 
 ## Requirements
 
@@ -43,27 +38,9 @@ Install with your package manager of choice or via
 luarocks install canola.nvim
 ```
 
-No `setup()` call. Configure via `vim.g.canola`:
+## Migration/Setup
 
-```lua
-vim.g.canola = {
-  columns = { 'icon', 'size', 'permissions', 'mtime' },
-  sort = { by = { { 'type', 'asc' }, { 'name', 'asc' } } },
-  keymaps = {
-    ['-'] = false,
-    ['<bs>'] = { callback = 'actions.parent', mode = 'n' },
-  },
-}
-```
-
-Defaults work out of the box. See `:help canola.nvim` for the full option
-reference.
-
-## Migrating from oil.nvim
-
-canola.nvim is a fork of oil.nvim with a redesigned config surface. The core
-editing model is identical — you still edit directory buffers and `:w` to apply
-mutations.
+Configure via `vim.g.canola`:
 
 ```lua
 -- Before (oil.nvim)
@@ -73,18 +50,11 @@ require('oil').setup({ columns = { 'icon' } })
 vim.g.canola = { columns = { 'icon' } }
 ```
 
-Key differences:
+See `:help canola-migration` for the canonical re-mapping of every oil.nvim
+option to its canola equivalent.
 
-- **No `setup()` call** — configure entirely via `vim.g.canola`
-- **Flat config keys** — `view_options.is_hidden_file` → `hidden.patterns`,
-  `lsp_file_methods.timeout_ms` → `lsp.timeout_ms`
-- **Hooks → events** — `float.override` → `CanolaFloatConfig` autocmd,
-  `preview_win.disable_preview` → `CanolaPreviewDisable` autocmd
-- **Adapters out of core** — SSH, S3, trash, FTP live in
-  [canola-collection](https://github.com/barrettruth/canola-collection)
-
-See `:help canola-migration` for the full mapping of every oil.nvim option to
-its canola equivalent.
+All adapters have been moved to
+[`canola-collection`](https://github.com/barrettruth/canola-collection).
 
 ## Documentation
 
