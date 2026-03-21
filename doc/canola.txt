@@ -9,11 +9,12 @@ CONTENTS                                                            *canola-cont
   4. Options                                                     |canola-options|
   5. Api                                                             |canola-api|
   6. Columns                                                     |canola-columns|
-  7. Actions                                                     |canola-actions|
-  8. Highlights                                               |canola-highlights|
-  9. Adapters                                                   |canola-adapters|
-  10. Recipes                                                    |canola-recipes|
-  11. Events                                                      |canola-events|
+  7. Keymaps                                                     |canola-keymaps|
+  8. Actions                                                     |canola-actions|
+  9. Highlights                                               |canola-highlights|
+  10. Adapters                                                   |canola-adapters|
+  11. Recipes                                                    |canola-recipes|
+  12. Events                                                      |canola-events|
 
 --------------------------------------------------------------------------------
 INTRODUCTION                                                    *canola-introduction*
@@ -649,6 +650,30 @@ birthtime                                                       *column-birthtim
       {format}    `string` Format string (see :help strftime)
 
 --------------------------------------------------------------------------------
+KEYMAPS                                                              *canola-keymaps*
+
+Default keybindings in canola buffers. Override via `keymaps` in
+|canola-config|. Set a key to `false` to disable a default binding.
+
+    Key          Action                  Description ~
+    `g?`           show_help               Show this help
+    `<CR>`         select                  Open entry under cursor
+    `<C-s>`        select (vertical)       Open in vertical split
+    `<C-h>`        select (horizontal)     Open in horizontal split
+    `<C-t>`        select (tab)            Open in new tab
+    `<C-p>`        preview                 Toggle preview
+    `<C-c>`        close                   Close canola buffer
+    `<C-l>`        refresh                 Refresh directory listing
+    `-`            parent                  Navigate to parent directory
+    `_`            open_cwd                Open current working directory
+    `` ` ``        cd                      :cd to canola directory
+    `g~`           cd (tab)                :tcd to canola directory
+    `gs`           change_sort             Change sort order
+    `gx`           open_external           Open with system handler
+    `g.`           toggle_hidden           Toggle hidden files
+    `q`            close                   Close canola buffer
+
+--------------------------------------------------------------------------------
 ACTIONS                                                              *canola-actions*
 
 The `keymaps` key in |canola-config| accepts mappings using the same parameters
@@ -780,7 +805,7 @@ send_to_qflist                                            *actions.send_to_qflis
       {target} `"qflist"|"loclist"` The target list to send files to
 
 show_help                                                      *actions.show_help*
-    Show default keymaps
+    Open |canola-keymaps| in vimdoc
 
 toggle_hidden                                              *actions.toggle_hidden*
     Toggle hidden files and directories
