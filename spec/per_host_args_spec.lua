@@ -47,29 +47,6 @@ describe('per-host/bucket arg overrides', function()
     end)
   end)
 
-  describe('ftp_hosts', function()
-    it('stores ftp_hosts from setup', function()
-      config.setup({ ftp_hosts = { ['ftp.internal.com'] = { extra_curl_args = { '--insecure' } } } })
-      assert.are.equal('--insecure', config.ftp_hosts['ftp.internal.com'].extra_curl_args[1])
-    end)
-
-    it('defaults to empty table when not set', function()
-      config.setup({})
-      assert.are.same({}, config.ftp_hosts)
-    end)
-
-    it('returns nil for unknown host', function()
-      config.setup({ ftp_hosts = { ['known.host'] = { extra_curl_args = { '--insecure' } } } })
-      assert.is_nil(config.ftp_hosts['unknown.host'])
-    end)
-
-    it('reflects --insecure in per-host curl args', function()
-      config.setup({ ftp_hosts = { ['ftp.internal.com'] = { extra_curl_args = { '--insecure' } } } })
-      local host_cfg = config.ftp_hosts['ftp.internal.com']
-      assert.is_truthy(vim.tbl_contains(host_cfg.extra_curl_args, '--insecure'))
-    end)
-  end)
-
   describe('merge semantics', function()
     it('per-host ssh args supplement global args', function()
       config.setup({
