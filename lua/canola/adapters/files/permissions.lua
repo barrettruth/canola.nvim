@@ -43,9 +43,6 @@ local perm_hl_map = {
   { 'CanolaPermOtherRead', 'CanolaPermOtherWrite', 'CanolaPermOtherExec' },
 }
 
----@param mode integer
----@param entry_type? string
----@return canola.HlRangeTuple
 local type_hl_map = {
   directory = 'CanolaDir',
   link = 'CanolaLink',
@@ -55,6 +52,9 @@ local type_hl_map = {
   block = 'CanolaSocket',
 }
 
+---@param mode integer
+---@param entry_type? string
+---@return canola.HlRangeTuple
 M.mode_to_highlighted = function(mode, entry_type)
   local str = M.mode_to_str(mode, entry_type)
   local ranges = {}

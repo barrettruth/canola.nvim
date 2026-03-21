@@ -301,11 +301,11 @@ M.split_config = function(name_or_config)
     return name_or_config, nil
   else
     if not name_or_config[1] and name_or_config['1'] then
-      -- This was likely loaded from json, so the first element got coerced to a string key
       name_or_config[1] = name_or_config['1']
       name_or_config['1'] = nil
     end
-    return name_or_config[1], name_or_config
+    local name = name_or_config[1] or name_or_config.name
+    return name, name_or_config
   end
 end
 
