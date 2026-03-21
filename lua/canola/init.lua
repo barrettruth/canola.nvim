@@ -1226,6 +1226,7 @@ M._get_highlights = function()
     {
       name = 'CanolaPermNone',
       link = 'Comment',
+      bold = true,
       desc = 'No permission (dash)',
     },
     {

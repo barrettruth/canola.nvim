@@ -1064,9 +1064,6 @@ Add custom column for file extension ~
           end
         end
       end,
-      parse = function(line, _)
-        return line:match "^(%S+)%s+(.*)$"
-      end,
       create_sort_value_factory = function(num_entries)
         if
           canola_cfg._natural_order == false
