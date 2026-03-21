@@ -828,8 +828,10 @@ local function render_buffer(bufnr, opts)
   for i, col_def in ipairs(column_defs) do
     col_width[i] = 1
     col_has_data[i] = false
-    local _, conf = util.split_config(col_def)
-    col_align[i] = conf and conf.align or 'left'
+    local name, conf = util.split_config(col_def)
+    local col = columns.get_column(adapter, col_def)
+    local default = col and col.default_align or 'left'
+    col_align[i] = (conf and conf.align) or default
   end
 
   local function collect_entry(entry, is_hidden)
@@ -1282,12 +1284,17 @@ M.setup_decoration_provider = function()
             local text = type(chunk) == 'table' and chunk[1] or chunk
             ---@cast text string
             local hl = type(chunk) == 'table' and chunk[2] or nil
-            local padded = util.pad_align(text, ctx.col_width[i], ctx.col_align[i] or 'left')
+            local padded, leading_pad =
+              util.pad_align(text, ctx.col_width[i], ctx.col_align[i] or 'left')
             if type(hl) == 'table' then
+              if leading_pad > 0 then
+                table.insert(virt_chunks, { string.rep(' ', leading_pad) })
+              end
               for _, range in ipairs(hl) do
                 table.insert(virt_chunks, { text:sub(range[2] + 1, range[3]), range[1] })
               end
-              table.insert(virt_chunks, { padded:sub(#text + 1) .. ' ' })
+              local trailing = padded:sub(leading_pad + #text + 1)
+              table.insert(virt_chunks, { trailing .. ' ' })
             else
               table.insert(virt_chunks, { padded .. ' ', hl })
             end
