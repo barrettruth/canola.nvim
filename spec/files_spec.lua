@@ -75,7 +75,7 @@ describe('files adapter', function()
     config.delete.recursive = false
   end)
 
-  it('Refuses to delete directories when recursive is false', function()
+  it('Deletes empty directories when recursive is false', function()
     tmpdir:create({ 'a/' })
     local url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a'
     local err = test_util.await(files.perform_action, 2, {
@@ -83,8 +83,20 @@ describe('files adapter', function()
       entry_type = 'directory',
       type = 'delete',
     })
+    assert.is_nil(err)
+    tmpdir:assert_fs({})
+  end)
+
+  it('Refuses to delete non-empty directories when recursive is false', function()
+    tmpdir:create({ 'a/', 'a/b.txt' })
+    local url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a'
+    local err = test_util.await(files.perform_action, 2, {
+      url = url,
+      entry_type = 'directory',
+      type = 'delete',
+    })
     assert.is_not_nil(err)
-    tmpdir:assert_fs({ ['a/'] = true })
+    tmpdir:assert_fs({ ['a/'] = true, ['a/b.txt'] = 'a/b.txt' })
   end)
 
   it('Moves files', function()

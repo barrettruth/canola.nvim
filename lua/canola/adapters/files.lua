@@ -661,7 +661,7 @@ M.perform_action = function(action, cb)
     path = fs.posix_to_os_path(path)
 
     if action.entry_type == 'directory' and not config.delete.recursive then
-      cb('Recursive delete disabled (set delete.recursive = true to enable)')
+      uv.fs_rmdir(path, cb)
       return
     end
     fs.recursive_delete(action.entry_type, path, cb)
