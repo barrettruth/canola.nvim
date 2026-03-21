@@ -410,7 +410,9 @@ local function show_insert_guide(bufnr)
   local virt_width = 0
   if sess and sess.col_width then
     for _, w in ipairs(sess.col_width) do
-      virt_width = virt_width + w + 1
+      if w > 0 then
+        virt_width = virt_width + w + 1
+      end
     end
   end
   local virtual_col = id_width + virt_width
@@ -819,8 +821,10 @@ local function render_buffer(bufnr, opts)
   local line_table = {}
   local col_width = {}
   local col_align = {}
+  local col_has_data = {}
   for i, col_def in ipairs(column_defs) do
     col_width[i] = 1
+    col_has_data[i] = false
     local _, conf = util.split_config(col_def)
     col_align[i] = conf and conf.align or 'left'
   end
@@ -830,6 +834,9 @@ local function render_buffer(bufnr, opts)
     table.insert(line_table, cols)
     for i, col_def in ipairs(column_defs) do
       local chunk = columns.render_col(adapter, col_def, entry, bufnr)
+      if chunk ~= columns.EMPTY then
+        col_has_data[i] = true
+      end
       local text = type(chunk) == 'table' and chunk[1] or chunk
       ---@cast text string
       col_width[i] = math.max(col_width[i], vim.api.nvim_strwidth(text))
@@ -851,6 +858,12 @@ local function render_buffer(bufnr, opts)
         seek_after_render_found = true
         jump_idx = #line_table
       end
+    end
+  end
+
+  for i = 1, #col_width do
+    if not col_has_data[i] then
+      col_width[i] = 0
     end
   end
 
@@ -1244,18 +1257,20 @@ M.setup_decoration_provider = function()
         name_highlights = compute_highlights_for_cols(cols, {}, {}, #line)
         virt_chunks = {}
         for i, col_def in ipairs(ctx.column_defs) do
-          local chunk = columns.render_col(ctx.adapter, col_def, entry, bufnr)
-          local text = type(chunk) == 'table' and chunk[1] or chunk
-          ---@cast text string
-          local hl = type(chunk) == 'table' and chunk[2] or nil
-          local padded = util.pad_align(text, ctx.col_width[i], ctx.col_align[i] or 'left')
-          if type(hl) == 'table' then
-            for _, range in ipairs(hl) do
-              table.insert(virt_chunks, { text:sub(range[2] + 1, range[3]), range[1] })
+          if ctx.col_width[i] > 0 then
+            local chunk = columns.render_col(ctx.adapter, col_def, entry, bufnr)
+            local text = type(chunk) == 'table' and chunk[1] or chunk
+            ---@cast text string
+            local hl = type(chunk) == 'table' and chunk[2] or nil
+            local padded = util.pad_align(text, ctx.col_width[i], ctx.col_align[i] or 'left')
+            if type(hl) == 'table' then
+              for _, range in ipairs(hl) do
+                table.insert(virt_chunks, { text:sub(range[2] + 1, range[3]), range[1] })
+              end
+              table.insert(virt_chunks, { padded:sub(#text + 1) .. ' ' })
+            else
+              table.insert(virt_chunks, { padded .. ' ', hl })
             end
-            table.insert(virt_chunks, { padded:sub(#text + 1) .. ' ' })
-          else
-            table.insert(virt_chunks, { padded .. ' ', hl })
           end
         end
         if not hl_cache then
