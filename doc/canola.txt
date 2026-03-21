@@ -1,20 +1,22 @@
 *canola.txt*
+
 *canola* *Canola*
 --------------------------------------------------------------------------------
 CONTENTS                                                            *canola-contents*
 
   1. Introduction                                            |canola-introduction|
-  2. Requirements                                            |canola-requirements|
-  3. Config                                                       |canola-config|
-  4. Options                                                     |canola-options|
-  5. Api                                                             |canola-api|
-  6. Columns                                                     |canola-columns|
-  7. Keymaps                                                     |canola-keymaps|
-  8. Actions                                                     |canola-actions|
-  9. Highlights                                               |canola-highlights|
-  10. Adapters                                                   |canola-adapters|
-  11. Recipes                                                    |canola-recipes|
-  12. Events                                                      |canola-events|
+  2. Migrating from oil.nvim                                    |canola-migration|
+  3. Requirements                                            |canola-requirements|
+  4. Config                                                       |canola-config|
+  5. Options                                                     |canola-options|
+  6. Api                                                             |canola-api|
+  7. Columns                                                     |canola-columns|
+  8. Keymaps                                                     |canola-keymaps|
+  9. Actions                                                     |canola-actions|
+  10. Highlights                                               |canola-highlights|
+  11. Adapters                                                   |canola-adapters|
+  12. Recipes                                                    |canola-recipes|
+  13. Events                                                      |canola-events|
 
 --------------------------------------------------------------------------------
 INTRODUCTION                                                    *canola-introduction*
@@ -38,6 +40,318 @@ To mimic vim-vinegar's parent-directory keymap: >lua
 File operations work across adapters. Install canola-collection for additional
 adapters (SSH, S3, trash, etc.). You can copy files between adapters using the
 same buffer-editing workflow.
+
+--------------------------------------------------------------------------------
+MIGRATING FROM OIL.NVIM                                          *canola-migration*
+
+canola.nvim is a fork of oil.nvim with a redesigned configuration surface.
+The core editing model is identical — you still edit directory buffers and
+`:w` to apply mutations. What changed is how you configure the plugin, what
+things are called, and where adapters live.
+
+Design principles behind the changes:
+
+- Serializable config. `vim.g.canola` is a plain table — no functions, no
+  callbacks. This means configs can be printed, diffed, and set from any
+  Vimscript or Lua context. Functions that oil.nvim put in config (hooks,
+  predicates) are replaced by setter APIs and User autocmd events.
+
+- Flat, grouped keys. Deeply nested paths like `view_options.is_hidden_file`
+  become `hidden.patterns`. Related booleans like `prompt_save_on_select_new_entry`
+  and `auto_save_on_select_new_entry` collapse into a single enum (`save`).
+
+- Adapters out of core. Only the local filesystem adapter ships with canola.
+  SSH, S3, trash, and FTP live in canola-collection, registered at runtime
+  via `register_adapter()`.
+
+Quick start ~
+
+Replace your oil.nvim setup: >lua
+    -- Before (oil.nvim)
+    require("oil").setup({ ... })
+
+    -- After (canola.nvim)
+    vim.g.canola = { ... }
+<
+
+Config options ~
+                                                        *canola-migration-config*
+
+    oil.nvim                            canola.nvim ~
+    `columns`                             `columns`
+    `buf_options`                         `buf`
+    `win_options`                         `win`
+    `constrain_cursor`                    `cursor`  (boolean; true = "editable")
+    `watch_for_changes`                   `watch`
+    `new_file_mode`                       `create.file_mode`
+    `new_dir_mode`                        `create.dir_mode`
+    `cleanup_buffers_on_delete`           `delete.wipe`
+    `default_to_float`                    `float.default`
+
+    `lsp_file_methods.enabled`            `lsp.enabled`
+    `lsp_file_methods.timeout_ms`         `lsp.timeout_ms`
+    `lsp_file_methods.autosave_changes`   `lsp.autosave`
+
+    `preview_win.update_on_cursor_moved`  `preview.follow`
+    `preview_win.preview_method`          `preview.live`  (boolean)
+    `preview_win.max_file_size`           `preview.max_file_size_mb`
+    `preview_win.win_options`             `preview.win`
+
+    `float.win_options`                   `float.win`
+    `confirmation.win_options`            `confirmation.win`
+    `progress.win_options`                `progress.win`
+
+Consolidated options ~
+                                                   *canola-migration-consolidated*
+
+Several boolean flags collapse into a single key:
+
+    oil.nvim                            canola.nvim ~
+    `skip_confirm_for_simple_edits`       `confirm`  (true | "delete" | false)
+    `+ skip_confirm_for_delete`
+
+    `prompt_save_on_select_new_entry`     `save`  ("prompt" | "auto" | false)
+    `+ auto_save_on_select_new_entry`
+
+Hidden files ~
+                                                       *canola-migration-hidden*
+
+oil.nvim uses functions in config: >lua
+    view_options = {
+      show_hidden = false,
+      is_hidden_file = function(name, bufnr)
+        return name:match("^%.") ~= nil
+      end,
+      is_always_hidden = function(name, bufnr)
+        return false
+      end,
+    }
+<
+
+canola uses patterns (serializable) plus an optional setter API: >lua
+    vim.g.canola = {
+      hidden = {
+        enabled = true,
+        patterns = { "^%." },
+        always = {},
+      },
+    }
+
+    require("canola").set_is_hidden_file(function(name, bufnr, entry)
+      return name:match("^%.") ~= nil
+    end)
+<
+
+Sorting ~
+                                                         *canola-migration-sort*
+
+oil.nvim embeds sort config inside `view_options`: >lua
+    view_options = {
+      natural_order = "fast",
+      case_insensitive = false,
+      sort = { { "type", "asc" }, { "name", "asc" } },
+    }
+<
+
+canola supports string presets or an object: >lua
+    vim.g.canola = {
+      sort = "default",
+    }
+<
+
+Presets: `"default"`, `"name"`, `"modified"`, `"size"`, `"extension"`.
+
+Object form for advanced use: >lua
+    vim.g.canola = {
+      sort = {
+        by = { { "type", "asc" }, { "name", "asc" } },
+        natural = true,
+        ignore_case = false,
+      },
+    }
+<
+
+Hooks to events ~
+                                                       *canola-migration-events*
+
+Functions that oil.nvim put in config are replaced by User autocmd events:
+
+    oil.nvim                            canola.nvim ~
+    `float.override(conf)`               |CanolaFloatConfig| event
+    `float.get_win_title(winid)`          |CanolaWinTitle| event
+    `preview_win.disable_preview(fn)`     |CanolaPreviewDisable| event
+    `view_options.highlight_filename()`   `highlights` config
+    `git.add / git.mv / git.rm`           (planned: git status integration)
+
+Example — float.override to CanolaFloatConfig: >lua
+    -- Before (oil.nvim)
+    require("oil").setup({
+      float = {
+        override = function(conf)
+          conf.border = "rounded"
+          return conf
+        end,
+      },
+    })
+
+    -- After (canola.nvim)
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "CanolaFloatConfig",
+      callback = function(args)
+        args.data.conf.border = "rounded"
+      end,
+    })
+<
+
+Keymaps format ~
+                                                      *canola-migration-keymaps*
+
+The table form now uses an explicit `callback` key instead of a positional
+first argument. The string form is unchanged.
+
+    oil.nvim                            canola.nvim ~
+    `{ "actions.select", opts = {} }`     `{ callback = "actions.select", opts = {} }`
+    `"actions.select"`                    `"actions.select"`  (unchanged)
+
+New default keymaps in canola: `q` (close), `gy` (yank_entry).
+Removed default: `g\` (toggle_trash — moved to canola-collection).
+
+Namespace renames ~
+                                                    *canola-migration-namespace*
+
+    Category          oil.nvim             canola.nvim ~
+    Module path       `lua/oil/`             `lua/canola/`
+    Require           `require("oil")`       `require("canola")`
+    User command      `:Oil`                 `:Canola`
+    Filetype          `oil`                  `canola`
+    URL scheme        `oil://`               `canola://`
+    Buffer vars       `vim.b.oil_*`          `vim.b.canola_*`
+
+    Events            `OilEnter`             `CanolaEnter`
+                      `OilReadPost`          `CanolaReadPost`
+                      `OilMutationComplete`  `CanolaMutationComplete`
+
+    Highlights        `Oil*`                 `Canola*`
+                      (e.g. `OilDir`)        (e.g. `CanolaDir`)
+
+Removed options ~
+                                                      *canola-migration-removed*
+
+These oil.nvim options have no canola equivalent:
+
+    Option                         Reason ~
+    `default_file_explorer`          Always true in canola
+    `use_default_keymaps`            Keymaps always merged with defaults
+    `cleanup_delay_ms`               Automatic; not configurable
+    `show_hidden_when_empty`         Removed
+    `extra_scp_args`                 Moved to canola-collection
+    `extra_s3_args`                  Moved to canola-collection
+    `extra_curl_args`                Moved to canola-collection
+    `ssh_hosts`                      Moved to canola-collection
+    `s3_buckets`                     Moved to canola-collection
+    `ftp_hosts`                      Moved to canola-collection
+    `delete_to_trash`                Moved to canola-collection
+    `ssh { border }`                 Removed
+    `keymaps_help { border }`        Removed (help uses vimdoc now)
+
+New in canola ~
+                                                         *canola-migration-new*
+
+    Option / API                   Purpose ~
+    `border`                         Global border (cascades to all windows)
+    `hidden.patterns`                Serializable hidden file matching
+    `hidden.always`                  Always-hidden patterns
+    `sort` presets                   String presets: "default", "name", etc.
+    `highlights`                     Filename + column highlight config
+    `confirm = "delete"`             Confirm only when deletes are present
+    `delete.recursive`               Allow recursive remote directory delete
+    `extglob`                        Brace expansion in mutations
+    `register_column()`              Public custom column API
+    `register_adapter()`             Dynamic adapter registration
+    `CanolaFloatConfig` event        Replace float.override hook
+    `CanolaWinTitle` event           Replace float.get_win_title hook
+    `CanolaPreviewDisable` event     Replace preview disable hook
+    `CanolaFileCreated` event        Fired when a new file is created
+
+Adapters ~
+                                                    *canola-migration-adapters*
+
+canola ships only the local filesystem adapter (`canola://`). For SSH, S3,
+trash, or FTP, install canola-collection. The adapters register themselves
+automatically via `register_adapter()`.
+
+Full example ~
+                                                      *canola-migration-example*
+
+Before (oil.nvim): >lua
+    require("oil").setup({
+      columns = { "icon", "size" },
+      buf_options = { buflisted = false },
+      win_options = { wrap = false, signcolumn = "no" },
+      constrain_cursor = "editable",
+      watch_for_changes = true,
+      delete_to_trash = false,
+      cleanup_buffers_on_delete = true,
+      skip_confirm_for_simple_edits = true,
+      prompt_save_on_select_new_entry = true,
+      new_file_mode = 420,
+      new_dir_mode = 493,
+      lsp_file_methods = {
+        enabled = true,
+        timeout_ms = 2000,
+        autosave_changes = true,
+      },
+      view_options = {
+        show_hidden = false,
+        natural_order = true,
+        sort = { { "type", "asc" }, { "name", "asc" } },
+      },
+      keymaps = {
+        ["<C-s>"] = { "actions.select", opts = { vertical = true } },
+      },
+      float = {
+        border = "rounded",
+        override = function(conf)
+          conf.width = 80
+          return conf
+        end,
+      },
+      preview_win = {
+        update_on_cursor_moved = true,
+        preview_method = "fast_scratch",
+        max_file_size = 5,
+      },
+    })
+<
+
+After (canola.nvim): >lua
+    vim.g.canola = {
+      columns = { "icon", "size" },
+      buf = { buflisted = false },
+      win = { wrap = false, signcolumn = "no" },
+      cursor = true,
+      watch = true,
+      delete = { wipe = true },
+      confirm = false,
+      save = "prompt",
+      create = { file_mode = 420, dir_mode = 493 },
+      lsp = { enabled = true, timeout_ms = 2000, autosave = true },
+      hidden = { enabled = true, patterns = { "^%." } },
+      sort = { by = { { "type", "asc" }, { "name", "asc" } }, natural = true },
+      keymaps = {
+        ["<C-s>"] = { callback = "actions.select", opts = { vertical = true } },
+      },
+      float = { border = "rounded" },
+      preview = { follow = true, live = false, max_file_size_mb = 5 },
+    }
+
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "CanolaFloatConfig",
+      callback = function(args)
+        args.data.conf.width = 80
+      end,
+    })
+<
 
 --------------------------------------------------------------------------------
 REQUIREMENTS                                                    *canola-requirements*

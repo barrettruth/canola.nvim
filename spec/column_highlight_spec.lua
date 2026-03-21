@@ -33,71 +33,75 @@ describe('column highlights', function()
   describe('permissions.mode_to_highlighted', function()
     it('highlights 0755 (rwxr-xr-x)', function()
       local result = permissions.mode_to_highlighted(tonumber('755', 8))
-      assert.equals('rwxr-xr-x', result[1])
+      assert.equals('.rwxr-xr-x', result[1])
       assert.same({
-        { 'CanolaPermUserRead', 0, 1 },
-        { 'CanolaPermUserWrite', 1, 2 },
-        { 'CanolaPermUserExec', 2, 3 },
-        { 'CanolaPermGroupRead', 3, 4 },
-        { 'CanolaPermNone', 4, 5 },
-        { 'CanolaPermGroupExec', 5, 6 },
-        { 'CanolaPermOtherRead', 6, 7 },
-        { 'CanolaPermNone', 7, 8 },
-        { 'CanolaPermOtherExec', 8, 9 },
+        { 'CanolaPermNone', 0, 1 },
+        { 'CanolaPermUserRead', 1, 2 },
+        { 'CanolaPermUserWrite', 2, 3 },
+        { 'CanolaPermUserExec', 3, 4 },
+        { 'CanolaPermGroupRead', 4, 5 },
+        { 'CanolaPermNone', 5, 6 },
+        { 'CanolaPermGroupExec', 6, 7 },
+        { 'CanolaPermOtherRead', 7, 8 },
+        { 'CanolaPermNone', 8, 9 },
+        { 'CanolaPermOtherExec', 9, 10 },
       }, result[2])
     end)
 
     it('highlights 0644 (rw-r--r--)', function()
       local result = permissions.mode_to_highlighted(tonumber('644', 8))
-      assert.equals('rw-r--r--', result[1])
+      assert.equals('.rw-r--r--', result[1])
       assert.same({
-        { 'CanolaPermUserRead', 0, 1 },
-        { 'CanolaPermUserWrite', 1, 2 },
-        { 'CanolaPermNone', 2, 3 },
-        { 'CanolaPermGroupRead', 3, 4 },
-        { 'CanolaPermNone', 4, 5 },
+        { 'CanolaPermNone', 0, 1 },
+        { 'CanolaPermUserRead', 1, 2 },
+        { 'CanolaPermUserWrite', 2, 3 },
+        { 'CanolaPermNone', 3, 4 },
+        { 'CanolaPermGroupRead', 4, 5 },
         { 'CanolaPermNone', 5, 6 },
-        { 'CanolaPermOtherRead', 6, 7 },
-        { 'CanolaPermNone', 7, 8 },
+        { 'CanolaPermNone', 6, 7 },
+        { 'CanolaPermOtherRead', 7, 8 },
         { 'CanolaPermNone', 8, 9 },
+        { 'CanolaPermNone', 9, 10 },
       }, result[2])
     end)
 
     it('highlights setuid 4755 (rwsr-xr-x)', function()
       local result = permissions.mode_to_highlighted(tonumber('4755', 8))
-      assert.equals('rwsr-xr-x', result[1])
+      assert.equals('.rwsr-xr-x', result[1])
       assert.same({
-        { 'CanolaPermUserRead', 0, 1 },
-        { 'CanolaPermUserWrite', 1, 2 },
-        { 'CanolaPermSpecial', 2, 3 },
-        { 'CanolaPermGroupRead', 3, 4 },
-        { 'CanolaPermNone', 4, 5 },
-        { 'CanolaPermGroupExec', 5, 6 },
-        { 'CanolaPermOtherRead', 6, 7 },
-        { 'CanolaPermNone', 7, 8 },
-        { 'CanolaPermOtherExec', 8, 9 },
+        { 'CanolaPermNone', 0, 1 },
+        { 'CanolaPermUserRead', 1, 2 },
+        { 'CanolaPermUserWrite', 2, 3 },
+        { 'CanolaPermSpecial', 3, 4 },
+        { 'CanolaPermGroupRead', 4, 5 },
+        { 'CanolaPermNone', 5, 6 },
+        { 'CanolaPermGroupExec', 6, 7 },
+        { 'CanolaPermOtherRead', 7, 8 },
+        { 'CanolaPermNone', 8, 9 },
+        { 'CanolaPermOtherExec', 9, 10 },
       }, result[2])
     end)
 
     it('highlights sticky 1777 (rwxrwxrwt)', function()
       local result = permissions.mode_to_highlighted(tonumber('1777', 8))
-      assert.equals('rwxrwxrwt', result[1])
+      assert.equals('.rwxrwxrwt', result[1])
       assert.same({
-        { 'CanolaPermUserRead', 0, 1 },
-        { 'CanolaPermUserWrite', 1, 2 },
-        { 'CanolaPermUserExec', 2, 3 },
-        { 'CanolaPermGroupRead', 3, 4 },
-        { 'CanolaPermGroupWrite', 4, 5 },
-        { 'CanolaPermGroupExec', 5, 6 },
-        { 'CanolaPermOtherRead', 6, 7 },
-        { 'CanolaPermOtherWrite', 7, 8 },
-        { 'CanolaPermSpecial', 8, 9 },
+        { 'CanolaPermNone', 0, 1 },
+        { 'CanolaPermUserRead', 1, 2 },
+        { 'CanolaPermUserWrite', 2, 3 },
+        { 'CanolaPermUserExec', 3, 4 },
+        { 'CanolaPermGroupRead', 4, 5 },
+        { 'CanolaPermGroupWrite', 5, 6 },
+        { 'CanolaPermGroupExec', 6, 7 },
+        { 'CanolaPermOtherRead', 7, 8 },
+        { 'CanolaPermOtherWrite', 8, 9 },
+        { 'CanolaPermSpecial', 9, 10 },
       }, result[2])
     end)
 
     it('highlights no permissions 0000 (---------)', function()
       local result = permissions.mode_to_highlighted(0)
-      assert.equals('---------', result[1])
+      assert.equals('.---------', result[1])
       for _, range in ipairs(result[2]) do
         assert.equals('CanolaPermNone', range[1])
       end
@@ -300,8 +304,8 @@ describe('column highlights', function()
       }
       local result = col.render(entry, nil)
       assert.equals('table', type(result))
-      assert.equals('rw-r--r--', result[1])
-      assert.equals(9, #result[2])
+      assert.equals('.rw-r--r--', result[1])
+      assert.equals(10, #result[2])
     end)
 
     it('returns plain string when columns disabled', function()
@@ -322,7 +326,7 @@ describe('column highlights', function()
       }
       local result = col.render(entry, nil)
       assert.equals('string', type(result))
-      assert.equals('rw-r--r--', result)
+      assert.equals('.rw-r--r--', result)
     end)
   end)
 end)

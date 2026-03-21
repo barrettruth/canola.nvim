@@ -52,6 +52,7 @@ local file_columns = {}
 
 file_columns.size = {
   require_stat = true,
+  default_align = 'right',
 
   render = function(entry, conf)
     local meta = entry[FIELD_META]
@@ -156,10 +157,11 @@ if not fs.is_windows then
       if not stat then
         return columns.EMPTY
       end
+      local entry_type = entry[FIELD_TYPE]
       if config.highlights.columns then
-        return permissions.mode_to_highlighted(stat.mode)
+        return permissions.mode_to_highlighted(stat.mode, entry_type)
       end
-      return permissions.mode_to_str(stat.mode)
+      return permissions.mode_to_str(stat.mode, entry_type)
     end,
 
     parse = function(line, conf)
@@ -229,9 +231,9 @@ for _, time_key in ipairs({ 'ctime', 'mtime', 'atime', 'birthtime' }) do
       else
         local year = vim.fn.strftime('%Y', stat[time_key].sec)
         if year ~= current_year then
-          ret = vim.fn.strftime('%b %d %Y', stat[time_key].sec)
+          ret = vim.fn.strftime('%e %b  %Y', stat[time_key].sec)
         else
-          ret = vim.fn.strftime('%b %d %H:%M', stat[time_key].sec)
+          ret = vim.fn.strftime('%e %b %H:%M', stat[time_key].sec)
         end
       end
       return { ret, 'CanolaDate' }
