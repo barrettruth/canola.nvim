@@ -21,13 +21,13 @@
     {
       formatter = forEachSystem (pkgs: pkgs.nixfmt-tree);
 
-      devShells = forEachSystem (pkgs: {
-        default = pkgs.mkShell {
-          packages = [
+      devShells = forEachSystem (
+        pkgs:
+        let
+          commonPackages = [
             pkgs.prettier
             pkgs.stylua
             pkgs.selene
-            pkgs.neovim
             pkgs.lua-language-server
             vimdoc-language-server.packages.${pkgs.system}.default
             (pkgs.luajit.withPackages (ps: [
@@ -35,7 +35,11 @@
               ps.nlua
             ]))
           ];
-        };
-      });
+        in
+        {
+          default = pkgs.mkShell { packages = commonPackages; };
+          ci = pkgs.mkShell { packages = commonPackages ++ [ pkgs.neovim ]; };
+        }
+      );
     };
 }
