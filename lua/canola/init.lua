@@ -167,6 +167,14 @@ M.register_adapter = function(scheme, name)
   })
 end
 
+---Register a custom column
+---@param name string Unique column name used in the `columns` config
+---@param column canola.ColumnDefinition
+M.register_column = function(name, column)
+  local columns = require('canola.columns')
+  columns.register(name, column)
+end
+
 ---Get the current directory
 ---@param bufnr? integer
 ---@return nil|string
@@ -1170,16 +1178,19 @@ M._get_highlights = function()
     {
       name = 'CanolaPermUserRead',
       link = 'DiagnosticWarn',
+      bold = true,
       desc = 'User read permission',
     },
     {
       name = 'CanolaPermUserWrite',
       link = 'DiagnosticError',
+      bold = true,
       desc = 'User write permission',
     },
     {
       name = 'CanolaPermUserExec',
       link = 'DiagnosticOk',
+      bold = true,
       desc = 'User execute permission',
     },
     {
@@ -1230,6 +1241,7 @@ M._get_highlights = function()
     {
       name = 'CanolaSizeKilo',
       link = 'DiagnosticOk',
+      bold = true,
       desc = 'File size in kilobytes',
     },
     {
@@ -1245,6 +1257,7 @@ M._get_highlights = function()
     {
       name = 'CanolaOwnerSelf',
       link = 'DiagnosticWarn',
+      bold = true,
       desc = 'File owner matching current user',
     },
     {
@@ -1255,6 +1268,7 @@ M._get_highlights = function()
     {
       name = 'CanolaGroupSelf',
       link = 'DiagnosticWarn',
+      bold = true,
       desc = 'File group matching current user group',
     },
     {
@@ -1262,13 +1276,27 @@ M._get_highlights = function()
       link = 'DiagnosticError',
       desc = 'File group not matching current user group',
     },
+    {
+      name = 'CanolaDate',
+      link = 'Function',
+      desc = 'File modification date',
+    },
   }
 end
 
 local function set_colors()
   for _, conf in ipairs(M._get_highlights()) do
     if conf.link then
-      vim.api.nvim_set_hl(0, conf.name, { default = true, link = conf.link })
+      if conf.bold then
+        local base = vim.api.nvim_get_hl(0, { name = conf.link, link = false })
+        vim.api.nvim_set_hl(
+          0,
+          conf.name,
+          { default = true, fg = base.fg, ctermfg = base.ctermfg, bold = true }
+        )
+      else
+        vim.api.nvim_set_hl(0, conf.name, { default = true, link = conf.link })
+      end
     end
   end
 end
