@@ -315,50 +315,24 @@ end
 ---@param col_width integer[]
 ---@param col_align? canola.ColumnAlign[]
 ---@return string[]
----@return any[][] List of highlights {group, lnum, col_start, col_end}
 M.render_table = function(lines, col_width, col_align)
   col_align = col_align or {}
   local str_lines = {}
-  local highlights = {}
   for _, cols in ipairs(lines) do
-    local col = 0
     local pieces = {}
     for i, chunk in ipairs(cols) do
-      local text, hl
+      local text
       if type(chunk) == 'table' then
         text = chunk[1]
-        hl = chunk[2]
       else
         text = chunk
       end
-
-      local unpadded_len = text:len()
-      local padding
-      text, padding = M.pad_align(text, col_width[i], col_align[i] or 'left')
-
+      text = M.pad_align(text, col_width[i], col_align[i] or 'left')
       table.insert(pieces, text)
-      if hl then
-        if type(hl) == 'table' then
-          -- hl has the form { [1]: hl_name, [2]: col_start, [3]: col_end }[]
-          -- Notice that col_start and col_end are relative position inside
-          -- that col, so we need to add the offset to them
-          for _, sub_hl in ipairs(hl) do
-            table.insert(highlights, {
-              sub_hl[1],
-              #str_lines,
-              col + padding + sub_hl[2],
-              col + padding + sub_hl[3],
-            })
-          end
-        else
-          table.insert(highlights, { hl, #str_lines, col + padding, col + padding + unpadded_len })
-        end
-      end
-      col = col + text:len() + 1
     end
     table.insert(str_lines, table.concat(pieces, ' '))
   end
-  return str_lines, highlights
+  return str_lines
 end
 
 ---@param bufnr integer
