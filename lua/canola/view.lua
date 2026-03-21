@@ -556,6 +556,12 @@ M.initialize = function(bufnr)
       local opts = vim.b[args.buf].oil_dirty
       if opts then
         vim.b[args.buf].oil_dirty = nil
+        local canola = require('canola')
+        local entry = canola.get_cursor_entry()
+        if entry then
+          local bn = vim.api.nvim_buf_get_name(args.buf)
+          M.set_last_cursor(bn, entry.name)
+        end
         M.render_buffer_async(args.buf, opts)
       end
     end,
@@ -596,6 +602,11 @@ M.initialize = function(bufnr)
       end
 
       constrain_cursor(bufnr, config._constrain_cursor)
+
+      local cur_entry = canola.get_cursor_entry()
+      if cur_entry then
+        M.set_last_cursor(vim.api.nvim_buf_get_name(bufnr), cur_entry.name)
+      end
 
       if config._preview_update_on_cursor_moved then
         -- Debounce and update the preview window
