@@ -658,6 +658,10 @@ M.perform_action = function(action, cb)
     assert(path)
     path = fs.posix_to_os_path(path)
 
+    if action.entry_type == 'directory' and not config.delete.recursive then
+      cb('Recursive delete disabled (set delete.recursive = true to enable)')
+      return
+    end
     fs.recursive_delete(action.entry_type, path, cb)
   elseif action.type == 'move' then
     local dest_adapter = assert(config.get_adapter_by_scheme(action.dest_url))

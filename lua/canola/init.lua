@@ -165,6 +165,12 @@ M.register_adapter = function(scheme, name)
       M.load_oil_buffer(params.buf)
     end,
   })
+  vim.api.nvim_create_autocmd('BufWriteCmd', {
+    group = aug,
+    pattern = pattern,
+    nested = true,
+    callback = M._buf_write_cmd,
+  })
 end
 
 ---Register a custom column
@@ -1445,6 +1451,41 @@ local function close_preview_window_if_not_in_oil()
 end
 
 local _on_key_ns = 0
+local _keybuf
+
+M._buf_write_cmd = function(params)
+  local config = require('canola.config')
+  local last_keys = _keybuf and _keybuf:as_str() or ''
+  local winid = vim.api.nvim_get_current_win()
+  local quit_after_save = vim.endswith(last_keys, ':wq\r')
+    or vim.endswith(last_keys, ':x\r')
+    or vim.endswith(last_keys, 'ZZ')
+  local quit_all = vim.endswith(last_keys, ':wqa\r')
+    or vim.endswith(last_keys, ':wqal\r')
+    or vim.endswith(last_keys, ':wqall\r')
+  local bufname = vim.api.nvim_buf_get_name(params.buf)
+  if vim.endswith(bufname, '/') then
+    vim.cmd.doautocmd({ args = { 'BufWritePre', params.file }, mods = { silent = true } })
+    M.save(nil, function(err)
+      if err then
+        if err ~= 'Canceled' then
+          vim.notify(err, vim.log.levels.ERROR)
+        end
+      elseif winid == vim.api.nvim_get_current_win() then
+        if quit_after_save then
+          vim.cmd.quit()
+        elseif quit_all then
+          vim.cmd.quitall()
+        end
+      end
+    end)
+    vim.cmd.doautocmd({ args = { 'BufWritePost', params.file }, mods = { silent = true } })
+  else
+    local adapter = assert(config.get_adapter_by_scheme(bufname))
+    adapter.write_file(params.buf)
+  end
+end
+
 M.init = function()
   local Ringbuf = require('canola.ringbuf')
   local config = require('canola.config')
@@ -1535,10 +1576,10 @@ M.init = function()
     pattern = filetype_patterns,
   })
 
-  local keybuf = Ringbuf.new(7)
+  _keybuf = Ringbuf.new(7)
   if _on_key_ns == 0 then
     _on_key_ns = vim.on_key(function(char)
-      keybuf:push(char)
+      _keybuf:push(char)
     end, _on_key_ns)
   end
   vim.api.nvim_create_autocmd('ColorScheme', {
@@ -1559,38 +1600,7 @@ M.init = function()
     group = aug,
     pattern = scheme_pattern,
     nested = true,
-    callback = function(params)
-      local last_keys = keybuf:as_str()
-      local winid = vim.api.nvim_get_current_win()
-      -- If the user issued a :wq or similar, we should quit after saving
-      local quit_after_save = vim.endswith(last_keys, ':wq\r')
-        or vim.endswith(last_keys, ':x\r')
-        or vim.endswith(last_keys, 'ZZ')
-      local quit_all = vim.endswith(last_keys, ':wqa\r')
-        or vim.endswith(last_keys, ':wqal\r')
-        or vim.endswith(last_keys, ':wqall\r')
-      local bufname = vim.api.nvim_buf_get_name(params.buf)
-      if vim.endswith(bufname, '/') then
-        vim.cmd.doautocmd({ args = { 'BufWritePre', params.file }, mods = { silent = true } })
-        M.save(nil, function(err)
-          if err then
-            if err ~= 'Canceled' then
-              vim.notify(err, vim.log.levels.ERROR)
-            end
-          elseif winid == vim.api.nvim_get_current_win() then
-            if quit_after_save then
-              vim.cmd.quit()
-            elseif quit_all then
-              vim.cmd.quitall()
-            end
-          end
-        end)
-        vim.cmd.doautocmd({ args = { 'BufWritePost', params.file }, mods = { silent = true } })
-      else
-        local adapter = assert(config.get_adapter_by_scheme(bufname))
-        adapter.write_file(params.buf)
-      end
-    end,
+    callback = M._buf_write_cmd,
   })
   vim.api.nvim_create_autocmd('BufLeave', {
     desc = 'Save alternate buffer for later',
