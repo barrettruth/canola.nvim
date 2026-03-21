@@ -19,15 +19,15 @@ local sort_presets = {
   ['size,desc|name,asc'] = 'size',
 }
 
-local removed = {
-  'default_file_explorer',
-  'use_default_keymaps',
-  'cleanup_delay_ms',
-  'extra_scp_args',
-  'extra_s3_args',
-  'ssh_hosts',
-  's3_buckets',
-  'delete_to_trash',
+local removed_defaults = {
+  default_file_explorer = true,
+  use_default_keymaps = true,
+  cleanup_delay_ms = 2000,
+  extra_scp_args = {},
+  extra_s3_args = {},
+  ssh_hosts = {},
+  s3_buckets = {},
+  delete_to_trash = false,
 }
 
 local function indent(s, level)
@@ -148,10 +148,39 @@ local function migrate_keymaps(oil_keymaps)
   return canola
 end
 
+local function is_default_override(fn)
+  local sentinel = { _test = true }
+  local ok, result = pcall(fn, sentinel)
+  return ok and result == sentinel
+end
+
+local function is_default_predicate(fn, ...)
+  local ok, result = pcall(fn, ...)
+  return ok and result == false
+end
+
+local function is_default_hidden(fn)
+  local ok1, r1 = pcall(fn, '.hidden', 0)
+  local ok2, r2 = pcall(fn, 'visible', 0)
+  return ok1 and r1 == true and ok2 and r2 == false
+end
+
+local function is_default_git(git)
+  if not git then
+    return true
+  end
+  local a = type(git.add) ~= 'function' or is_default_predicate(git.add, '/tmp/test')
+  local m = type(git.mv) ~= 'function' or is_default_predicate(git.mv, '/tmp/a', '/tmp/b')
+  local r = type(git.rm) ~= 'function' or is_default_predicate(git.rm, '/tmp/test')
+  return a and m and r
+end
+
 M.generate = function()
   local cfg = require('oil.config')
   local out = {}
-  local warnings = {}
+  local hooks = {}
+  local removed = {}
+  local adapters = {}
 
   out.columns = cfg.columns
 
@@ -369,66 +398,349 @@ M.generate = function()
     out.progress = progress
   end
 
-  if cfg.float.override and type(cfg.float.override) == 'function' then
-    table.insert(warnings, 'float.override -> use CanolaFloatConfig autocmd event')
+  if type(cfg.float.override) == 'function' and not is_default_override(cfg.float.override) then
+    table.insert(hooks, {
+      name = 'float.override',
+      before = [[float = {
+  override = function(conf)
+    -- your customizations
+    return conf
+  end,
+}]],
+      after = [[vim.api.nvim_create_autocmd("User", {
+  pattern = "CanolaFloatConfig",
+  callback = function(args)
+    local conf = args.data.conf
+    -- mutate conf directly, no return needed
+  end,
+})]],
+    })
   end
-  if cfg.float.get_win_title and type(cfg.float.get_win_title) == 'function' then
-    table.insert(warnings, 'float.get_win_title -> use CanolaWinTitle autocmd event')
+
+  if type(cfg.float.get_win_title) == 'function' then
+    table.insert(hooks, {
+      name = 'float.get_win_title',
+      before = [[float = {
+  get_win_title = function(winid)
+    return "my title"
+  end,
+}]],
+      after = [[vim.api.nvim_create_autocmd("User", {
+  pattern = "CanolaWinTitle",
+  callback = function(args)
+    args.data.title = "my title"
+  end,
+})]],
+    })
   end
-  if cfg.preview_win.disable_preview and type(cfg.preview_win.disable_preview) == 'function' then
-    table.insert(warnings, 'preview_win.disable_preview -> use CanolaPreviewDisable autocmd event')
-  end
+
   if
-    cfg.view_options.highlight_filename
-    and type(cfg.view_options.highlight_filename) == 'function'
+    type(cfg.preview_win.disable_preview) == 'function'
+    and not is_default_predicate(cfg.preview_win.disable_preview, '/tmp/test.txt')
   then
-    table.insert(warnings, 'view_options.highlight_filename -> use highlights.filename config')
+    table.insert(hooks, {
+      name = 'preview_win.disable_preview',
+      before = [[preview_win = {
+  disable_preview = function(filename)
+    return filename:match("%.pdf$")
+  end,
+}]],
+      after = [[vim.api.nvim_create_autocmd("User", {
+  pattern = "CanolaPreviewDisable",
+  callback = function(args)
+    if args.data.filename:match("%.pdf$") then
+      args.data.result = true
+    end
+  end,
+})]],
+    })
   end
-  if cfg.view_options.is_hidden_file and type(cfg.view_options.is_hidden_file) == 'function' then
+
+  if
+    type(cfg.view_options.is_hidden_file) == 'function'
+    and not is_default_hidden(cfg.view_options.is_hidden_file)
+  then
+    table.insert(hooks, {
+      name = 'view_options.is_hidden_file',
+      before = [[view_options = {
+  is_hidden_file = function(name, bufnr)
+    -- your custom logic
+  end,
+}]],
+      after = [[-- Option A: use Lua patterns in config
+vim.g.canola = {
+  hidden = { patterns = { "^%." } },
+}
+
+-- Option B: use the setter API for complex logic
+require("canola").set_is_hidden_file(function(name, bufnr, entry)
+  -- your custom logic
+end)
+
+-- Option C: use canola-git for git-aware hiding
+-- Install canola-collection, it handles this automatically]],
+    })
+  end
+
+  if
+    type(cfg.view_options.is_always_hidden) == 'function'
+    and not is_default_predicate(cfg.view_options.is_always_hidden, 'test', 0)
+  then
+    table.insert(hooks, {
+      name = 'view_options.is_always_hidden',
+      before = [[view_options = {
+  is_always_hidden = function(name, bufnr)
+    return name == ".DS_Store"
+  end,
+}]],
+      after = [[vim.g.canola = {
+  hidden = { always = { "^%.DS_Store$" } },
+}]],
+    })
+  end
+
+  if type(cfg.view_options.highlight_filename) == 'function' then
+    table.insert(hooks, {
+      name = 'view_options.highlight_filename',
+      before = [[view_options = {
+  highlight_filename = function(entry, is_hidden, is_link_target, is_link_orphan)
+    if entry.name:match("%.lua$") then return "Special" end
+  end,
+}]],
+      after = [[vim.g.canola = {
+  highlights = {
+    filename = {
+      { "%.lua$", "Special" },
+    },
+  },
+}]],
+    })
+  end
+
+  if not is_default_git(cfg.git) then
+    table.insert(hooks, {
+      name = 'git.add/mv/rm',
+      before = [[git = {
+  add = function(path) return true end,
+  mv = function(src, dest) return true end,
+  rm = function(path) return true end,
+}]],
+      after = [[-- Install canola-collection for automatic git integration.
+-- canola-git handles git add/mv/rm, git-aware hidden files,
+-- and a git_status column. No config needed:
+--   vim.g.canola = { columns = { "git_status" } }]],
+    })
+  end
+
+  if cfg.delete_to_trash then
+    table.insert(adapters, 'delete_to_trash -> install canola-collection for trash support')
+  end
+  if cfg.extra_scp_args and #cfg.extra_scp_args > 0 then
+    table.insert(adapters, 'extra_scp_args -> configure via vim.g.canola_ssh in canola-collection')
+  end
+  if cfg.ssh_hosts and next(cfg.ssh_hosts) then
+    table.insert(adapters, 'ssh_hosts -> configure via vim.g.canola_ssh.hosts in canola-collection')
+  end
+  if cfg.extra_s3_args and #cfg.extra_s3_args > 0 then
+    table.insert(adapters, 'extra_s3_args -> configure via vim.g.canola_s3 in canola-collection')
+  end
+  if cfg.s3_buckets and next(cfg.s3_buckets) then
     table.insert(
-      warnings,
-      'view_options.is_hidden_file -> use hidden.patterns or set_is_hidden_file()'
+      adapters,
+      's3_buckets -> configure via vim.g.canola_s3.buckets in canola-collection'
     )
   end
-  if
-    cfg.view_options.is_always_hidden and type(cfg.view_options.is_always_hidden) == 'function'
-  then
-    table.insert(warnings, 'view_options.is_always_hidden -> use hidden.always patterns')
-  end
-  if cfg.git then
-    table.insert(warnings, 'git.add/mv/rm hooks -> use canola-collection canola-git')
-  end
-  if cfg.delete_to_trash then
-    table.insert(warnings, 'delete_to_trash -> use canola-collection canola-trash')
-  end
-  for _, key in ipairs(removed) do
-    if cfg[key] ~= nil then
-      table.insert(warnings, key .. ' -> removed in canola (see :h canola-migration-removed)')
+
+  for key, default in pairs(removed_defaults) do
+    if cfg[key] ~= nil and not is_default_table(cfg[key], default) then
+      table.insert(removed, key)
     end
   end
 
-  return out, warnings
+  return out, hooks, removed, adapters
+end
+
+local function add(md, s)
+  table.insert(md, s)
+end
+
+local function block(md, lines)
+  add(md, '')
+  add(md, '```lua')
+  for _, l in ipairs(lines) do
+    add(md, l)
+  end
+  add(md, '```')
 end
 
 M.print = function()
-  local out, warnings = M.generate()
-  local lines = {}
-  table.insert(lines, 'vim.g.canola = ' .. serialize(out, 0))
-  if #warnings > 0 then
-    table.insert(lines, '')
-    table.insert(lines, '-- Manual migration needed:')
-    for _, w in ipairs(warnings) do
-      table.insert(lines, '--   ' .. w)
+  local out, hooks, removed, adapters = M.generate()
+  local md = {}
+  local hook_map = {}
+  for _, h in ipairs(hooks) do
+    hook_map[h.name] = h
+  end
+
+  add(md, '# canola.nvim Migration')
+  add(md, '')
+  add(md, 'Generated from your live oil.nvim config.')
+  add(md, '')
+  add(md, '## Config')
+  add(md, '')
+  add(md, 'Paste this into your plugin config after switching to `branch = "canola"`:')
+  block(md, { 'vim.g.canola = ' .. serialize(out, 0) })
+
+  if next(hook_map) then
+    add(md, '')
+    add(md, '## Hook Replacements')
+    add(md, '')
+    add(md, 'canola replaces function-in-config options with User autocmd events.')
+    add(md, 'You have the following custom hooks that need manual migration:')
+
+    if hook_map['float.override'] then
+      add(md, '')
+      add(md, '### `float.override` → `CanolaFloatConfig`')
+      block(md, {
+        'vim.api.nvim_create_autocmd("User", {',
+        '  pattern = "CanolaFloatConfig",',
+        '  callback = function(args)',
+        '    local conf = args.data.conf',
+        '    -- move your override logic here',
+        '    -- mutate conf directly, no return needed',
+        '  end,',
+        '})',
+      })
+    end
+
+    if hook_map['float.get_win_title'] then
+      add(md, '')
+      add(md, '### `float.get_win_title` → `CanolaWinTitle`')
+      block(md, {
+        'vim.api.nvim_create_autocmd("User", {',
+        '  pattern = "CanolaWinTitle",',
+        '  callback = function(args)',
+        '    args.data.title = "your title logic here"',
+        '  end,',
+        '})',
+      })
+    end
+
+    if hook_map['preview_win.disable_preview'] then
+      add(md, '')
+      add(md, '### `preview_win.disable_preview` → `CanolaPreviewDisable`')
+      block(md, {
+        'vim.api.nvim_create_autocmd("User", {',
+        '  pattern = "CanolaPreviewDisable",',
+        '  callback = function(args)',
+        '    if args.data.filename:match("%.pdf$") then',
+        '      args.data.result = true',
+        '    end',
+        '  end,',
+        '})',
+      })
+    end
+
+    if hook_map['view_options.highlight_filename'] then
+      add(md, '')
+      add(md, '### `view_options.highlight_filename` → `highlights.filename`')
+      block(md, {
+        'vim.g.canola = {',
+        '  highlights = {',
+        '    filename = {',
+        '      { "%.lua$", "Special" },',
+        '      { "%.md$", "Identifier" },',
+        '    },',
+        '  },',
+        '}',
+      })
+    end
+
+    if hook_map['view_options.is_hidden_file'] then
+      add(md, '')
+      add(md, '### `view_options.is_hidden_file`')
+      add(md, '')
+      add(md, 'Declarative patterns:')
+      block(md, {
+        'vim.g.canola = {',
+        '  hidden = { enabled = true, patterns = { "^%." } },',
+        '}',
+      })
+      add(md, '')
+      add(md, 'Function API for complex logic:')
+      block(md, {
+        'require("canola").set_is_hidden_file(function(name, bufnr, entry)',
+        '  -- your custom logic here',
+        'end)',
+      })
+      add(md, '')
+      add(md, 'If your `is_hidden_file` was git-based, install `canola-collection` instead —')
+      add(md, 'canola-git handles git-aware hiding automatically.')
+    end
+
+    if hook_map['view_options.is_always_hidden'] then
+      add(md, '')
+      add(md, '### `view_options.is_always_hidden` → `hidden.always`')
+      block(md, {
+        'vim.g.canola = {',
+        '  hidden = { always = { "^%.DS_Store$", "^%.git$" } },',
+        '}',
+      })
+    end
+
+    if hook_map['git.add/mv/rm'] then
+      add(md, '')
+      add(md, '### `git.add/mv/rm` → canola-collection')
+      add(md, '')
+      add(md, 'Install `barrettruth/canola-collection`. canola-git replaces these hooks with')
+      add(md, 'automatic git integration, a `git_status` column, and git-aware hidden files.')
     end
   end
-  table.insert(lines, '')
-  table.insert(lines, '-- See :h canola-migration for the full guide')
 
-  local text = table.concat(lines, '\n')
+  if #adapters > 0 then
+    add(md, '')
+    add(md, '## Adapters')
+    add(md, '')
+    add(md, 'Install `barrettruth/canola-collection` and configure:')
+    add(md, '')
+    for _, a in ipairs(adapters) do
+      add(md, '- `' .. a .. '`')
+    end
+  end
+
+  if #removed > 0 then
+    add(md, '')
+    add(md, '## Removed Options')
+    add(md, '')
+    add(md, 'You changed these from their defaults, but they have no canola equivalent:')
+    add(md, '')
+    for _, key in ipairs(removed) do
+      add(md, '- `' .. key .. '`')
+    end
+    add(md, '')
+    add(md, 'See `:h canola-migration-removed` for details.')
+  end
+
+  add(md, '')
+  add(md, '## Next Steps')
+  add(md, '')
+  local step = 1
+  add(md, step .. '. Set `branch = "canola"` in your plugin manager')
+  step = step + 1
+  add(md, step .. '. Replace `require("oil").setup({...})` with the config above')
+  if next(hook_map) then
+    step = step + 1
+    add(md, step .. '. Add the autocmd replacements from Hook Replacements')
+  end
+  step = step + 1
+  add(md, step .. '. See `:h canola-recipes` for new features (git, brace expansion, etc.)')
+  add(md, '')
+  add(md, 'Full reference: `:h canola-migration`')
+
+  local text = table.concat(md, '\n')
 
   local bufnr = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, vim.split(text, '\n'))
-  vim.bo[bufnr].filetype = 'lua'
+  vim.bo[bufnr].filetype = 'markdown'
   vim.bo[bufnr].modifiable = false
   vim.cmd.split()
   vim.api.nvim_win_set_buf(0, bufnr)
