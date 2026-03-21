@@ -107,7 +107,6 @@ The full list of options with their defaults:
         follow = true,
         live = false,
         max_file_size_mb = 10,
-        disable = {},
         win = {},
       },
 
@@ -264,8 +263,8 @@ preview                                                          *canola.preview
     `follow`: update preview when cursor moves.
     `live`: when `true`, load files into real buffers (enables LSP, treesitter).
     `max_file_size_mb`: skip preview for files larger than this (MB).
-    `disable`: list of Lua patterns; matching filenames skip preview.
     `win`: window-local options for the preview window.
+    To disable preview for specific files, use |CanolaPreviewDisable|.
 
 confirmation                                                *canola.confirmation*
     type: `canola.ConfirmationWindowConfig`
@@ -1240,21 +1239,89 @@ Canola emits the following |User| autocmd events. Listen for them with
 
 CanolaEnter                                                             *CanolaEnter*
     Fired once per canola buffer, after the initial directory listing has been
-    rendered and the buffer is ready. The `args.data.buf` field contains the
-    buffer number. Use this event for one-time buffer setup such as setting
-    keymaps or window options.
+    rendered and the buffer is ready. Use this event for one-time buffer setup
+    such as setting keymaps or window options.
+
+    `args.data` fields:
+      `buf`    `integer`     Buffer number.
+      `url`    `string`      Full canola URL (e.g. "canola:///foo/").
+      `scheme` `string`      Adapter scheme (e.g. "canola://").
+      `dir`    `string|nil`  OS path for local adapters, nil otherwise.
 
 CanolaReadPost                                                       *CanolaReadPost*
     Fired after every successful buffer render, including the initial render
     and all subsequent re-renders (e.g. after directory changes, refreshes, or
-    mutations). The `args.data.buf` field contains the buffer number. Use this
-    event for logic that must run each time the directory listing updates.
+    mutations). Use this event for logic that must run each time the directory
+    listing updates.
+
+    `args.data` fields:
+      `buf`         `integer`  Buffer number.
+      `url`         `string`   Full canola URL.
+      `entry_count` `integer`  Number of visible entries rendered.
+      `first`       `boolean`  True if this is the first render of this buffer.
 
 CanolaMutationComplete                                       *CanolaMutationComplete*
     Fired after all pending mutations (create, delete, rename, move, copy)
-    have been executed and the affected buffers have been re-rendered. No
-    additional data fields. Use this event for post-mutation side effects such
-    as refreshing external status indicators.
+    have been executed and the affected buffers have been re-rendered. Use
+    this event for post-mutation side effects such as refreshing external
+    status indicators.
+
+    `args.data` fields:
+      `actions` `canola.Action[]`  List of mutations that were performed.
+
+CanolaFloatConfig                                               *CanolaFloatConfig*
+    Fired before a canola floating window is opened via |nvim_open_win()|.
+    Handlers can mutate `args.data.conf` to customize the window config.
+    Fires for both the main float and the floating preview window.
+
+    `args.data` fields:
+      `buf`  `integer`                  Buffer number.
+      `conf` `vim.api.keyset.win_config` Window config table passed to
+                                         |nvim_open_win()|. Mutate in place.
+    >lua
+        vim.api.nvim_create_autocmd("User", {
+          pattern = "CanolaFloatConfig",
+          callback = function(args)
+            args.data.conf.border = "rounded"
+          end,
+        })
+<
+
+CanolaWinTitle                                                     *CanolaWinTitle*
+    Fired when canola computes the title string for a floating window. Handlers
+    can mutate `args.data.title` to customize the displayed title.
+
+    `args.data` fields:
+      `winid` `integer` Window ID.
+      `bufnr` `integer` Buffer number.
+      `title` `string`  Title string. Mutate to change the displayed title.
+    >lua
+        vim.api.nvim_create_autocmd("User", {
+          pattern = "CanolaWinTitle",
+          callback = function(args)
+            args.data.title = vim.fn.fnamemodify(args.data.title, ":t")
+          end,
+        })
+<
+
+CanolaPreviewDisable                                         *CanolaPreviewDisable*
+    Fired before previewing a file. Handlers set `args.data.result = true` to
+    suppress the preview for the given filename. This replaces the former
+    `preview.disable` config field.
+
+    `args.data` fields:
+      `filename` `string`  Normalized file path being previewed.
+      `result`   `boolean` Set to `true` to disable preview for this file.
+    >lua
+        vim.api.nvim_create_autocmd("User", {
+          pattern = "CanolaPreviewDisable",
+          callback = function(args)
+            if args.data.filename:match("%.pdf$") then
+              args.data.result = true
+            end
+          end,
+        })
+<
 
 CanolaFileCreated                                             *CanolaFileCreated*
     Fired after a new file is successfully created on the local filesystem.
