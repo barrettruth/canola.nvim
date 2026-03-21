@@ -61,6 +61,8 @@ describe('files adapter', function()
   end)
 
   it('Deletes directories', function()
+    local config = require('canola.config')
+    config.delete.recursive = true
     tmpdir:create({ 'a/' })
     local url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a'
     local err = test_util.await(files.perform_action, 2, {
@@ -70,6 +72,19 @@ describe('files adapter', function()
     })
     assert.is_nil(err)
     tmpdir:assert_fs({})
+    config.delete.recursive = false
+  end)
+
+  it('Refuses to delete directories when recursive is false', function()
+    tmpdir:create({ 'a/' })
+    local url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a'
+    local err = test_util.await(files.perform_action, 2, {
+      url = url,
+      entry_type = 'directory',
+      type = 'delete',
+    })
+    assert.is_not_nil(err)
+    tmpdir:assert_fs({ ['a/'] = true })
   end)
 
   it('Moves files', function()
