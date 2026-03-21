@@ -677,19 +677,18 @@ M.try_write_changes = function(confirm, cb)
         view.unlock_buffers()
         if err then
           err = string.format('[canola] Error applying actions: %s', err)
-          view.rerender_all_oil_buffers(nil, function()
+          view.rerender_all_oil_buffers({ force = true }, function()
             cb(err)
           end)
         else
           local current_entry = canola.get_cursor_entry()
           if current_entry then
-            -- get the entry under the cursor and make sure the cursor stays on it
             view.set_last_cursor(
               vim.api.nvim_buf_get_name(0),
               vim.split(current_entry.parsed_name or current_entry.name, '/')[1]
             )
           end
-          view.rerender_all_oil_buffers(nil, function(render_err)
+          view.rerender_all_oil_buffers({ force = true }, function(render_err)
             vim.api.nvim_exec_autocmds(
               'User',
               { pattern = 'CanolaMutationComplete', modeline = false, data = { actions = actions } }
