@@ -180,6 +180,32 @@ local decor_ns = vim.api.nvim_create_namespace('CanolaDecor')
 local col_ns = vim.api.nvim_create_namespace('CanolaColumns')
 local decor_ctx = {}
 
+local function render_col_virt_chunks(adapter, column_defs, col_width, col_align, entry, bufnr)
+  local virt_chunks = {}
+  for i, col_def in ipairs(column_defs) do
+    if col_width[i] > 0 then
+      local chunk = columns.render_col(adapter, col_def, entry, bufnr)
+      local text = type(chunk) == 'table' and chunk[1] or chunk
+      ---@cast text string
+      local hl = type(chunk) == 'table' and chunk[2] or nil
+      local padded, leading_pad = util.pad_align(text, col_width[i], col_align[i] or 'left')
+      if type(hl) == 'table' then
+        if leading_pad > 0 then
+          table.insert(virt_chunks, { string.rep(' ', leading_pad) })
+        end
+        for _, range in ipairs(hl) do
+          table.insert(virt_chunks, { text:sub(range[2] + 1, range[3]), range[1] })
+        end
+        local trailing = padded:sub(leading_pad + #text + 1)
+        table.insert(virt_chunks, { trailing .. ' ' })
+      else
+        table.insert(virt_chunks, { padded .. ' ', hl })
+      end
+    end
+  end
+  return virt_chunks
+end
+
 ---@type table<integer, { lnum: integer, min_col: integer }>
 local insert_boundary = {}
 
@@ -567,6 +593,15 @@ M.initialize = function(bufnr)
     end,
   })
   local timer
+  vim.api.nvim_create_autocmd('TextChanged', {
+    group = 'Canola',
+    buffer = bufnr,
+    callback = function()
+      if not _rendering[bufnr] then
+        vim.api.nvim_buf_clear_namespace(bufnr, col_ns, 0, -1)
+      end
+    end,
+  })
   vim.api.nvim_create_autocmd('InsertEnter', {
     desc = 'Constrain oil cursor position',
     group = 'Canola',
@@ -901,28 +936,8 @@ local function render_buffer(bufnr, opts)
     if id then
       local entry = id == 0 and parent_entry or cache.get_entry_by_id(id)
       if entry then
-        local virt_chunks = {}
-        for i, col_def in ipairs(column_defs) do
-          if col_width[i] > 0 then
-            local chunk = columns.render_col(adapter, col_def, entry, bufnr)
-            local text = type(chunk) == 'table' and chunk[1] or chunk
-            ---@cast text string
-            local hl = type(chunk) == 'table' and chunk[2] or nil
-            local padded, leading_pad = util.pad_align(text, col_width[i], col_align[i] or 'left')
-            if type(hl) == 'table' then
-              if leading_pad > 0 then
-                table.insert(virt_chunks, { string.rep(' ', leading_pad) })
-              end
-              for _, range in ipairs(hl) do
-                table.insert(virt_chunks, { text:sub(range[2] + 1, range[3]), range[1] })
-              end
-              local trailing = padded:sub(leading_pad + #text + 1)
-              table.insert(virt_chunks, { trailing .. ' ' })
-            else
-              table.insert(virt_chunks, { padded .. ' ', hl })
-            end
-          end
-        end
+        local virt_chunks =
+          render_col_virt_chunks(adapter, column_defs, col_width, col_align, entry, bufnr)
         if #virt_chunks > 0 then
           local id_prefix = line:match('^/%d+ ')
           if id_prefix then
@@ -1282,8 +1297,10 @@ M.setup_decoration_provider = function()
       if not scheme then
         return false
       end
+      local column_defs = columns.get_supported_columns(scheme)
       decor_ctx[bufnr] = {
         adapter = adapter,
+        column_defs = column_defs,
       }
     end,
     on_line = function(_, winid, bufnr, row)
@@ -1300,6 +1317,32 @@ M.setup_decoration_provider = function()
         return
       end
       local sess = session[bufnr]
+      local has_col_extmark = #vim.api.nvim_buf_get_extmarks(
+        bufnr,
+        col_ns,
+        { row, 0 },
+        { row, -1 },
+        { limit = 1 }
+      ) > 0
+      if not has_col_extmark then
+        local entry = id == 0 and { 0, '..', 'directory' } or cache.get_entry_by_id(id)
+        if entry and sess then
+          local cw = sess.col_width or {}
+          local ca = sess.col_align or {}
+          local cd = ctx.column_defs
+          local virt_chunks = render_col_virt_chunks(ctx.adapter, cd, cw, ca, entry, bufnr)
+          if #virt_chunks > 0 then
+            local id_prefix = line:match('^/%d+ ')
+            if id_prefix then
+              vim.api.nvim_buf_set_extmark(bufnr, decor_ns, row, #id_prefix, {
+                virt_text = virt_chunks,
+                virt_text_pos = 'inline',
+                ephemeral = true,
+              })
+            end
+          end
+        end
+      end
       local hl_cache = sess and sess.hl_cache
       local cached = hl_cache and hl_cache[id]
       local name_highlights
