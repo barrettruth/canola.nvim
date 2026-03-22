@@ -18,6 +18,7 @@ local FIELD_META = constants.FIELD_META
 local last_cursor_entry = {}
 
 local non_canola_enter_count = 0
+local get_col_pad
 
 M.setup_cleanup_autocmd = function()
   vim.api.nvim_create_autocmd('BufEnter', {
@@ -168,13 +169,29 @@ end
 ---@field fs_event? any uv_fs_event_t
 ---@field col_width? integer[]
 ---@field col_align? canola.ColumnAlign[]
----@field col_pad? integer
 ---@field hl_cache? table<integer, { line: string, name_highlights: table[], virt_chunks: table[] }>
 
 -- List of bufnrs
 ---@type table<integer, canola.ViewData>
 local session = {}
 local _rendering = {}
+
+get_col_pad = function(bufnr)
+  if bufnr == 0 then
+    bufnr = vim.api.nvim_get_current_buf()
+  end
+  local sess = session[bufnr]
+  if not sess or not sess.col_width then
+    return 0
+  end
+  local pad = 0
+  for _, w in ipairs(sess.col_width) do
+    if w > 0 then
+      pad = pad + w + 1
+    end
+  end
+  return pad
+end
 
 local decor_ns = vim.api.nvim_create_namespace('CanolaDecor')
 local col_ns = vim.api.nvim_create_namespace('CanolaColumns')
@@ -338,7 +355,7 @@ local function calc_constrained_cursor_pos(bufnr, adapter, mode, cur)
   local line = vim.api.nvim_buf_get_lines(bufnr, cur[1] - 1, cur[1], true)[1]
   local id_prefix = line:match('^/%d+ ')
   if id_prefix then
-    local min_col = #id_prefix
+    local min_col = #id_prefix + get_col_pad(bufnr)
     if cur[2] < min_col then
       return { cur[1], min_col }
     end
@@ -435,16 +452,7 @@ local function show_insert_guide(bufnr)
     id_width = vim.api.nvim_strwidth(ref_line:sub(1, #id_prefix - 1))
   end
 
-  local sess = session[bufnr]
-  local virt_width = 0
-  if sess and sess.col_width then
-    for _, w in ipairs(sess.col_width) do
-      if w > 0 then
-        virt_width = virt_width + w + 1
-      end
-    end
-  end
-  local virtual_col = id_width + virt_width
+  local virtual_col = id_width + get_col_pad(bufnr)
   if virtual_col <= 0 then
     return
   end
@@ -482,7 +490,7 @@ local function update_insert_boundary(bufnr)
 
   local line = vim.api.nvim_buf_get_lines(bufnr, cur[1] - 1, cur[1], true)[1]
   local id_prefix = line:match('^/%d+ ')
-  local min_col = id_prefix and #id_prefix or 0
+  local min_col = (id_prefix and #id_prefix or 0) + get_col_pad(bufnr)
   insert_boundary[bufnr] = { lnum = cur[1], min_col = min_col }
   return min_col
 end
@@ -912,13 +920,25 @@ local function render_buffer(bufnr, opts)
     end
   end
 
+  local col_pad = 0
   for i = 1, #col_width do
     if not col_has_data[i] then
       col_width[i] = 0
+    else
+      col_pad = col_pad + col_width[i] + 1
     end
   end
 
   local lines = util.render_table(line_table, {})
+  if col_pad > 0 then
+    local padding = string.rep(' ', col_pad)
+    for i, line in ipairs(lines) do
+      local id_end = line:match('^/%d+ ()')
+      if id_end then
+        lines[i] = line:sub(1, id_end - 1) .. padding .. line:sub(id_end)
+      end
+    end
+  end
 
   _rendering[bufnr] = true
   vim.bo[bufnr].modifiable = true
@@ -943,7 +963,7 @@ local function render_buffer(bufnr, opts)
           if id_prefix then
             vim.api.nvim_buf_set_extmark(bufnr, col_ns, lnum - 1, #id_prefix, {
               virt_text = virt_chunks,
-              virt_text_pos = 'inline',
+              virt_text_pos = 'overlay',
               end_col = #line,
               invalidate = true,
             })
@@ -1336,7 +1356,7 @@ M.setup_decoration_provider = function()
             if id_prefix then
               vim.api.nvim_buf_set_extmark(bufnr, decor_ns, row, #id_prefix, {
                 virt_text = virt_chunks,
-                virt_text_pos = 'inline',
+                virt_text_pos = 'overlay',
                 ephemeral = true,
               })
             end
