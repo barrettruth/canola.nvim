@@ -177,6 +177,7 @@ local session = {}
 local _rendering = {}
 
 local decor_ns = vim.api.nvim_create_namespace('CanolaDecor')
+local col_ns = vim.api.nvim_create_namespace('CanolaColumns')
 local decor_ctx = {}
 
 ---@type table<integer, { lnum: integer, min_col: integer }>
@@ -311,8 +312,7 @@ local function calc_constrained_cursor_pos(bufnr, adapter, mode, cur)
   local line = vim.api.nvim_buf_get_lines(bufnr, cur[1] - 1, cur[1], true)[1]
   local id_prefix = line:match('^/%d+ ')
   if id_prefix then
-    local sess = session[bufnr]
-    local min_col = #id_prefix + (sess and sess.col_pad or 0)
+    local min_col = #id_prefix
     if cur[2] < min_col then
       return { cur[1], min_col }
     end
@@ -456,8 +456,7 @@ local function update_insert_boundary(bufnr)
 
   local line = vim.api.nvim_buf_get_lines(bufnr, cur[1] - 1, cur[1], true)[1]
   local id_prefix = line:match('^/%d+ ')
-  local sess = session[bufnr]
-  local min_col = (id_prefix and #id_prefix or 0) + (sess and sess.col_pad or 0)
+  local min_col = id_prefix and #id_prefix or 0
   insert_boundary[bufnr] = { lnum = cur[1], min_col = min_col }
   return min_col
 end
@@ -878,25 +877,13 @@ local function render_buffer(bufnr, opts)
     end
   end
 
-  local col_pad = 0
   for i = 1, #col_width do
     if not col_has_data[i] then
       col_width[i] = 0
-    else
-      col_pad = col_pad + col_width[i] + 1
     end
   end
 
   local lines = util.render_table(line_table, {})
-  if col_pad > 0 then
-    local padding = string.rep(' ', col_pad)
-    for i, line in ipairs(lines) do
-      local id_end = line:match('^/%d+ ()')
-      if id_end then
-        lines[i] = line:sub(1, id_end - 1) .. padding .. line:sub(id_end)
-      end
-    end
-  end
 
   _rendering[bufnr] = true
   vim.bo[bufnr].modifiable = true
@@ -908,10 +895,51 @@ local function render_buffer(bufnr, opts)
     virt_text = { { '' } },
     virt_text_pos = 'inline',
   })
+  vim.api.nvim_buf_clear_namespace(bufnr, col_ns, 0, -1)
+  for lnum, line in ipairs(lines) do
+    local id = tonumber(line:match('^/(%d+)'))
+    if id then
+      local entry = id == 0 and parent_entry or cache.get_entry_by_id(id)
+      if entry then
+        local virt_chunks = {}
+        for i, col_def in ipairs(column_defs) do
+          if col_width[i] > 0 then
+            local chunk = columns.render_col(adapter, col_def, entry, bufnr)
+            local text = type(chunk) == 'table' and chunk[1] or chunk
+            ---@cast text string
+            local hl = type(chunk) == 'table' and chunk[2] or nil
+            local padded, leading_pad = util.pad_align(text, col_width[i], col_align[i] or 'left')
+            if type(hl) == 'table' then
+              if leading_pad > 0 then
+                table.insert(virt_chunks, { string.rep(' ', leading_pad) })
+              end
+              for _, range in ipairs(hl) do
+                table.insert(virt_chunks, { text:sub(range[2] + 1, range[3]), range[1] })
+              end
+              local trailing = padded:sub(leading_pad + #text + 1)
+              table.insert(virt_chunks, { trailing .. ' ' })
+            else
+              table.insert(virt_chunks, { padded .. ' ', hl })
+            end
+          end
+        end
+        if #virt_chunks > 0 then
+          local id_prefix = line:match('^/%d+ ')
+          if id_prefix then
+            vim.api.nvim_buf_set_extmark(bufnr, col_ns, lnum - 1, #id_prefix, {
+              virt_text = virt_chunks,
+              virt_text_pos = 'inline',
+              end_col = #line,
+              invalidate = true,
+            })
+          end
+        end
+      end
+    end
+  end
   _rendering[bufnr] = nil
   session[bufnr].col_width = col_width
   session[bufnr].col_align = col_align
-  session[bufnr].col_pad = col_pad
   session[bufnr].hl_cache = nil
 
   if opts.jump then
@@ -1256,9 +1284,6 @@ M.setup_decoration_provider = function()
       end
       decor_ctx[bufnr] = {
         adapter = adapter,
-        column_defs = columns.get_supported_columns(scheme),
-        col_width = sess.col_width or {},
-        col_align = sess.col_align or {},
       }
     end,
     on_line = function(_, winid, bufnr, row)
@@ -1277,10 +1302,9 @@ M.setup_decoration_provider = function()
       local sess = session[bufnr]
       local hl_cache = sess and sess.hl_cache
       local cached = hl_cache and hl_cache[id]
-      local name_highlights, virt_chunks
+      local name_highlights
       if cached and cached.line == line then
         name_highlights = cached.name_highlights
-        virt_chunks = cached.virt_chunks
       else
         local entry = id == 0 and { 0, '..', 'directory' } or cache.get_entry_by_id(id)
         if not entry then
@@ -1289,44 +1313,11 @@ M.setup_decoration_provider = function()
         local _, is_hidden = M.should_display(bufnr, entry)
         local cols = M.format_entry_line(entry, ctx.adapter, is_hidden, bufnr)
         name_highlights = compute_highlights_for_cols(cols, {}, {}, #line)
-        virt_chunks = {}
-        for i, col_def in ipairs(ctx.column_defs) do
-          if (ctx.col_width[i] or 0) > 0 then
-            local chunk = columns.render_col(ctx.adapter, col_def, entry, bufnr)
-            local text = type(chunk) == 'table' and chunk[1] or chunk
-            ---@cast text string
-            local hl = type(chunk) == 'table' and chunk[2] or nil
-            local padded, leading_pad =
-              util.pad_align(text, ctx.col_width[i], ctx.col_align[i] or 'left')
-            if type(hl) == 'table' then
-              if leading_pad > 0 then
-                table.insert(virt_chunks, { string.rep(' ', leading_pad) })
-              end
-              for _, range in ipairs(hl) do
-                table.insert(virt_chunks, { text:sub(range[2] + 1, range[3]), range[1] })
-              end
-              local trailing = padded:sub(leading_pad + #text + 1)
-              table.insert(virt_chunks, { trailing .. ' ' })
-            else
-              table.insert(virt_chunks, { padded .. ' ', hl })
-            end
-          end
-        end
         if not hl_cache then
           hl_cache = {}
           sess.hl_cache = hl_cache
         end
-        hl_cache[id] = { line = line, name_highlights = name_highlights, virt_chunks = virt_chunks }
-      end
-      if #virt_chunks > 0 then
-        local id_prefix = line:match('^/%d+ ')
-        if id_prefix then
-          vim.api.nvim_buf_set_extmark(bufnr, decor_ns, row, #id_prefix, {
-            virt_text = virt_chunks,
-            virt_text_pos = 'overlay',
-            ephemeral = true,
-          })
-        end
+        hl_cache[id] = { line = line, name_highlights = name_highlights }
       end
       for _, hl in ipairs(name_highlights) do
         vim.api.nvim_buf_set_extmark(bufnr, decor_ns, row, hl[2], {
