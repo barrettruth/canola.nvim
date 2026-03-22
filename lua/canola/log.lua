@@ -1,4 +1,5 @@
 local uv = vim.uv
+---@type table<integer, string>
 local levels_reverse = {}
 for k, v in pairs(vim.log.levels) do
   levels_reverse[v] = k
@@ -57,6 +58,7 @@ local function write(line)
   -- This will be replaced during initialization
 end
 
+---@type boolean
 local initialized = false
 local function initialize()
   if initialized then

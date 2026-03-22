@@ -1,6 +1,7 @@
 local util = require('canola.util')
 local M = {}
 
+---@type table<integer, uv_timer_t>
 local timers = {}
 
 local FPS = 20

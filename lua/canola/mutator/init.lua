@@ -576,6 +576,7 @@ M.show_progress = function()
   end
 end
 
+---@type boolean
 local mutation_in_progress = false
 
 ---@return boolean

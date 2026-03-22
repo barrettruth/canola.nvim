@@ -7,6 +7,7 @@ local FIELD_NAME = constants.FIELD_NAME
 local FIELD_TYPE = constants.FIELD_TYPE
 local FIELD_META = constants.FIELD_META
 
+---@type table<string, canola.ColumnDefinition>
 local all_columns = {}
 
 ---@alias canola.ColumnSpec string|{[1]: string, [string]: any}
@@ -179,6 +180,7 @@ if icon_provider then
   })
 end
 
+---@type table<string, string>
 local default_type_icons = {
   directory = 'dir',
   socket = 'sock',
@@ -215,6 +217,8 @@ M.register('type', {
   end,
 })
 
+---@param int string
+---@return string
 local function adjust_number(int)
   return string.format('%03d%s', #int, int)
 end
