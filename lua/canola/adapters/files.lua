@@ -14,6 +14,8 @@ local FIELD_NAME = constants.FIELD_NAME
 local FIELD_TYPE = constants.FIELD_TYPE
 local FIELD_META = constants.FIELD_META
 
+---@param path string
+---@param cb fun(err?: string, link?: string, stat?: uv.aliases.fs_stat_table)
 local function read_link_data(path, cb)
   uv.fs_readlink(
     path,
@@ -50,6 +52,7 @@ end
 
 local file_columns = {}
 
+---@type canola.ColumnDefinition
 file_columns.size = {
   require_stat = true,
   default_align = 'right',
@@ -104,6 +107,7 @@ if not fs.is_windows then
   local current_uid = vim.uv.getuid()
   local current_gid = vim.uv.getgid()
 
+  ---@type canola.ColumnDefinition
   file_columns.owner = {
     require_stat = true,
 
@@ -126,6 +130,7 @@ if not fs.is_windows then
     end,
   }
 
+  ---@type canola.ColumnDefinition
   file_columns.group = {
     require_stat = true,
 
@@ -148,6 +153,7 @@ if not fs.is_windows then
     end,
   }
 
+  ---@type canola.ColumnDefinition
   file_columns.permissions = {
     require_stat = true,
 
@@ -208,6 +214,7 @@ if not fs.is_windows then
   }
 end
 
+---@type string
 local current_year
 -- Make sure we run this import-time effect in the main loop (mostly for tests)
 vim.schedule(function()
@@ -215,6 +222,7 @@ vim.schedule(function()
 end)
 
 for _, time_key in ipairs({ 'ctime', 'mtime', 'atime', 'birthtime' }) do
+  ---@type canola.ColumnDefinition
   file_columns[time_key] = {
     require_stat = true,
 

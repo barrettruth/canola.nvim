@@ -110,6 +110,7 @@ function Progress:restore()
   self:show()
 end
 
+---@private
 function Progress:_render()
   if self.bufnr and vim.api.nvim_buf_is_valid(self.bufnr) then
     util.render_text(
@@ -127,6 +128,7 @@ function Progress:_render()
   end
 end
 
+---@private
 function Progress:_reposition()
   if self.winid and vim.api.nvim_win_is_valid(self.winid) then
     local min_width = 120
@@ -146,6 +148,7 @@ function Progress:_reposition()
   end
 end
 
+---@private
 function Progress:_cleanup_main_win()
   if self.winid then
     if vim.api.nvim_win_is_valid(self.winid) then
@@ -160,6 +163,7 @@ function Progress:_cleanup_main_win()
   self.bufnr = nil
 end
 
+---@private
 function Progress:_cleanup_minimized_win()
   if self.min_winid and vim.api.nvim_win_is_valid(self.min_winid) then
     vim.api.nvim_win_close(self.min_winid, true)

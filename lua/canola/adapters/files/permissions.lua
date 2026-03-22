@@ -16,6 +16,7 @@ local function perm_to_str(exe_modifier, num)
   end
 end
 
+---@type table<string, string>
 local type_char_map = {
   directory = 'd',
   link = 'l',
@@ -37,12 +38,14 @@ M.mode_to_str = function(mode, entry_type)
     .. perm_to_str(bit.band(extra, 1) ~= 0 and 't', mode)
 end
 
+---@type table<string[]>
 local perm_hl_map = {
   { 'CanolaPermUserRead', 'CanolaPermUserWrite', 'CanolaPermUserExec' },
   { 'CanolaPermGroupRead', 'CanolaPermGroupWrite', 'CanolaPermGroupExec' },
   { 'CanolaPermOtherRead', 'CanolaPermOtherWrite', 'CanolaPermOtherExec' },
 }
 
+---@type table<string, string>
 local type_hl_map = {
   directory = 'CanolaDir',
   link = 'CanolaLink',

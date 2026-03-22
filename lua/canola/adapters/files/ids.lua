@@ -1,6 +1,8 @@
 local M = {}
 
+---@type table<integer, string>
 local uid_to_name
+---@type table<integer, string>
 local gid_to_name
 
 local function parse_passwd()

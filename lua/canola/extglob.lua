@@ -1,5 +1,9 @@
 local M = {}
 
+---@param s string
+---@param start integer
+---@return integer?
+---@return integer?
 local function find_brace_group(s, start)
   local depth = 0
   local open_pos = nil
@@ -20,6 +24,8 @@ local function find_brace_group(s, start)
   return nil, nil
 end
 
+---@param s string
+---@return string[]
 local function split_at_depth_zero(s)
   local parts = {}
   local depth = 0
@@ -43,6 +49,8 @@ local function split_at_depth_zero(s)
   return parts
 end
 
+---@param content string
+---@return string[]?
 local function parse_range(content)
   local a, b, step = content:match('^(-?%d+)%.%.(-?%d+)%.%.(-?%d+)$')
   if not a then

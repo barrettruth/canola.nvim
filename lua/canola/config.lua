@@ -1,3 +1,4 @@
+---@type table<string, canola.SortSpec[]>
 local sort_presets = {
   default = { { 'type', 'asc' }, { 'name', 'asc' } },
   name = { { 'name', 'asc' } },
@@ -256,6 +257,7 @@ local function resolve_sort(sort_input)
   return spec, natural, case_insensitive
 end
 
+---@type table<string, string>
 local default_adapters = {
   ['canola://'] = 'files',
 }

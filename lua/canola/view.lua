@@ -14,9 +14,10 @@ local FIELD_NAME = constants.FIELD_NAME
 local FIELD_TYPE = constants.FIELD_TYPE
 local FIELD_META = constants.FIELD_META
 
--- map of path->last entry under cursor
+---@type table<string, string>
 local last_cursor_entry = {}
 
+---@type integer
 local non_canola_enter_count = 0
 local get_col_pad
 
@@ -94,6 +95,7 @@ M.get_last_cursor = function(bufname)
   return last_cursor_entry[bufname]
 end
 
+---@return boolean
 local function are_any_modified()
   local buffers = M.get_all_buffers()
   for _, bufnr in ipairs(buffers) do
@@ -104,6 +106,8 @@ local function are_any_modified()
   return false
 end
 
+---@param entry canola.InternalEntry
+---@return boolean
 local function is_unix_executable(entry)
   if entry[FIELD_TYPE] == 'directory' then
     return false
@@ -174,6 +178,7 @@ end
 -- List of bufnrs
 ---@type table<integer, canola.ViewData>
 local session = {}
+---@type table<integer, boolean>
 local _rendering = {}
 
 get_col_pad = function(bufnr)
@@ -195,6 +200,7 @@ end
 
 local decor_ns = vim.api.nvim_create_namespace('CanolaDecor')
 local col_ns = vim.api.nvim_create_namespace('CanolaColumns')
+---@type table<integer, {adapter: canola.Adapter, column_defs: canola.ColumnSpec[]}>
 local decor_ctx = {}
 
 local function render_col_virt_chunks(adapter, column_defs, col_width, col_align, entry, bufnr)

@@ -6,6 +6,7 @@ local FIELD_ID = constants.FIELD_ID
 local FIELD_NAME = constants.FIELD_NAME
 local FIELD_META = constants.FIELD_META
 
+---@type integer
 local next_id = 1
 
 -- Map<url, Map<entry name, canola.InternalEntry>>
@@ -18,9 +19,10 @@ local entries_by_id = {}
 ---@type table<integer, string>
 local parent_url_by_id = {}
 
--- Temporary map while a directory is being updated
+---@type table<string, table<string, canola.InternalEntry>>
 local tmp_url_directory = {}
 
+---@type string?
 local _cached_id_fmt
 
 ---@param id integer

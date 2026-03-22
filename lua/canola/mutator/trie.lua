@@ -15,6 +15,7 @@ Trie.new = function()
   })
 end
 
+---@private
 ---@param url string
 ---@return string[]
 function Trie:_url_to_path_pieces(url)
@@ -99,7 +100,7 @@ function Trie:accum_first_parents_of(url, ret)
   end
 end
 
----Do a depth-first-search and add all children matching the filter
+---@private
 function Trie:_dfs(container, ret, filter)
   if filter then
     for _, action in ipairs(container.values) do

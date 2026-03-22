@@ -25,6 +25,7 @@ M.escape_filename = function(filename)
   return ret
 end
 
+---@type table<string, string>
 local _url_escape_to_char = {
   ['20'] = ' ',
   ['22'] = '“',
@@ -53,6 +54,7 @@ local _url_escape_to_char = {
   ['7D'] = '}',
   ['7E'] = '~',
 }
+---@type table<string, string>
 local _char_to_url_escape = {}
 for k, v in pairs(_url_escape_to_char) do
   _char_to_url_escape[v] = '%' .. k
@@ -395,6 +397,7 @@ M.get_title = function(winid)
   return ev_data.title
 end
 
+---@type table<integer, integer>
 local winid_map = {}
 M.add_title_to_win = function(winid, opts)
   opts = opts or {}
@@ -1031,6 +1034,7 @@ M.read_file_to_scratch_buffer = function(path, preview_method)
   return bufnr
 end
 
+---@type table<string, string>
 local _regcache = {}
 ---Check if a file matches a BufReadCmd autocmd
 ---@param filename string
