@@ -200,7 +200,7 @@ local decor_ctx = {}
 local function render_col_virt_chunks(adapter, column_defs, col_width, col_align, entry, bufnr)
   local virt_chunks = {}
   for i, col_def in ipairs(column_defs) do
-    if col_width[i] > 0 then
+    if (col_width[i] or 0) > 0 then
       local chunk = columns.render_col(adapter, col_def, entry, bufnr)
       local text = type(chunk) == 'table' and chunk[1] or chunk
       ---@cast text string
