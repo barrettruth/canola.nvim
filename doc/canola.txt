@@ -357,7 +357,7 @@ After (canola.nvim): >lua
 REQUIREMENTS                                                    *canola-requirements*
 
 - Neovim 0.11+
-- (optional) mini.icons or nvim-web-devicons for file icons
+- (optional) mini.icons, nvim-web-devicons, or nvim-nonicons for file icons
 
 --------------------------------------------------------------------------------
 CONFIG                                                                *canola-config*
@@ -380,7 +380,7 @@ The full list of options with their defaults:
       hidden = { enabled = true, patterns = { "^%." }, always = {} },
 
       sort = "default",
-      highlights = {},
+      highlights = { filename = {}, columns = true },
 
       confirm = true,
       save = "prompt",
@@ -511,9 +511,24 @@ sort                                                                *canola.sort
     name comparisons case-insensitive.
 
 highlights                                                    *canola.highlights*
-    type: `canola.HighlightPattern[]` default: `{}`
-    A list of `{ pattern, highlight_group }` pairs. File names matching the
-    Lua pattern are highlighted with the given group. First match wins. >lua
+    type: `canola.HighlightsConfig|canola.HighlightPattern[]`
+    default: `{ filename = {}, columns = true }`
+    Controls filename and column highlighting.
+
+    Object form: >lua
+        highlights = {
+          filename = {
+            { "%.lua$", "Special" },
+            { "%.md$", "Identifier" },
+          },
+          columns = true,
+        }
+<
+    `filename` is a list of `{ pattern, highlight_group }` pairs. File names
+    matching the Lua pattern are highlighted with the given group. First
+    match wins. `columns` enables eza-like semantic column highlighting.
+
+    Shorthand: a flat list is treated as `{ filename = <list>, columns = true }`: >lua
         highlights = {
           { "%.lua$", "Special" },
           { "%.md$", "Identifier" },
@@ -863,7 +878,7 @@ type                                                                 *column-typ
 
 icon                                                                 *column-icon*
     Adapters: *
-    An icon for the entry's type (requires nvim-web-devicons)
+    An icon for the entry's type (requires mini.icons, nvim-web-devicons, or nvim-nonicons)
 
     Parameters:
       {highlight}    `string|fun(value: string): string` Highlight group, or
@@ -985,6 +1000,7 @@ Default keybindings in canola buffers. Override via `keymaps` in
     `gs`           change_sort             Change sort order
     `gx`           open_external           Open with system handler
     `g.`           toggle_hidden           Toggle hidden files
+    `gy`           yank_entry              Yank entry filepath to register
     `q`            close                   Close canola buffer
 
 --------------------------------------------------------------------------------
@@ -1374,11 +1390,10 @@ Add custom column for file extension ~
                                                      *canola-recipe-extension-column*
 >lua
     local canola_cfg = require "canola.config"
-    local canola_constant = require "canola.constants"
-    local canola_column = require "canola.columns"
+    local canola_constants = require "canola.constants"
 
-    local FIELD_TYPE = canola_constant.FIELD_TYPE
-    local FIELD_NAME = canola_constant.FIELD_NAME
+    local FIELD_TYPE = canola_constants.FIELD_TYPE
+    local FIELD_NAME = canola_constants.FIELD_NAME
 
     local function adjust_number(int)
       return string.format("%03d%s", #int, int)
@@ -1388,7 +1403,7 @@ Add custom column for file extension ~
       return vim.fn.fnamemodify(output, ":e")
     end
 
-    canola_column.register("extension", {
+    require("canola").register_column("extension", {
       render = function(entry, _)
         local field_type = entry[FIELD_TYPE]
         local name = entry[FIELD_NAME]
@@ -1738,13 +1753,13 @@ CanolaFileCreated                                             *CanolaFileCreated
 --------------------------------------------------------------------------------
 TRASH                                                                  *canola-trash*
 
-Trash support is provided by canola-collection. Install it and set
-`delete_to_trash = true` in |canola-config| to enable. Deleted files are sent
-to the system trash instead of being permanently deleted.
+Trash support is provided by canola-collection. Install it and configure
+`delete_to_trash` per its documentation. Deleted files are sent to the system
+trash instead of being permanently deleted.
 
 You can browse the trash for a directory using the `toggle_trash` action
-(bound to `g\` by default). To restore files, move them from the trash to the
-desired destination. Deleting files from the trash permanently purges them.
+provided by canola-collection. To restore files, move them from the trash to
+the desired destination. Deleting files from the trash permanently purges them.
 
 ================================================================================
 vim:tw=80:ts=2:ft=help:norl:syntax=help:
