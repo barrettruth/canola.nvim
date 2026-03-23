@@ -1717,6 +1717,19 @@ M.init = function()
       end
     end,
   })
+  vim.api.nvim_create_autocmd('VimLeavePre', {
+    desc = 'Clear buftype on canola buffers so mksession saves their URLs',
+    group = aug,
+    pattern = '*',
+    callback = function()
+      local util = require('canola.util')
+      for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_valid(bufnr) and util.is_canola_bufnr(bufnr) then
+          vim.bo[bufnr].buftype = ''
+        end
+      end
+    end,
+  })
 
   if config.float.default then
     vim.api.nvim_create_autocmd('VimEnter', {
