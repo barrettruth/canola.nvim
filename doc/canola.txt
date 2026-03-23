@@ -848,7 +848,7 @@ save({opts}, {cb})                                                      *canola.
 COLUMNS                                                              *canola-columns*
 
 Columns can be specified as a string to use default arguments (e.g. `"icon"`),
-or as a table to pass parameters (e.g. `{"size", highlight = "Special"}`)
+or as a table to pass parameters (e.g. `{name = "size", highlight = "Special"}`)
 
 type                                                                 *column-type*
     Adapters: *
