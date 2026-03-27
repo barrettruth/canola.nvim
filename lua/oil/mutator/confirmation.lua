@@ -7,7 +7,7 @@ local M = {}
 ---@param line string
 ---@return string
 local function compact_move_line(line)
-  local prefix, src, dest = line:match('^(%s+%u+%s+)(.+) -> (.+)$')
+  local prefix, src, dest = line:match('^(%s+%u+%s+)(.+) %-> (.+)$')
   if not prefix then
     return line
   end
