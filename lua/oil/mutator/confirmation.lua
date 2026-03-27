@@ -4,6 +4,34 @@ local layout = require('oil.layout')
 local util = require('oil.util')
 local M = {}
 
+---@param line string
+---@return string
+local function compact_move_line(line)
+  local prefix, src, dest = line:match('^(%s+%u+%s+)(.+) -> (.+)$')
+  if not prefix then
+    return line
+  end
+  local last_sep = 0
+  for i = 1, math.min(#src, #dest) do
+    if src:sub(i, i) ~= dest:sub(i, i) then
+      break
+    end
+    if src:sub(i, i) == '/' then
+      last_sep = i
+    end
+  end
+  if last_sep == 0 then
+    return line
+  end
+  return string.format(
+    '%s%s{%s -> %s}',
+    prefix,
+    src:sub(1, last_sep),
+    src:sub(last_sep + 1),
+    dest:sub(last_sep + 1)
+  )
+end
+
 ---@param actions oil.Action[]
 ---@return boolean
 local function is_simple_edit(actions)
@@ -97,6 +125,9 @@ M.show = vim.schedule_wrap(function(actions, should_confirm, cb)
     end
     -- We can't handle lines with newlines in them
     line = line:gsub('\n', '')
+    if action.type == 'move' or action.type == 'copy' then
+      line = compact_move_line(line)
+    end
     table.insert(lines, line)
     local line_width = vim.api.nvim_strwidth(line)
     if line_width > max_line_width then
