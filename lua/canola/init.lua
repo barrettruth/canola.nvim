@@ -145,6 +145,9 @@ end
 ---@param name string Adapter module name (resolved via require("canola.adapters." .. name))
 M.register_adapter = function(scheme, name)
   local config = require('canola.config')
+  if not config.adapters then
+    config.init()
+  end
   if config.adapters[scheme] then
     return
   end
