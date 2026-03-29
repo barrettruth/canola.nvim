@@ -49,12 +49,6 @@ body:
 
   - type: textarea
     attributes:
-      label: 'Health check'
-      description: 'Output of `:checkhealth oil`'
-      render: text
-
-  - type: textarea
-    attributes:
       label: Minimal reproduction
       description: |
         Save the script below as `repro.lua`, edit if needed, and run:
@@ -70,8 +64,8 @@ body:
           spec = {
             {
               'barrettruth/canola.nvim',
-              config = function()
-                require('oil').setup({})
+              init = function()
+                vim.g.canola = {}
               end,
             },
           },
