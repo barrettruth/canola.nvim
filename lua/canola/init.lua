@@ -825,6 +825,7 @@ end
 ---@field horizontal? boolean Open the buffer in a horizontal split
 ---@field split? "aboveleft"|"belowright"|"topleft"|"botright" Split modifier
 ---@field tab? boolean Open the buffer in a new tab
+---@field confirm? boolean If true, always show confirmation; if false, never show; if nil, respect config
 ---@field close? boolean Close the original oil buffer once selection is made
 ---@field handle_buffer_callback? fun(buf_id: integer) If defined, all other buffer related options here would be ignored. This callback allows you to take over the process of opening the buffer yourself.
 
@@ -906,8 +907,8 @@ M.select = function(opts, callback)
     end
   end
   if any_moved and config.save ~= false then
-    if config.save == 'auto' then
-      M.save()
+    if config.save == 'auto' or opts.confirm == false then
+      M.save({ confirm = opts.confirm })
       return finish()
     end
     local ok, choice = pcall(vim.fn.confirm, 'Save changes?', 'Yes\nNo', 1)
@@ -916,7 +917,7 @@ M.select = function(opts, callback)
     elseif choice == 0 then
       return
     elseif choice == 1 then
-      M.save()
+      M.save({ confirm = opts.confirm })
       return finish()
     end
   end

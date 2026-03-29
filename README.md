@@ -66,3 +66,6 @@ All adapters have been moved to
 
 canola.nvim is built on [oil.nvim](https://github.com/stevearc/oil.nvim) by
 [stevearc](https://github.com/stevearc).
+
+Thanks to [llakala](https://github.com/llakala) for the `confirm` option on
+`select()` (#274).

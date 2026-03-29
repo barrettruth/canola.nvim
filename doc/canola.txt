@@ -838,6 +838,9 @@ select({opts}, {callback})                                            *canola.se
           {split}      `nil|"aboveleft"|"belowright"|"topleft"|"botright"` Split
                        modifier
           {tab}        `nil|boolean` Open the buffer in a new tab
+          {confirm}    `nil|boolean` If true, always show mutation confirmation;
+                       if false, save silently with no prompts; if nil, respect
+                       config
           {close}      `nil|boolean` Close the original canola buffer once
                        selection is made
           {handle_buffer_callback} `nil|fun(buf_id: integer)` If defined, all
