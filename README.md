@@ -62,10 +62,7 @@ All adapters have been moved to
 :help canola.nvim
 ```
 
-## Acknowledgements
+# Acknowledgements
 
-canola.nvim is built on [oil.nvim](https://github.com/stevearc/oil.nvim) by
-[stevearc](https://github.com/stevearc).
-
-Thanks to [llakala](https://github.com/llakala) for the `confirm` option on
-`select()` (#274).
+- [`oil.nvim`](https://github.com/stevearc/oil.nvim)
+- [@llakala](https://github.com/llakala) — `confirm` option on `select()`
