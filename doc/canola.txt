@@ -840,6 +840,9 @@ select({opts}, {callback})                                            *canola.se
           {tab}        `nil|boolean` Open the buffer in a new tab
           {close}      `nil|boolean` Close the original canola buffer once
                        selection is made
+          {confirm}    `boolean`     If current buffer needs saving, pass this
+                       value directly into `canola.save` to determine whether to
+                       show confirmation prompt
           {handle_buffer_callback} `nil|fun(buf_id: integer)` If defined, all
                        other buffer related options here would be ignored. This
                        callback allows you to take over the process of opening
