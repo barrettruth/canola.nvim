@@ -316,6 +316,21 @@ M.open_float = function(dir, opts, cb)
     view.set_last_cursor(parent_url, basename)
   end
 
+  if vim.w.is_canola_win then
+    vim.cmd.edit({ args = { util.escape_filename(parent_url) }, mods = { keepalt = true } })
+    if config.buf.buflisted ~= nil then
+      vim.api.nvim_set_option_value('buflisted', config.buf.buflisted, { buf = 0 })
+    end
+    util.run_after_load(0, function()
+      if opts.preview then
+        M.open_preview(opts.preview, cb)
+      elseif cb then
+        cb()
+      end
+    end)
+    return
+  end
+
   local bufnr = vim.api.nvim_create_buf(false, true)
   vim.bo[bufnr].bufhidden = 'wipe'
   local win_opts = layout.get_fullscreen_win_opts()
