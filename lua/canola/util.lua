@@ -813,6 +813,56 @@ M.send_to_quickfix = function(opts)
   vim.api.nvim_exec_autocmds('QuickFixCmdPost', {})
 end
 
+M.add_to_quickfix = function(opts)
+  if type(opts) ~= 'table' then
+    opts = {}
+  end
+  local canola = require('canola')
+  local dir = canola.get_current_dir()
+  if type(dir) ~= 'string' then
+    return
+  end
+  local range = M.get_visual_range()
+  local qf_entries = {}
+  if range then
+    for i = range.start_lnum, range.end_lnum do
+      local entry = canola.get_entry_on_line(0, i)
+      if entry and entry.type == 'file' then
+        table.insert(qf_entries, {
+          filename = dir .. entry.name,
+          lnum = 1,
+          col = 1,
+        })
+      end
+    end
+  else
+    local entry = canola.get_cursor_entry()
+    if entry and entry.type == 'file' then
+      table.insert(qf_entries, {
+        filename = dir .. entry.name,
+        lnum = 1,
+        col = 1,
+      })
+    end
+  end
+  if #qf_entries == 0 then
+    vim.notify('[canola] No file entries to add to quickfix', vim.log.levels.WARN)
+    return
+  end
+  vim.api.nvim_exec_autocmds('QuickFixCmdPre', {})
+  if opts.target == 'loclist' then
+    vim.fn.setloclist(0, {}, 'a', { title = 'canola files', items = qf_entries })
+  else
+    vim.fn.setqflist({}, 'a', { title = 'canola files', items = qf_entries })
+  end
+  vim.api.nvim_exec_autocmds('QuickFixCmdPost', {})
+  local count = #qf_entries
+  local names = vim.tbl_map(function(e)
+    return e.text
+  end, qf_entries)
+  vim.notify(('[canola] Added %s to quickfix'):format(table.concat(names, ', ')))
+end
+
 ---@return boolean
 M.is_visual_mode = function()
   local mode = vim.api.nvim_get_mode().mode

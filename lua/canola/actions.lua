@@ -417,6 +417,22 @@ M.change_sort = {
   },
 }
 
+M.add_to_qflist = {
+  desc = 'Add the entry under the cursor (or visual selection) to the quickfix list.',
+  callback = function(opts)
+    opts = opts or {}
+    util.add_to_quickfix({
+      target = opts.target,
+    })
+  end,
+  parameters = {
+    target = {
+      type = '"qflist"|"loclist"',
+      desc = 'The target list to add entries to',
+    },
+  },
+}
+
 M.send_to_qflist = {
   desc = 'Sends files in the current oil directory to the quickfix list, replacing the previous entries.',
   callback = function(opts)
