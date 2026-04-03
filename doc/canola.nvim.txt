@@ -1,6 +1,6 @@
-*canola.txt*
+*canola.nvim.txt*
 
-*canola* *Canola*
+*canola* *canola.nvim* *Canola*
 ------------------------------------------------------------------------------
 CONTENTS                                                     *canola-contents*
 
