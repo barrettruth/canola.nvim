@@ -410,6 +410,7 @@ The full list of options with their defaults:
 
       float = {
         default = false,
+        title = true,
         padding = 2,
         max_width = 0,
         max_height = 0,

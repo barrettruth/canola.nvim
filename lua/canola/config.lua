@@ -50,6 +50,7 @@ local default_config = {
 
   float = {
     default = false,
+    title = true,
     padding = 2,
     max_width = 0,
     max_height = 0,
@@ -165,6 +166,7 @@ local M = {}
 
 ---@class (exact) canola.FloatConfig
 ---@field default boolean
+---@field title boolean
 ---@field padding integer
 ---@field max_width integer
 ---@field max_height integer
