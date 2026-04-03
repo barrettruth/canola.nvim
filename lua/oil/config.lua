@@ -134,6 +134,7 @@ local default_config = {
   },
   -- Configuration for the floating window in oil.open_float
   float = {
+    title = true,
     -- Padding around the floating window
     padding = 2,
     -- max_width and max_height can be integers or a float between 0 and 1 (e.g. 0.4 for 40%)
@@ -411,6 +412,7 @@ local M = {}
 ---@field minimized_border? string|string[] The border for the minimized progress window
 
 ---@class (exact) oil.FloatWindowConfig
+---@field title boolean
 ---@field padding integer
 ---@field max_width integer
 ---@field max_height integer
@@ -421,6 +423,7 @@ local M = {}
 ---@field override fun(conf: table): table
 
 ---@class (exact) oil.SetupFloatWindowConfig
+---@field title? boolean
 ---@field padding? integer
 ---@field max_width? integer
 ---@field max_height? integer

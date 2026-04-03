@@ -201,6 +201,8 @@ The full list of options with their defaults:
       },
       -- Configuration for the floating window in oil.open_float
       float = {
+        -- Set to false to disable the floating window title
+        title = true,
         -- Padding around the floating window
         padding = 2,
         -- max_width and max_height can be integers or a float between 0 and 1 (e.g. 0.4 for 40%)
