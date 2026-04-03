@@ -1,8 +1,8 @@
 *canola.txt*
 
 *canola* *Canola*
---------------------------------------------------------------------------------
-CONTENTS                                                            *canola-contents*
+------------------------------------------------------------------------------
+CONTENTS                                                     *canola-contents*
 
   1. Introduction                                            |canola-introduction|
   2. Migrating from oil.nvim                                    |canola-migration|
@@ -18,17 +18,17 @@ CONTENTS                                                            *canola-cont
   12. Recipes                                                    |canola-recipes|
   13. Events                                                      |canola-events|
 
---------------------------------------------------------------------------------
-INTRODUCTION                                                    *canola-introduction*
+------------------------------------------------------------------------------
+INTRODUCTION                                             *canola-introduction*
 
 canola.nvim is a file explorer for Neovim in the style of vim-vinegar. It lets
 you edit your filesystem like a normal buffer: create files and directories by
 typing new lines, delete them by removing lines, rename or move them by
-changing the text. When you save the buffer, canola diffs it against the original
-listing and performs the corresponding filesystem operations.
+changing the text. When you save the buffer, canola diffs it against the
+original listing and performs the corresponding filesystem operations.
 
-Open a directory with `nvim .`, `:edit <path>`, or `:Canola <path>`. Use `<CR>`
-to open a file or descend into a directory, and `-` to go up. Treat the
+Open a directory with `nvim .`, `:edit <path>`, or `:Canola <path>`. Use
+`<CR>` to open a file or descend into a directory, and `-` to go up. Treat the
 listing like any other buffer — edit freely, then `:w` to apply changes.
 
 To open canola in a floating window, use `:Canola --float <path>`.
@@ -41,13 +41,13 @@ File operations work across adapters. Install canola-collection for additional
 adapters (SSH, S3, trash, etc.). You can copy files between adapters using the
 same buffer-editing workflow.
 
---------------------------------------------------------------------------------
-MIGRATING FROM OIL.NVIM                                          *canola-migration*
+------------------------------------------------------------------------------
+MIGRATING FROM OIL.NVIM                                     *canola-migration*
 
-canola.nvim is a fork of oil.nvim with a redesigned configuration surface.
-The core editing model is identical — you still edit directory buffers and
-`:w` to apply mutations. What changed is how you configure the plugin, what
-things are called, and where adapters live.
+canola.nvim is a fork of oil.nvim with a redesigned configuration surface. The
+core editing model is identical — you still edit directory buffers and `:w` to
+apply mutations. What changed is how you configure the plugin, what things are
+called, and where adapters live.
 
 Design principles behind the changes:
 
@@ -75,7 +75,7 @@ Replace your oil.nvim setup: >lua
 <
 
 Config options ~
-                                                        *canola-migration-config*
+                                                     *canola-migration-config*
 
     oil.nvim                            canola.nvim ~
     `columns`                             `columns`
@@ -102,7 +102,7 @@ Config options ~
     `progress.win_options`                `progress.win`
 
 Consolidated options ~
-                                                   *canola-migration-consolidated*
+                                               *canola-migration-consolidated*
 
 Several boolean flags collapse into a single key:
 
@@ -114,7 +114,7 @@ Several boolean flags collapse into a single key:
     `+ auto_save_on_select_new_entry`
 
 Hidden files ~
-                                                       *canola-migration-hidden*
+                                                     *canola-migration-hidden*
 
 oil.nvim uses functions in config: >lua
     view_options = {
@@ -143,7 +143,7 @@ canola uses patterns (serializable) plus an optional setter API: >lua
 <
 
 Sorting ~
-                                                         *canola-migration-sort*
+                                                       *canola-migration-sort*
 
 oil.nvim embeds sort config inside `view_options`: >lua
     view_options = {
@@ -172,7 +172,7 @@ Object form for advanced use: >lua
 <
 
 Hooks to events ~
-                                                       *canola-migration-events*
+                                                     *canola-migration-events*
 
 Functions that oil.nvim put in config are replaced by User autocmd events:
 
@@ -204,7 +204,7 @@ Example — float.override to CanolaFloatConfig: >lua
 <
 
 Keymaps format ~
-                                                      *canola-migration-keymaps*
+                                                    *canola-migration-keymaps*
 
 The table form now uses an explicit `callback` key instead of a positional
 first argument. The string form is unchanged.
@@ -213,11 +213,11 @@ first argument. The string form is unchanged.
     `{ "actions.select", opts = {} }`     `{ callback = "actions.select", opts = {} }`
     `"actions.select"`                    `"actions.select"`  (unchanged)
 
-New default keymaps in canola: `q` (close), `gy` (yank_entry).
-Removed default: `g\` (toggle_trash — moved to canola-collection).
+New default keymaps in canola: `q` (close), `gy` (yank_entry). Removed
+default: `g\` (toggle_trash — moved to canola-collection).
 
 Namespace renames ~
-                                                    *canola-migration-namespace*
+                                                  *canola-migration-namespace*
 
     Category          oil.nvim             canola.nvim ~
     Module path       `lua/oil/`             `lua/canola/`
@@ -235,7 +235,7 @@ Namespace renames ~
                       (e.g. `OilDir`)        (e.g. `CanolaDir`)
 
 Removed options ~
-                                                      *canola-migration-removed*
+                                                    *canola-migration-removed*
 
 These oil.nvim options have no canola equivalent:
 
@@ -255,7 +255,7 @@ These oil.nvim options have no canola equivalent:
     `keymaps_help { border }`        Removed (help uses vimdoc now)
 
 New in canola ~
-                                                         *canola-migration-new*
+                                                        *canola-migration-new*
 
     Option / API                   Purpose ~
     `border`                         Global border (cascades to all windows)
@@ -274,14 +274,14 @@ New in canola ~
     `CanolaFileCreated` event        Fired when a new file is created
 
 Adapters ~
-                                                    *canola-migration-adapters*
+                                                   *canola-migration-adapters*
 
 canola ships only the local filesystem adapter (`canola://`). For SSH, S3,
 trash, or FTP, install canola-collection. The adapters register themselves
 automatically via `register_adapter()`.
 
 Full example ~
-                                                      *canola-migration-example*
+                                                    *canola-migration-example*
 
 Before (oil.nvim): >lua
     require("oil").setup({
@@ -353,14 +353,14 @@ After (canola.nvim): >lua
     })
 <
 
---------------------------------------------------------------------------------
-REQUIREMENTS                                                    *canola-requirements*
+------------------------------------------------------------------------------
+REQUIREMENTS                                             *canola-requirements*
 
 - Neovim 0.11+
 - (optional) mini.icons, nvim-web-devicons, or nvim-nonicons for file icons
 
---------------------------------------------------------------------------------
-CONFIG                                                                *canola-config*
+------------------------------------------------------------------------------
+CONFIG                                                         *canola-config*
 
 Configure canola via `vim.g.canola`: >lua
     vim.g.canola = {
@@ -462,29 +462,29 @@ The full list of options with their defaults:
     }
 <
 
---------------------------------------------------------------------------------
-OPTIONS                                                              *canola-options*
+------------------------------------------------------------------------------
+OPTIONS                                                       *canola-options*
 
-columns                                                          *canola.columns*
+columns                                                       *canola.columns*
     type: `canola.ColumnSpec[]` default: `{ "icon" }`
     Columns to display in the directory listing. See |canola-columns|.
 
-cursor                                                            *canola.cursor*
+cursor                                                         *canola.cursor*
     type: `boolean` default: `true`
     When `true`, constrains the cursor to the editable area (file names).
     Set to `false` to allow free cursor movement.
 
-watch                                                              *canola.watch*
+watch                                                           *canola.watch*
     type: `boolean` default: `false`
     When `true`, canola watches the filesystem for external changes and
     automatically refreshes directory listings.
 
-border                                                            *canola.border*
+border                                                         *canola.border*
     type: `nil|string|string[]` default: `nil`
     Global border style. Falls through to `float.border`,
     `confirmation.border`, and `progress.border` when those are nil.
 
-hidden                                                            *canola.hidden*
+hidden                                                         *canola.hidden*
     type: `canola.HiddenConfig`
     default: `{ enabled = true, patterns = { "^%." }, always = {} }`
     `enabled`: when `true`, files matching `patterns` are hidden. Toggle at
@@ -493,7 +493,7 @@ hidden                                                            *canola.hidden
     invisible when true). `always` is a list of Lua patterns for files that
     are never shown, even when hidden files are visible.
 
-sort                                                                *canola.sort*
+sort                                                             *canola.sort*
     type: `string|canola.SortConfig` default: `"default"`
     Sort order for directory listings. Can be a preset string or a table.
 
@@ -510,7 +510,7 @@ sort                                                                *canola.sort
     natural number sorting (e.g. file2 before file10). `ignore_case` makes
     name comparisons case-insensitive.
 
-highlights                                                    *canola.highlights*
+highlights                                                 *canola.highlights*
     type: `canola.HighlightsConfig|canola.HighlightPattern[]`
     default: `{ filename = {}, columns = true }`
     Controls filename and column highlighting.
@@ -535,14 +535,14 @@ highlights                                                    *canola.highlights
         }
 <
 
-confirm                                                          *canola.confirm*
+confirm                                                       *canola.confirm*
     type: `boolean|"delete"` default: `true`
     Controls the confirmation popup before filesystem mutations.
     - `true`: always confirm
     - `"delete"`: only confirm when deletes are present
     - `false`: never confirm
 
-save                                                          *canola.save_opt*
+save                                                         *canola.save_opt*
     type: `"prompt"|"auto"|false` default: `"prompt"`
     Behavior when selecting a file that exists in the canola buffer but not
     yet on disk (e.g. a pending copy or rename).
@@ -550,7 +550,7 @@ save                                                          *canola.save_opt*
     - `"auto"`: save automatically without prompting
     - `false`: open the original file without saving
 
-delete                                                            *canola.delete*
+delete                                                         *canola.delete*
     type: `canola.DeleteConfig` default: `{ wipe = false, recursive = false }`
     `wipe`: when `true`, wipe any open buffer whose path matches a file
     deleted via canola.
@@ -558,19 +558,19 @@ delete                                                            *canola.delete
     remote adapters (SSH, S3, FTP). Can be overridden per-adapter via
     `vim.g.canola_ssh.recursive` etc. Default: `false`.
 
-create                                                            *canola.create*
+create                                                         *canola.create*
     type: `canola.CreateConfig`
     default: `{ file_mode = 420, dir_mode = 493 }`
     Unix permissions for newly created files and directories.
     `420` = `0644`, `493` = `0755`.
 
-keymaps                                                          *canola.keymaps*
+keymaps                                                       *canola.keymaps*
     type: `table<string, any>` default: see |canola-config|
     User keymaps are merged with the defaults. Set a key to `false` to
     disable a default binding. Set `keymaps = {}` to start with only the
     defaults. See |canola-actions| for the mapping format.
 
-lsp                                                                  *canola.lsp*
+lsp                                                               *canola.lsp*
     type: `canola.LspConfig`
     default: `{ enabled = true, timeout_ms = 1000, autosave = false }`
     `enabled`: notify LSP servers of file renames/moves.
@@ -578,7 +578,7 @@ lsp                                                                  *canola.lsp
     `autosave`: when `true`, automatically save buffers after LSP-driven
     renames.
 
-float                                                              *canola.float*
+float                                                           *canola.float*
     type: `canola.FloatConfig`
     `default`: when `true`, canola always opens in a floating window.
     `padding`: padding around the float.
@@ -588,7 +588,7 @@ float                                                              *canola.float
     `"left"`, `"right"`, `"above"`, `"below"`).
     `win`: window-local options for the float.
 
-preview                                                          *canola.preview*
+preview                                                       *canola.preview*
     type: `canola.PreviewConfig`
     `follow`: update preview when cursor moves.
     `live`: when `true`, load files into real buffers (enables LSP, treesitter).
@@ -596,52 +596,52 @@ preview                                                          *canola.preview
     `win`: window-local options for the preview window.
     To disable preview for specific files, use |CanolaPreviewDisable|.
 
-confirmation                                                *canola.confirmation*
+confirmation                                             *canola.confirmation*
     type: `canola.ConfirmationWindowConfig`
     Window dimensions and border for the mutation confirmation popup.
     `border` falls back to global `border` when nil.
 
-progress                                                        *canola.progress*
+progress                                                     *canola.progress*
     type: `canola.ProgressWindowConfig`
     Window dimensions and border for the mutation progress popup.
     `border` falls back to global `border` when nil.
     `minimized_border`: border style when the progress window is minimized.
 
-buf                                                                  *canola.buf*
+buf                                                               *canola.buf*
     type: `table<string, any>`
     default: `{ buflisted = false, bufhidden = "hide" }`
     Buffer-local options applied to every canola buffer.
 
-win                                                                  *canola.win*
+win                                                               *canola.win*
     type: `table<string, any>`
     Window-local options applied to every canola window. See |canola-config|
     for the full default list.
 
---------------------------------------------------------------------------------
-API                                                                      *canola-api*
+------------------------------------------------------------------------------
+API                                                               *canola-api*
 
-get_entry_on_line({bufnr}, {lnum}): nil|canola.Entry          *canola.get_entry_on_line*
+get_entry_on_line({bufnr}, {lnum}): nil|canola.Entry *canola.get_entry_on_line*
     Get the entry on a specific line (1-indexed)
 
     Parameters:
       {bufnr} `integer`
       {lnum}  `integer`
 
-get_cursor_entry(): nil|canola.Entry                           *canola.get_cursor_entry*
+get_cursor_entry(): nil|canola.Entry                 *canola.get_cursor_entry*
     Get the entry currently under the cursor
 
 
-discard_all_changes()                                    *canola.discard_all_changes*
+discard_all_changes()                             *canola.discard_all_changes*
     Discard all changes made to canola buffers
 
 
-set_columns({cols})                                              *canola.set_columns*
+set_columns({cols})                                       *canola.set_columns*
     Change the display columns for canola
 
     Parameters:
       {cols} `canola.ColumnSpec[]`
 
-set_sort({sort})                                                    *canola.set_sort*
+set_sort({sort})                                             *canola.set_sort*
     Change the sort order for canola
 
     Parameters:
@@ -652,17 +652,17 @@ set_sort({sort})                                                    *canola.set_
       require("canola").set_sort({ { "type", "asc" }, { "size", "desc" } })
 <
 
-set_is_hidden_file({is_hidden_file})                      *canola.set_is_hidden_file*
+set_is_hidden_file({is_hidden_file})               *canola.set_is_hidden_file*
     Change how canola determines if the file is hidden
 
     Parameters:
       {is_hidden_file} `fun(filename: string, bufnr: integer, entry: canola.Entry): boolean`
                        Return true if the file/dir should be hidden
 
-toggle_hidden()                                                *canola.toggle_hidden*
+toggle_hidden()                                         *canola.toggle_hidden*
     Toggle hidden files and directories
 
-register_column({name}, {column})                          *canola.register_column*
+register_column({name}, {column})                     *canola.register_column*
     Register a custom column. The column will be available by name in the
     `columns` config for all adapters. Call this before or during plugin
     setup — columns registered after a buffer renders will not appear until
@@ -695,7 +695,7 @@ register_column({name}, {column})                          *canola.register_colu
 
     See |canola-recipe-custom-column| for a working example.
 
-register_adapter({scheme}, {name})                        *canola.register_adapter*
+register_adapter({scheme}, {name})                   *canola.register_adapter*
     Register an external adapter for a URL scheme. Used by canola-collection
     and other adapter plugins to make new schemes available at runtime.
     No-ops if the scheme is already registered.
@@ -706,7 +706,7 @@ register_adapter({scheme}, {name})                        *canola.register_adapt
                `require("canola.adapters." .. name)`
 
 
-get_current_dir({bufnr}): nil|string                         *canola.get_current_dir*
+get_current_dir({bufnr}): nil|string                  *canola.get_current_dir*
     Get the current directory as a local filesystem path. Returns nil for
     non-local adapters. See |canola.get_current_url| for an adapter-agnostic
     alternative.
@@ -714,7 +714,7 @@ get_current_dir({bufnr}): nil|string                         *canola.get_current
     Parameters:
       {bufnr} `nil|integer`
 
-get_current_url({bufnr}): nil|string                         *canola.get_current_url*
+get_current_url({bufnr}): nil|string                  *canola.get_current_url*
     Get the current buffer's canola URL (e.g. "canola:///path/" or
     "canola-ssh://host/path/"). Works for all adapters. Returns nil if the
     buffer is not a canola buffer.
@@ -722,7 +722,7 @@ get_current_url({bufnr}): nil|string                         *canola.get_current
     Parameters:
       {bufnr} `nil|integer`
 
-open_float({dir}, {opts}, {cb})                                   *canola.open_float*
+open_float({dir}, {opts}, {cb})                            *canola.open_float*
     Open canola browser in a floating window
 
     Parameters:
@@ -737,7 +737,7 @@ open_float({dir}, {opts}, {cb})                                   *canola.open_f
                            plit modifier
       {cb}   `nil|fun()` Called after the canola buffer is ready
 
-toggle_float({dir}, {opts}, {cb})                               *canola.toggle_float*
+toggle_float({dir}, {opts}, {cb})                        *canola.toggle_float*
     Open canola browser in a floating window, or close it if open
 
     Parameters:
@@ -752,7 +752,7 @@ toggle_float({dir}, {opts}, {cb})                               *canola.toggle_f
                            plit modifier
       {cb}   `nil|fun()` Called after the canola buffer is ready
 
-open_split({dir}, {opts}, {cb})                                   *canola.open_split*
+open_split({dir}, {opts}, {cb})                            *canola.open_split*
     Open canola browser in a split window
 
     Parameters:
@@ -765,7 +765,7 @@ open_split({dir}, {opts}, {cb})                                   *canola.open_s
                        modifier
       {cb}   `nil|fun()` Called after the canola buffer is ready
 
-toggle_split({dir}, {opts}, {cb})                               *canola.toggle_split*
+toggle_split({dir}, {opts}, {cb})                        *canola.toggle_split*
     Open canola browser in a split window, or close it if open
 
     Parameters:
@@ -778,7 +778,7 @@ toggle_split({dir}, {opts}, {cb})                               *canola.toggle_s
                        modifier
       {cb}   `nil|fun()` Called after the canola buffer is ready
 
-open({dir}, {opts}, {cb})                                               *canola.open*
+open({dir}, {opts}, {cb})                                        *canola.open*
     Open canola browser for a directory
 
     Parameters:
@@ -793,7 +793,7 @@ open({dir}, {opts}, {cb})                                               *canola.
                            plit modifier
       {cb}   `nil|fun()` Called after the canola buffer is ready
 
-close({opts})                                                          *canola.close*
+close({opts})                                                   *canola.close*
     Restore the buffer that was present when canola was opened
 
     Parameters:
@@ -801,7 +801,7 @@ close({opts})                                                          *canola.c
           {exit_if_last_buf} `nil|boolean` Exit vim if this canola buffer is the
                              last open buffer
 
-toggle({dir}, {opts}, {cb})                                        *canola.toggle*
+toggle({dir}, {opts}, {cb})                                    *canola.toggle*
     Open canola browser for a directory, or close it if already open
 
     Parameters:
@@ -816,7 +816,7 @@ toggle({dir}, {opts}, {cb})                                        *canola.toggl
                            plit modifier
       {cb}   `nil|fun()` Called after the canola buffer is ready
 
-open_preview({opts}, {callback})                                *canola.open_preview*
+open_preview({opts}, {callback})                         *canola.open_preview*
     Preview the entry under the cursor in a split
 
     Parameters:
@@ -828,7 +828,7 @@ open_preview({opts}, {callback})                                *canola.open_pre
       {callback} `nil|fun(err: nil|string)` Called once the preview window has
                  been opened
 
-select({opts}, {callback})                                            *canola.select*
+select({opts}, {callback})                                     *canola.select*
     Select the entry under the cursor
 
     Parameters:
@@ -850,7 +850,7 @@ select({opts}, {callback})                                            *canola.se
       {callback} `nil|fun(err: nil|string)` Called once all entries have been
                  opened
 
-save({opts}, {cb})                                                      *canola.save*
+save({opts}, {cb})                                               *canola.save*
     Save all changes
 
     Parameters:
@@ -862,13 +862,14 @@ save({opts}, {cb})                                                      *canola.
     Note:
       If you provide your own callback function, there will be no notification for errors.
 
---------------------------------------------------------------------------------
-COLUMNS                                                              *canola-columns*
+------------------------------------------------------------------------------
+COLUMNS                                                       *canola-columns*
 
 Columns can be specified as a string to use default arguments (e.g. `"icon"`),
-or as a table to pass parameters (e.g. `{name = "size", highlight = "Special"}`)
+or as a table to pass parameters (e.g. `{name = "size", highlight =
+"Special"}`)
 
-type                                                                 *column-type*
+type                                                             *column-type*
     Adapters: *
     Sortable: this column can be used in |canola.sort|
     The type of the entry (file, directory, link, etc)
@@ -879,7 +880,7 @@ type                                                                 *column-typ
       {align}     `"left"|"center"|"right"` Text alignment within the column
       {icons}     `table<string, string>` Mapping of entry type to icon
 
-icon                                                                 *column-icon*
+icon                                                             *column-icon*
     Adapters: *
     An icon for the entry's type (requires mini.icons, nvim-web-devicons, or nvim-nonicons)
 
@@ -895,7 +896,7 @@ icon                                                                 *column-ico
       {use_slow_filetype_detection} `boolean` Set to true to detect filetypes by
                      reading the first lines of each file (e.g. shebangs).
 
-size                                                                 *column-size*
+size                                                             *column-size*
     Adapters: files, ssh, s3
     Sortable: this column can be used in |canola.sort|
     The size of the file
@@ -905,7 +906,7 @@ size                                                                 *column-siz
                   function that returns a highlight group
       {align}     `"left"|"center"|"right"` Text alignment within the column
 
-permissions                                                   *column-permissions*
+permissions                                               *column-permissions*
     Adapters: files (ssh via canola-collection)
     Editable: this column is read/write
     Access permissions of the file
@@ -915,7 +916,7 @@ permissions                                                   *column-permission
                   function that returns a highlight group
       {align}     `"left"|"center"|"right"` Text alignment within the column
 
-owner                                                               *column-owner*
+owner                                                           *column-owner*
     Adapters: files (ssh, ftp via canola-collection)
     Display-only: this column is read-only
     The file owner. On local files, resolves UID to username via /etc/passwd.
@@ -926,7 +927,7 @@ owner                                                               *column-owne
                   function that returns a highlight group
       {align}     `"left"|"center"|"right"` Text alignment within the column
 
-group                                                               *column-group*
+group                                                           *column-group*
     Adapters: files (ssh, ftp via canola-collection)
     Display-only: this column is read-only
     The file group. On local files, resolves GID to group name via /etc/group.
@@ -937,7 +938,7 @@ group                                                               *column-grou
                   function that returns a highlight group
       {align}     `"left"|"center"|"right"` Text alignment within the column
 
-ctime                                                               *column-ctime*
+ctime                                                           *column-ctime*
     Adapters: files
     Sortable: this column can be used in |canola.sort|
     Change timestamp of the file
@@ -948,7 +949,7 @@ ctime                                                               *column-ctim
       {align}     `"left"|"center"|"right"` Text alignment within the column
       {format}    `string` Format string (see :help strftime)
 
-mtime                                                               *column-mtime*
+mtime                                                           *column-mtime*
     Adapters: files
     Sortable: this column can be used in |canola.sort|
     Last modified time of the file
@@ -959,7 +960,7 @@ mtime                                                               *column-mtim
       {align}     `"left"|"center"|"right"` Text alignment within the column
       {format}    `string` Format string (see :help strftime)
 
-atime                                                               *column-atime*
+atime                                                           *column-atime*
     Adapters: files
     Sortable: this column can be used in |canola.sort|
     Last access time of the file
@@ -970,7 +971,7 @@ atime                                                               *column-atim
       {align}     `"left"|"center"|"right"` Text alignment within the column
       {format}    `string` Format string (see :help strftime)
 
-birthtime                                                       *column-birthtime*
+birthtime                                                   *column-birthtime*
     Adapters: files, s3
     Sortable: this column can be used in |canola.sort|
     The time the file was created
@@ -981,8 +982,8 @@ birthtime                                                       *column-birthtim
       {align}     `"left"|"center"|"right"` Text alignment within the column
       {format}    `string` Format string (see :help strftime)
 
---------------------------------------------------------------------------------
-KEYMAPS                                                              *canola-keymaps*
+------------------------------------------------------------------------------
+KEYMAPS                                                       *canola-keymaps*
 
 Default keybindings in canola buffers. Override via `keymaps` in
 |canola-config|. Set a key to `false` to disable a default binding.
@@ -1006,11 +1007,11 @@ Default keybindings in canola buffers. Override via `keymaps` in
     `gy`           yank_entry              Yank entry filepath to register
     `q`            close                   Close canola buffer
 
---------------------------------------------------------------------------------
-ACTIONS                                                              *canola-actions*
+------------------------------------------------------------------------------
+ACTIONS                                                       *canola-actions*
 
-The `keymaps` key in |canola-config| accepts mappings using the same parameters
-as |vim.keymap.set()|.
+The `keymaps` key in |canola-config| accepts mappings using the same
+parameters as |vim.keymap.set()|.
 >lua
     vim.g.canola = {
       keymaps = {
@@ -1025,10 +1026,10 @@ as |vim.keymap.set()|.
     }
 <
 Below are the actions that can be used in the `keymaps` section. You can refer
-to them as strings (e.g. "actions.<action_name>") or use the functions directly
-with `require("canola.actions").action_name.callback()`
+to them as strings (e.g. "actions.<action_name>") or use the functions
+directly with `require("canola.actions").action_name.callback()`
 
-cd                                                                    *actions.cd*
+cd                                                                *actions.cd*
     :cd to the current canola directory
 
     Parameters:
@@ -1036,29 +1037,29 @@ cd                                                                    *actions.c
                or |:lcd|)
       {silent} `boolean` Do not show a message when changing directories
 
-change_sort                                                  *actions.change_sort*
+change_sort                                              *actions.change_sort*
     Change the sort order
 
     Parameters:
       {sort} `canola.SortSpec[]` List of columns plus direction (see
              |canola.set_sort|) instead of interactive selection
 
-close                                                              *actions.close*
+close                                                          *actions.close*
     Close canola and restore original buffer
 
     Parameters:
       {exit_if_last_buf} `boolean` Exit vim if canola is closed as the last buffer
 
-close_float                                                  *actions.close_float*
+close_float                                              *actions.close_float*
     Close canola if the window is floating, otherwise do nothing
 
     Parameters:
       {exit_if_last_buf} `boolean` Exit vim if canola is closed as the last buffer
 
-copy_to_system_clipboard                        *actions.copy_to_system_clipboard*
+copy_to_system_clipboard                    *actions.copy_to_system_clipboard*
     Copy the entry under the cursor to the system clipboard
 
-open_cmdline                                                *actions.open_cmdline*
+open_cmdline                                            *actions.open_cmdline*
     Open vim cmdline with current entry as an argument
 
     Parameters:
@@ -1066,25 +1067,25 @@ open_cmdline                                                *actions.open_cmdlin
                      the mods argument
       {shorten_path} `boolean` Use relative paths when possible
 
-open_cwd                                                        *actions.open_cwd*
+open_cwd                                                    *actions.open_cwd*
     Open canola in Neovim's current working directory
 
-open_external                                              *actions.open_external*
+open_external                                          *actions.open_external*
     Open the entry under the cursor in an external program
 
-open_terminal                                              *actions.open_terminal*
+open_terminal                                          *actions.open_terminal*
     Open a terminal in the current directory
 
-parent                                                            *actions.parent*
+parent                                                        *actions.parent*
     Navigate to the parent path
 
-paste_from_system_clipboard                  *actions.paste_from_system_clipboard*
+paste_from_system_clipboard              *actions.paste_from_system_clipboard*
     Paste the system clipboard into the current canola directory
 
     Parameters:
       {delete_original} `boolean` Delete the original file after copying
 
-preview                                                          *actions.preview*
+preview                                                      *actions.preview*
     Open the entry under the cursor in a preview window, or close the preview
     window if already open
 
@@ -1094,26 +1095,26 @@ preview                                                          *actions.previe
                    modifier
       {vertical}   `boolean` Open the buffer in a vertical split
 
-preview_scroll_down                                  *actions.preview_scroll_down*
+preview_scroll_down                              *actions.preview_scroll_down*
     Scroll down in the preview window
 
-preview_scroll_left                                  *actions.preview_scroll_left*
+preview_scroll_left                              *actions.preview_scroll_left*
     Scroll left in the preview window
 
-preview_scroll_right                                *actions.preview_scroll_right*
+preview_scroll_right                            *actions.preview_scroll_right*
     Scroll right in the preview window
 
-preview_scroll_up                                      *actions.preview_scroll_up*
+preview_scroll_up                                  *actions.preview_scroll_up*
     Scroll up in the preview window
 
-refresh                                                          *actions.refresh*
+refresh                                                      *actions.refresh*
     Refresh current directory list
 
     Parameters:
       {force} `boolean` When true, do not prompt user if they will be discarding
               changes
 
-select                                                            *actions.select*
+select                                                        *actions.select*
     Open the entry under the cursor
 
     Parameters:
@@ -1125,7 +1126,7 @@ select                                                            *actions.selec
       {tab}        `boolean` Open the buffer in a new tab
       {vertical}   `boolean` Open the buffer in a vertical split
 
-send_to_qflist                                            *actions.send_to_qflist*
+send_to_qflist                                        *actions.send_to_qflist*
     Sends files in the current canola directory to the quickfix list, replacing the
     previous entries.
 
@@ -1137,115 +1138,115 @@ send_to_qflist                                            *actions.send_to_qflis
                highlighting is active
       {target} `"qflist"|"loclist"` The target list to send files to
 
-show_help                                                      *actions.show_help*
+show_help                                                  *actions.show_help*
     Open |canola-keymaps| in vimdoc
 
-toggle_hidden                                              *actions.toggle_hidden*
+toggle_hidden                                          *actions.toggle_hidden*
     Toggle hidden files and directories
 
-yank_entry                                                    *actions.yank_entry*
+yank_entry                                                *actions.yank_entry*
     Yank the filepath of the entry under the cursor to a register
 
     Parameters:
       {modify} `string` Modify the path with |fnamemodify()| using this as the
                mods argument
 
---------------------------------------------------------------------------------
-HIGHLIGHTS                                                        *canola-highlights*
+------------------------------------------------------------------------------
+HIGHLIGHTS                                                 *canola-highlights*
 
-CanolaEmpty                                                             *hl-CanolaEmpty*
+CanolaEmpty                                                   *hl-CanolaEmpty*
     Empty column values
 
-CanolaHidden                                                           *hl-CanolaHidden*
+CanolaHidden                                                 *hl-CanolaHidden*
     Hidden entry in a canola buffer
 
-CanolaDir                                                                 *hl-CanolaDir*
+CanolaDir                                                       *hl-CanolaDir*
     Directory names in a canola buffer
 
-CanolaDirHidden                                                     *hl-CanolaDirHidden*
+CanolaDirHidden                                           *hl-CanolaDirHidden*
     Hidden directory names in a canola buffer
 
-CanolaDirIcon                                                         *hl-CanolaDirIcon*
+CanolaDirIcon                                               *hl-CanolaDirIcon*
     Icon for directories
 
-CanolaFileIcon                                                       *hl-CanolaFileIcon*
+CanolaFileIcon                                             *hl-CanolaFileIcon*
     Icon for files
 
-CanolaSocket                                                           *hl-CanolaSocket*
+CanolaSocket                                                 *hl-CanolaSocket*
     Socket files in a canola buffer
 
-CanolaSocketHidden                                               *hl-CanolaSocketHidden*
+CanolaSocketHidden                                     *hl-CanolaSocketHidden*
     Hidden socket files in a canola buffer
 
-CanolaLink                                                               *hl-CanolaLink*
+CanolaLink                                                     *hl-CanolaLink*
     Soft links in a canola buffer
 
-CanolaOrphanLink                                                   *hl-CanolaOrphanLink*
+CanolaOrphanLink                                         *hl-CanolaOrphanLink*
     Orphaned soft links in a canola buffer
 
-CanolaLinkHidden                                                   *hl-CanolaLinkHidden*
+CanolaLinkHidden                                         *hl-CanolaLinkHidden*
     Hidden soft links in a canola buffer
 
-CanolaOrphanLinkHidden                                       *hl-CanolaOrphanLinkHidden*
+CanolaOrphanLinkHidden                             *hl-CanolaOrphanLinkHidden*
     Hidden orphaned soft links in a canola buffer
 
-CanolaLinkTarget                                                   *hl-CanolaLinkTarget*
+CanolaLinkTarget                                         *hl-CanolaLinkTarget*
     The target of a soft link
 
-CanolaOrphanLinkTarget                                       *hl-CanolaOrphanLinkTarget*
+CanolaOrphanLinkTarget                             *hl-CanolaOrphanLinkTarget*
     The target of an orphaned soft link
 
-CanolaLinkTargetHidden                                       *hl-CanolaLinkTargetHidden*
+CanolaLinkTargetHidden                             *hl-CanolaLinkTargetHidden*
     The target of a hidden soft link
 
-CanolaOrphanLinkTargetHidden                           *hl-CanolaOrphanLinkTargetHidden*
+CanolaOrphanLinkTargetHidden                 *hl-CanolaOrphanLinkTargetHidden*
     The target of an hidden orphaned soft link
 
-CanolaFile                                                               *hl-CanolaFile*
+CanolaFile                                                     *hl-CanolaFile*
     Normal files in a canola buffer
 
-CanolaFileHidden                                                   *hl-CanolaFileHidden*
+CanolaFileHidden                                         *hl-CanolaFileHidden*
     Hidden normal files in a canola buffer
 
-CanolaExecutable                                                   *hl-CanolaExecutable*
+CanolaExecutable                                         *hl-CanolaExecutable*
     Executable files in a canola buffer
 
-CanolaExecutableHidden                                       *hl-CanolaExecutableHidden*
+CanolaExecutableHidden                             *hl-CanolaExecutableHidden*
     Hidden executable files in a canola buffer
 
-CanolaCreate                                                           *hl-CanolaCreate*
+CanolaCreate                                                 *hl-CanolaCreate*
     Create action in the mutation confirmation window
 
-CanolaDelete                                                           *hl-CanolaDelete*
+CanolaDelete                                                 *hl-CanolaDelete*
     Delete action in the mutation confirmation window
 
-CanolaMove                                                               *hl-CanolaMove*
+CanolaMove                                                     *hl-CanolaMove*
     Move action in the mutation confirmation window
 
-CanolaCopy                                                               *hl-CanolaCopy*
+CanolaCopy                                                     *hl-CanolaCopy*
     Copy action in the mutation confirmation window
 
-CanolaChange                                                           *hl-CanolaChange*
+CanolaChange                                                 *hl-CanolaChange*
     Change action in the mutation confirmation window
 
---------------------------------------------------------------------------------
-ADAPTERS                                                            *canola-adapters*
+------------------------------------------------------------------------------
+ADAPTERS                                                     *canola-adapters*
 
-Canola performs all filesystem interaction through an adapter abstraction. This
-means canola can view and modify files in places beyond the local filesystem, as
-long as the destination has an adapter implementation. File operations work
-across adapters — you can copy files between local and remote with the same
-buffer-editing workflow.
+Canola performs all filesystem interaction through an adapter abstraction.
+This means canola can view and modify files in places beyond the local
+filesystem, as long as the destination has an adapter implementation. File
+operations work across adapters — you can copy files between local and remote
+with the same buffer-editing workflow.
 
 The local filesystem adapter ships with canola. Additional adapters (SSH, S3,
 trash, etc.) are provided by canola-collection. See `:help canola-collection`
 for adapter documentation and configuration.
 
---------------------------------------------------------------------------------
-RECIPES                                                              *canola-recipes*
+------------------------------------------------------------------------------
+RECIPES                                                       *canola-recipes*
 
 Toggle file detail view ~
-                                                    *canola-recipe-toggle-detail-view*
+                                            *canola-recipe-toggle-detail-view*
 >lua
     local detail = false
     vim.g.canola = {
@@ -1266,7 +1267,7 @@ Toggle file detail view ~
 <
 
 Show CWD in the winbar ~
-                                                          *canola-recipe-cwd-winbar*
+                                                    *canola-recipe-cwd-winbar*
 >lua
     function _G.get_canola_winbar()
       local bufnr = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
@@ -1286,7 +1287,7 @@ Show CWD in the winbar ~
 <
 
 Hide gitignored files and show git tracked hidden files ~
-                                                       *canola-recipe-git-is-hidden*
+                                                 *canola-recipe-git-is-hidden*
 >lua
     local function parse_output(proc)
       local result = proc:wait()
@@ -1348,7 +1349,7 @@ Hide gitignored files and show git tracked hidden files ~
 <
 
 Open Telescope file finder in the current canola directory ~
-                                                        *canola-recipe-telescope*
+                                                     *canola-recipe-telescope*
 
 When using `get_current_dir()` in a keymap that also opens another plugin's UI
 (like Telescope), capture the directory in a local variable before the call
@@ -1390,7 +1391,7 @@ buffer, pass the buffer number explicitly: >lua
 <
 
 Add custom column for file extension ~
-                                                     *canola-recipe-extension-column*
+                                              *canola-recipe-extension-column*
 >lua
     local canola_cfg = require "canola.config"
     local canola_constants = require "canola.constants"
@@ -1458,7 +1459,7 @@ Add custom column for file extension ~
 <
 
 Add custom column for hardlink count ~
-                                                       *canola-recipe-custom-column*
+                                                 *canola-recipe-custom-column*
 
 Registers a column that shows the number of hard links to each file, sourced
 from the libuv stat `nlink` field. The column is blank for entries without
@@ -1485,7 +1486,7 @@ stat data (e.g. remote adapters). >lua
 <
 
 Disable dimming of hidden files ~
-                                                     *canola-recipe-no-hidden-dimming*
+                                             *canola-recipe-no-hidden-dimming*
 
 By default, hidden files (toggled with `g.`) are dimmed via the `CanolaHidden`
 highlight group, which links to `Comment`. To make hidden files look identical
@@ -1501,11 +1502,11 @@ variant:
 <
 
 Flash highlight on opened file ~
-                                              *canola-recipe-highlight-opened-file*
+                                         *canola-recipe-highlight-opened-file*
 
 When opening a directory from a file buffer, briefly highlight the originating
-file's name in the listing. Uses |CanolaReadPost| to apply a timed extmark after
-the buffer renders.
+file's name in the listing. Uses |CanolaReadPost| to apply a timed extmark
+after the buffer renders.
 >lua
     local ns = vim.api.nvim_create_namespace("canola_highlight_entry")
     vim.api.nvim_create_autocmd("User", {
@@ -1538,11 +1539,11 @@ the buffer renders.
     })
 <
 
-                                          *canola-recipe-paste-file-from-clipboard*
+                                     *canola-recipe-paste-file-from-clipboard*
 
-Copy a file into the current canola directory by pasting its absolute path from
-the system clipboard. Useful on macOS where copying a file in Finder places its
-path in the clipboard.
+Copy a file into the current canola directory by pasting its absolute path
+from the system clipboard. Useful on macOS where copying a file in Finder
+places its path in the clipboard.
 >lua
     vim.keymap.set("n", "gp", function()
       local canola = require("canola")
@@ -1571,12 +1572,12 @@ path in the clipboard.
     end, { desc = "Paste file from clipboard path into canola directory" })
 <
 
-                                              *canola-recipe-file-templates*
+                                                *canola-recipe-file-templates*
 
-Apply initial content to newly created files using the |CanolaFileCreated| event.
-This is the recommended alternative to relying on |BufNewFile|, which does not
-fire for files created through canola (the file already exists on disk by the
-time it is opened). >lua
+Apply initial content to newly created files using the |CanolaFileCreated|
+event. This is the recommended alternative to relying on |BufNewFile|, which
+does not fire for files created through canola (the file already exists on
+disk by the time it is opened). >lua
     vim.api.nvim_create_autocmd("User", {
       pattern = "CanolaFileCreated",
       callback = function(args)
@@ -1594,9 +1595,9 @@ time it is opened). >lua
 <
 
 For integration with vim-projectionist or any plugin that hooks |BufNewFile|,
-use |CanolaFileCreated| to track canola-created files, then fire |BufNewFile| the
-first time each file is opened. This is more precise than checking for empty
-buffers on |BufRead|: >lua
+use |CanolaFileCreated| to track canola-created files, then fire |BufNewFile|
+the first time each file is opened. This is more precise than checking for
+empty buffers on |BufRead|: >lua
     local canola_created = {}
     vim.api.nvim_create_autocmd("User", {
       pattern = "CanolaFileCreated",
@@ -1616,10 +1617,11 @@ buffers on |BufRead|: >lua
 <
 
 Open file in a picked window ~
-                                              *canola-recipe-pick-window*
+                                                   *canola-recipe-pick-window*
 
 Open the entry under the cursor in a window chosen via
-https://github.com/s1n7ax/nvim-window-picker. Add to `after/ftplugin/canola.lua`: >lua
+https://github.com/s1n7ax/nvim-window-picker. Add to
+`after/ftplugin/canola.lua`: >lua
     vim.keymap.set("n", "<C-w>", function()
       local canola = require("canola")
       local entry = canola.get_cursor_entry()
@@ -1638,8 +1640,8 @@ https://github.com/s1n7ax/nvim-window-picker. Add to `after/ftplugin/canola.lua`
     end, { buffer = true, desc = "Open file in picked window" })
 <
 
---------------------------------------------------------------------------------
-EVENTS                                                                *canola-events*
+------------------------------------------------------------------------------
+EVENTS                                                         *canola-events*
 
 Canola emits the following |User| autocmd events. Listen for them with
 |nvim_create_autocmd()|: >lua
@@ -1651,7 +1653,7 @@ Canola emits the following |User| autocmd events. Listen for them with
     })
 <
 
-CanolaEnter                                                             *CanolaEnter*
+CanolaEnter                                                      *CanolaEnter*
     Fired once per canola buffer, after the initial directory listing has been
     rendered and the buffer is ready. Use this event for one-time buffer setup
     such as setting keymaps or window options.
@@ -1662,7 +1664,7 @@ CanolaEnter                                                             *CanolaE
       `scheme` `string`      Adapter scheme (e.g. "canola://").
       `dir`    `string|nil`  OS path for local adapters, nil otherwise.
 
-CanolaReadPost                                                       *CanolaReadPost*
+CanolaReadPost                                                *CanolaReadPost*
     Fired after every successful buffer render, including the initial render
     and all subsequent re-renders (e.g. after directory changes, refreshes, or
     mutations). Use this event for logic that must run each time the directory
@@ -1674,7 +1676,7 @@ CanolaReadPost                                                       *CanolaRead
       `entry_count` `integer`  Number of visible entries rendered.
       `first`       `boolean`  True if this is the first render of this buffer.
 
-CanolaMutationComplete                                       *CanolaMutationComplete*
+CanolaMutationComplete                                *CanolaMutationComplete*
     Fired after all pending mutations (create, delete, rename, move, copy)
     have been executed and the affected buffers have been re-rendered. Use
     this event for post-mutation side effects such as refreshing external
@@ -1683,7 +1685,7 @@ CanolaMutationComplete                                       *CanolaMutationComp
     `args.data` fields:
       `actions` `canola.Action[]`  List of mutations that were performed.
 
-CanolaFloatConfig                                               *CanolaFloatConfig*
+CanolaFloatConfig                                          *CanolaFloatConfig*
     Fired before a canola floating window is opened via |nvim_open_win()|.
     Handlers can mutate `args.data.conf` to customize the window config.
     Fires for both the main float and the floating preview window.
@@ -1701,7 +1703,7 @@ CanolaFloatConfig                                               *CanolaFloatConf
         })
 <
 
-CanolaWinTitle                                                     *CanolaWinTitle*
+CanolaWinTitle                                                *CanolaWinTitle*
     Fired when canola computes the title string for a floating window. Handlers
     can mutate `args.data.title` to customize the displayed title.
 
@@ -1718,7 +1720,7 @@ CanolaWinTitle                                                     *CanolaWinTit
         })
 <
 
-CanolaPreviewDisable                                         *CanolaPreviewDisable*
+CanolaPreviewDisable                                    *CanolaPreviewDisable*
     Fired before previewing a file. Handlers set `args.data.result = true` to
     suppress the preview for the given filename. This replaces the former
     `preview.disable` config field.
@@ -1737,7 +1739,7 @@ CanolaPreviewDisable                                         *CanolaPreviewDisab
         })
 <
 
-CanolaFileCreated                                             *CanolaFileCreated*
+CanolaFileCreated                                          *CanolaFileCreated*
     Fired after a new file is successfully created on the local filesystem.
     The `args.data.path` field contains the absolute path of the created file.
     Use this event to populate initial file contents, run formatters, or
@@ -1753,8 +1755,8 @@ CanolaFileCreated                                             *CanolaFileCreated
         })
 <
 
---------------------------------------------------------------------------------
-TRASH                                                                  *canola-trash*
+------------------------------------------------------------------------------
+TRASH                                                           *canola-trash*
 
 Trash support is provided by canola-collection. Install it and configure
 `delete_to_trash` per its documentation. Deleted files are sent to the system
@@ -1762,7 +1764,8 @@ trash instead of being permanently deleted.
 
 You can browse the trash for a directory using the `toggle_trash` action
 provided by canola-collection. To restore files, move them from the trash to
-the desired destination. Deleting files from the trash permanently purges them.
+the desired destination. Deleting files from the trash permanently purges
+them.
 
-================================================================================
+==============================================================================
 vim:tw=80:ts=2:ft=help:norl:syntax=help:
