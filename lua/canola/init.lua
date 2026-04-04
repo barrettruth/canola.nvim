@@ -1128,7 +1128,8 @@ M._get_highlights = function()
     {
       name = 'CanolaOrphanLink',
       link = 'DiagnosticError',
-      desc = 'Orphaned soft links in an oil buffer',
+      bold = true,
+      desc = 'Arrow separator for orphaned soft links',
     },
     {
       name = 'CanolaLinkHidden',
@@ -1148,6 +1149,7 @@ M._get_highlights = function()
     {
       name = 'CanolaOrphanLinkTarget',
       link = 'DiagnosticError',
+      bold = true,
       underline = true,
       desc = 'The target of an orphaned soft link',
     },
@@ -1163,7 +1165,8 @@ M._get_highlights = function()
     },
     {
       name = 'CanolaLinkArrow',
-      link = 'Comment',
+      terminal_color = 8,
+      bold = true,
       desc = 'The arrow separator (-> ) between a soft link and its target',
     },
     {

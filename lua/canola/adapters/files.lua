@@ -113,7 +113,7 @@ if not fs.is_windows then
 
     render = function(entry, conf)
       local meta = entry[FIELD_META]
-      local stat = meta and meta.stat
+      local stat = meta and (meta.lstat or meta.stat)
       if not stat then
         return columns.EMPTY
       end
@@ -136,7 +136,7 @@ if not fs.is_windows then
 
     render = function(entry, conf)
       local meta = entry[FIELD_META]
-      local stat = meta and meta.stat
+      local stat = meta and (meta.lstat or meta.stat)
       if not stat then
         return columns.EMPTY
       end
@@ -404,6 +404,13 @@ local function fetch_entry_metadata(parent_dir, entry, require_stat, cb)
         -- Use the fstat of the linked file as the stat for the link
         meta.link_stat = link_stat
         meta.stat = link_stat
+        uv.fs_lstat(entry_path, function(lstat_err, lstat)
+          if not lstat_err and lstat then
+            meta.lstat = lstat
+          end
+          cb()
+        end)
+        return
       elseif require_stat then
         -- The link is broken, so let's use the stat of the link itself
         uv.fs_lstat(entry_path, function(stat_err, stat)
@@ -412,6 +419,7 @@ local function fetch_entry_metadata(parent_dir, entry, require_stat, cb)
             return cb()
           end
           meta.stat = stat
+          meta.lstat = stat
           cb()
         end)
         return

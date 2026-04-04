@@ -1114,7 +1114,7 @@ M.format_entry_line = function(entry, adapter, is_hidden, bufnr)
       if highlight_as_executable then
         link_name_hl = 'CanolaExecutable' .. hl_suffix
       else
-        link_name_hl = (is_orphan and 'CanolaOrphanLink' or 'CanolaLink') .. hl_suffix
+        link_name_hl = 'CanolaLink' .. hl_suffix
       end
     end
     table.insert(cols, { link_name, link_name_hl })
@@ -1150,7 +1150,7 @@ M.format_entry_line = function(entry, adapter, is_hidden, bufnr)
           elseif highlight_as_executable then
             base_hl = 'CanolaExecutable' .. hl_suffix
           else
-            local target_type = meta.link_stat.type
+            local target_type = meta.link_stat and meta.link_stat.type
             if target_type == 'directory' then
               base_hl = 'CanolaDir' .. hl_suffix
             elseif target_type == 'socket' then
