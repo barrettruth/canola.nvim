@@ -535,7 +535,10 @@ end)
   end
 
   if cfg.delete_to_trash then
-    table.insert(adapters, 'delete_to_trash -> delete = { trash = true } (requires canola-collection)')
+    table.insert(
+      adapters,
+      'delete_to_trash -> delete = { trash = true } (requires canola-collection)'
+    )
   end
   if cfg.extra_scp_args and #cfg.extra_scp_args > 0 then
     table.insert(adapters, 'extra_scp_args -> configure via vim.g.canola_ssh in canola-collection')
