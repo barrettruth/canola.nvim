@@ -27,7 +27,6 @@ local removed_defaults = {
   extra_s3_args = {},
   ssh_hosts = {},
   s3_buckets = {},
-  delete_to_trash = false,
 }
 
 local function indent(s, level)
@@ -229,6 +228,9 @@ M.generate = function()
   local delete = {}
   if cfg.cleanup_buffers_on_delete then
     delete.wipe = true
+  end
+  if cfg.delete_to_trash then
+    delete.trash = true
   end
   if next(delete) then
     out.delete = delete
@@ -533,7 +535,7 @@ end)
   end
 
   if cfg.delete_to_trash then
-    table.insert(adapters, 'delete_to_trash -> install canola-collection for trash support')
+    table.insert(adapters, 'delete_to_trash -> delete = { trash = true } (requires canola-collection)')
   end
   if cfg.extra_scp_args and #cfg.extra_scp_args > 0 then
     table.insert(adapters, 'extra_scp_args -> configure via vim.g.canola_ssh in canola-collection')
