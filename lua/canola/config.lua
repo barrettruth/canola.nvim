@@ -40,7 +40,7 @@ local default_config = {
 
   confirm = true,
   save = 'prompt',
-  delete = { wipe = false, recursive = false },
+  delete = { wipe = false, recursive = false, trash = false },
   create = { file_mode = 420, dir_mode = 493 },
   extglob = false,
 
@@ -154,6 +154,7 @@ local M = {}
 ---@class (exact) canola.DeleteConfig
 ---@field wipe boolean
 ---@field recursive boolean
+---@field trash boolean
 
 ---@class (exact) canola.CreateConfig
 ---@field file_mode integer
