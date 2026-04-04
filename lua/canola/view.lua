@@ -1015,23 +1015,26 @@ end
 ---@param name string
 ---@param meta? table
 ---@return string filename
----@return string|nil link_target
+---@return string|nil arrow "-> "
+---@return string|nil link_dir Directory prefix of target path
+---@return string|nil link_base Basename of target path
 local function get_link_text(name, meta)
-  local link_text
+  local arrow, link_dir, link_base
   if meta then
-    if meta.link_stat and meta.link_stat.type == 'directory' then
-      name = name .. '/'
-    end
-
     if meta.link then
-      link_text = '-> ' .. meta.link:gsub('\n', '')
-      if meta.link_stat and meta.link_stat.type == 'directory' then
-        link_text = util.addslash(link_text)
+      local link = meta.link:gsub('\n', '')
+      arrow = '-> '
+      local last_sep = link:match('.*()/')
+      if last_sep then
+        link_dir = link:sub(1, last_sep)
+        link_base = link:sub(last_sep + 1)
+      else
+        link_base = link
       end
     end
   end
 
-  return name, link_text
+  return name, arrow, link_dir, link_base
 end
 
 ---@param entry canola.InternalEntry
@@ -1066,14 +1069,12 @@ M.format_entry_line = function(entry, adapter, is_hidden, bufnr)
     end
   end
 
-  local link_name, link_name_hl, link_target, link_target_hl
+  local link_name, link_name_hl, link_arrow, link_dir, link_base, link_target_hl
   if custom_hl then
     if entry_type == 'link' then
-      link_name, link_target = get_link_text(name, meta)
+      link_name, link_arrow, link_dir, link_base = get_link_text(name, meta)
       link_name_hl = custom_hl
-      if link_target then
-        link_target_hl = custom_hl
-      end
+      link_target_hl = custom_hl
     else
       if entry_type == 'directory' then
         name = name .. '/'
@@ -1105,24 +1106,63 @@ M.format_entry_line = function(entry, adapter, is_hidden, bufnr)
   elseif entry_type == 'socket' then
     table.insert(cols, { name, 'CanolaSocket' .. hl_suffix })
   elseif entry_type == 'link' then
-    if not link_name then
-      link_name, link_target = get_link_text(name, meta)
+    if not link_arrow then
+      link_name, link_arrow, link_dir, link_base = get_link_text(name, meta)
     end
     local is_orphan = not (meta and meta.link_stat)
     if not link_name_hl then
       if highlight_as_executable then
         link_name_hl = 'CanolaExecutable' .. hl_suffix
       else
-        link_name_hl = (is_orphan and 'CanolaOrphanLink' or 'CanolaLink') .. hl_suffix
+        link_name_hl = 'CanolaLink' .. hl_suffix
       end
     end
     table.insert(cols, { link_name, link_name_hl })
 
-    if link_target then
-      if not link_target_hl then
-        link_target_hl = (is_orphan and 'CanolaOrphanLinkTarget' or 'CanolaLinkTarget') .. hl_suffix
+    if link_arrow then
+      if link_target_hl then
+        local target_text = link_arrow .. (link_dir or '') .. (link_base or '')
+        table.insert(cols, { target_text, link_target_hl })
+      else
+        local target_text = link_arrow .. (link_dir or '') .. (link_base or '')
+        local sub_hls = {}
+        local off = 0
+        local orphan_hl = 'CanolaOrphanLinkTarget' .. hl_suffix
+        local orphan_arrow_hl = 'CanolaOrphanLink' .. hl_suffix
+        sub_hls[#sub_hls + 1] = {
+          is_orphan and orphan_arrow_hl or ('CanolaLinkArrow' .. hl_suffix),
+          off,
+          off + #link_arrow,
+        }
+        off = off + #link_arrow
+        if link_dir then
+          sub_hls[#sub_hls + 1] = {
+            is_orphan and orphan_hl or ('CanolaLinkPath' .. hl_suffix),
+            off,
+            off + #link_dir,
+          }
+          off = off + #link_dir
+        end
+        if link_base then
+          local base_hl
+          if is_orphan then
+            base_hl = orphan_hl
+          elseif highlight_as_executable then
+            base_hl = 'CanolaExecutable' .. hl_suffix
+          else
+            local target_type = meta.link_stat and meta.link_stat.type
+            if target_type == 'directory' then
+              base_hl = 'CanolaDir' .. hl_suffix
+            elseif target_type == 'socket' then
+              base_hl = 'CanolaSocket' .. hl_suffix
+            else
+              base_hl = 'CanolaFile' .. hl_suffix
+            end
+          end
+          sub_hls[#sub_hls + 1] = { base_hl, off, off + #link_base }
+        end
+        table.insert(cols, { target_text, sub_hls })
       end
-      table.insert(cols, { link_target, link_target_hl })
     end
   elseif highlight_as_executable then
     table.insert(cols, { name, 'CanolaExecutable' .. hl_suffix })
