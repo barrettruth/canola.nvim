@@ -86,6 +86,7 @@ Config options ~
     `new_file_mode`                       `create.file_mode`
     `new_dir_mode`                        `create.dir_mode`
     `cleanup_buffers_on_delete`           `delete.wipe`
+    `delete_to_trash`                     `delete.trash`
     `default_to_float`                    `float.default`
 
     `lsp_file_methods.enabled`            `lsp.enabled`
@@ -250,7 +251,7 @@ These oil.nvim options have no canola equivalent:
     `ssh_hosts`                      Moved to canola-collection
     `s3_buckets`                     Moved to canola-collection
     `ftp_hosts`                      Moved to canola-collection
-    `delete_to_trash`                Moved to canola-collection
+    `delete_to_trash`                `delete.trash`
     `ssh { border }`                 Removed
     `keymaps_help { border }`        Removed (help uses vimdoc now)
 
@@ -331,7 +332,7 @@ After (canola.nvim): >lua
       win = { wrap = false, signcolumn = "no" },
       cursor = true,
       watch = true,
-      delete = { wipe = true },
+      delete = { wipe = true, trash = true },
       confirm = false,
       save = "prompt",
       create = { file_mode = 420, dir_mode = 493 },
@@ -384,7 +385,7 @@ The full list of options with their defaults:
 
       confirm = true,
       save = "prompt",
-      delete = { wipe = false, recursive = false },
+      delete = { wipe = false, recursive = false, trash = false },
       create = { file_mode = 420, dir_mode = 493 },
 
       keymaps = {
@@ -552,12 +553,16 @@ save                                                         *canola.save_opt*
     - `false`: open the original file without saving
 
 delete                                                         *canola.delete*
-    type: `canola.DeleteConfig` default: `{ wipe = false, recursive = false }`
+    type: `canola.DeleteConfig`
+    default: `{ wipe = false, recursive = false, trash = false }`
     `wipe`: when `true`, wipe any open buffer whose path matches a file
     deleted via canola.
     `recursive`: when `true`, allow recursive deletion of directories via
     remote adapters (SSH, S3, FTP). Can be overridden per-adapter via
     `vim.g.canola_ssh.recursive` etc. Default: `false`.
+    `trash`: when `true`, send deleted files to the system trash instead
+    of permanently deleting them. Requires canola-collection. See
+    |canola-trash|.
 
 create                                                         *canola.create*
     type: `canola.CreateConfig`
@@ -1759,9 +1764,14 @@ CanolaFileCreated                                          *CanolaFileCreated*
 ------------------------------------------------------------------------------
 TRASH                                                           *canola-trash*
 
-Trash support is provided by canola-collection. Install it and configure
-`delete_to_trash` per its documentation. Deleted files are sent to the system
-trash instead of being permanently deleted.
+Trash support is provided by canola-collection. Install it and set
+`delete.trash = true` in `vim.g.canola`: >lua
+    vim.g.canola = {
+      delete = { trash = true },
+    }
+<
+Deleted files are sent to the system trash instead of being permanently
+deleted.
 
 You can browse the trash for a directory using the `toggle_trash` action
 provided by canola-collection. To restore files, move them from the trash to
