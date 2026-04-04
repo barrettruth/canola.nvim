@@ -8,8 +8,6 @@ local FIELD_NAME = constants.FIELD_NAME
 local FIELD_TYPE = constants.FIELD_TYPE
 local FIELD_META = constants.FIELD_META
 
----@alias canola.IconProvider fun(type: string, name: string, conf: table?, ft: string?): (icon: string, hl: string)
-
 ---@param url string
 ---@return nil|string
 ---@return nil|string
@@ -92,30 +90,8 @@ M.get_adapter = function(bufnr, silent)
   return adapter
 end
 
----@param text string
----@param width integer|nil
----@param align canola.ColumnAlign
----@return string padded_text
----@return integer left_padding
-M.pad_align = function(text, width, align)
-  if not width then
-    return text, 0
-  end
-  local text_width = vim.api.nvim_strwidth(text)
-  local total_pad = width - text_width
-  if total_pad <= 0 then
-    return text, 0
-  end
-
-  if align == 'right' then
-    return string.rep(' ', total_pad) .. text, total_pad
-  elseif align == 'center' then
-    local left_pad = math.floor(total_pad / 2)
-    local right_pad = total_pad - left_pad
-    return string.rep(' ', left_pad) .. text .. string.rep(' ', right_pad), left_pad
-  else
-    return text .. string.rep(' ', total_pad), 0
-  end
+M.pad_align = function(...)
+  return require('canola.render').pad_align(...)
 end
 
 ---@generic T : any
@@ -153,7 +129,7 @@ end
 ---@return boolean True if the buffer was replaced instead of renamed
 M.rename_buffer = function(src_bufnr, dest_buf_name)
   if type(src_bufnr) == 'string' then
-    src_bufnr = vim.fn.bufadd(src_bufnr)
+    src_bufnr = vim.fn.bufadd(src_bufnr --[[@as string]])
     if not vim.api.nvim_buf_is_loaded(src_bufnr) then
       vim.api.nvim_buf_delete(src_bufnr, {})
       return false
@@ -311,45 +287,12 @@ M.split_config = function(name_or_config)
   end
 end
 
----@alias canola.ColumnAlign "left"|"center"|"right"
-
----@param lines canola.TextChunk[][]
----@param col_width integer[]
----@param col_align? canola.ColumnAlign[]
----@return string[]
-M.render_table = function(lines, col_width, col_align)
-  col_align = col_align or {}
-  local str_lines = {}
-  for _, cols in ipairs(lines) do
-    local pieces = {}
-    for i, chunk in ipairs(cols) do
-      local text
-      if type(chunk) == 'table' then
-        text = chunk[1]
-      else
-        text = chunk
-      end
-      text = M.pad_align(text, col_width[i], col_align[i] or 'left')
-      table.insert(pieces, text)
-    end
-    table.insert(str_lines, table.concat(pieces, ' '))
-  end
-  return str_lines
+M.render_table = function(...)
+  return require('canola.render').render_table(...)
 end
 
----@param bufnr integer
----@param highlights any[][] List of highlights {group, lnum, col_start, col_end}
-M.set_highlights = function(bufnr, highlights)
-  local ns = vim.api.nvim_create_namespace('Canola')
-  vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
-  for _, hl in ipairs(highlights) do
-    local group, line, col_start, col_end = unpack(hl)
-    vim.api.nvim_buf_set_extmark(bufnr, ns, line, col_start, {
-      end_col = col_end,
-      hl_group = group,
-      strict = false,
-    })
-  end
+M.set_highlights = function(...)
+  return require('canola.render').set_highlights(...)
 end
 
 ---@param path string
@@ -369,136 +312,16 @@ M.addslash = function(path, os_slash)
   end
 end
 
----@param winid nil|integer
----@return boolean
-M.is_floating_win = function(winid)
-  return vim.api.nvim_win_get_config(winid or 0).relative ~= ''
+M.is_floating_win = function(...)
+  return require('canola.win_util').is_floating_win(...)
 end
 
----Recalculate the window title for the current buffer
----@param winid nil|integer
----@return string
-M.get_title = function(winid)
-  winid = winid or 0
-  local src_buf = vim.api.nvim_win_get_buf(winid)
-  local title = vim.api.nvim_buf_get_name(src_buf)
-  local scheme, path = M.parse_url(title)
-
-  if config.adapters[scheme] == 'files' then
-    assert(path)
-    local fs = require('canola.fs')
-    title = vim.fn.fnamemodify(fs.posix_to_os_path(path), ':~')
-  end
-  local ev_data = { winid = winid, bufnr = src_buf, title = title }
-  vim.api.nvim_exec_autocmds(
-    'User',
-    { pattern = 'CanolaWinTitle', modeline = false, data = ev_data }
-  )
-  return ev_data.title
+M.get_title = function(...)
+  return require('canola.win_util').get_title(...)
 end
 
----@type table<integer, integer>
-local winid_map = {}
-M.add_title_to_win = function(winid, opts)
-  opts = opts or {}
-  opts.align = opts.align or 'left'
-  if not vim.api.nvim_win_is_valid(winid) then
-    return
-  end
-  -- HACK to force the parent window to position itself
-  -- See https://github.com/neovim/neovim/issues/13403
-  vim.cmd.redraw()
-  local title = M.get_title(winid)
-  local width = math.min(vim.api.nvim_win_get_width(winid) - 4, 2 + vim.api.nvim_strwidth(title))
-  local title_winid = winid_map[winid]
-  local bufnr
-  if title_winid and vim.api.nvim_win_is_valid(title_winid) then
-    vim.api.nvim_win_set_width(title_winid, width)
-    bufnr = vim.api.nvim_win_get_buf(title_winid)
-  else
-    bufnr = vim.api.nvim_create_buf(false, true)
-    local col = 1
-    if opts.align == 'center' then
-      col = math.floor((vim.api.nvim_win_get_width(winid) - width) / 2)
-    elseif opts.align == 'right' then
-      col = vim.api.nvim_win_get_width(winid) - 1 - width
-    elseif opts.align ~= 'left' then
-      vim.notify(
-        string.format("Unknown oil window title alignment: '%s'", opts.align),
-        vim.log.levels.ERROR
-      )
-    end
-    title_winid = vim.api.nvim_open_win(bufnr, false, {
-      relative = 'win',
-      win = winid,
-      width = width,
-      height = 1,
-      row = -1,
-      col = col,
-      focusable = false,
-      zindex = 151,
-      style = 'minimal',
-      noautocmd = true,
-    })
-    winid_map[winid] = title_winid
-    vim.api.nvim_set_option_value(
-      'winblend',
-      vim.wo[winid].winblend,
-      { scope = 'local', win = title_winid }
-    )
-    vim.bo[bufnr].bufhidden = 'wipe'
-
-    local update_autocmd = vim.api.nvim_create_autocmd('BufWinEnter', {
-      desc = 'Update oil floating window title when buffer changes',
-      pattern = '*',
-      callback = function(params)
-        local winbuf = params.buf
-        if vim.api.nvim_win_get_buf(winid) ~= winbuf then
-          return
-        end
-        local new_title = M.get_title(winid)
-        local new_width =
-          math.min(vim.api.nvim_win_get_width(winid) - 4, 2 + vim.api.nvim_strwidth(new_title))
-        vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, { ' ' .. new_title .. ' ' })
-        vim.bo[bufnr].modified = false
-        vim.api.nvim_win_set_width(title_winid, new_width)
-        local new_col = 1
-        if opts.align == 'center' then
-          new_col = math.floor((vim.api.nvim_win_get_width(winid) - new_width) / 2)
-        elseif opts.align == 'right' then
-          new_col = vim.api.nvim_win_get_width(winid) - 1 - new_width
-        end
-        vim.api.nvim_win_set_config(title_winid, {
-          relative = 'win',
-          win = winid,
-          row = -1,
-          col = new_col,
-          width = new_width,
-          height = 1,
-        })
-      end,
-    })
-    vim.api.nvim_create_autocmd('WinClosed', {
-      desc = 'Close oil floating window title when floating window closes',
-      pattern = tostring(winid),
-      callback = function()
-        if title_winid and vim.api.nvim_win_is_valid(title_winid) then
-          vim.api.nvim_win_close(title_winid, true)
-        end
-        winid_map[winid] = nil
-        vim.api.nvim_del_autocmd(update_autocmd)
-      end,
-      once = true,
-      nested = true,
-    })
-  end
-  vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, { ' ' .. title .. ' ' })
-  vim.bo[bufnr].modified = false
-  vim.api.nvim_set_option_value(
-    'winhighlight',
-    'Normal:FloatTitle,NormalFloat:FloatTitle',
-    { scope = 'local', win = title_winid }
-  )
+M.add_title_to_win = function(...)
+  return require('canola.win_util').add_title_to_win(...)
 end
 
 ---@param action canola.Action
@@ -533,123 +356,16 @@ M.get_adapter_for_action = function(action)
   return adapter
 end
 
----@param str string
----@param align "left"|"right"|"center"
----@param width integer
----@return string
----@return integer
-M.h_align = function(str, align, width)
-  if align == 'center' then
-    local padding = math.floor((width - vim.api.nvim_strwidth(str)) / 2)
-    return string.rep(' ', padding) .. str, padding
-  elseif align == 'right' then
-    local padding = width - vim.api.nvim_strwidth(str)
-    return string.rep(' ', padding) .. str, padding
-  else
-    return str, 0
-  end
+M.h_align = function(...)
+  return require('canola.render').h_align(...)
 end
 
----@param bufnr integer
----@param text string|string[]
----@param opts nil|table
----    h_align nil|"left"|"right"|"center"
----    v_align nil|"top"|"bottom"|"center"
----    actions nil|string[]
----    winid nil|integer
-M.render_text = function(bufnr, text, opts)
-  opts = vim.tbl_deep_extend('keep', opts or {}, {
-    h_align = 'center',
-    v_align = 'center',
-  })
-  ---@cast opts -nil
-  if not vim.api.nvim_buf_is_valid(bufnr) then
-    return
-  end
-  if type(text) == 'string' then
-    text = { text }
-  end
-  local height = 40
-  local width = 30
-
-  -- If no winid passed in, find the first win that displays this buffer
-  if not opts.winid then
-    for _, winid in ipairs(vim.api.nvim_list_wins()) do
-      if vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_buf(winid) == bufnr then
-        opts.winid = winid
-        break
-      end
-    end
-  end
-  if opts.winid then
-    height = vim.api.nvim_win_get_height(opts.winid)
-    width = vim.api.nvim_win_get_width(opts.winid)
-  end
-  local lines = {}
-
-  -- Add vertical spacing for vertical alignment
-  if opts.v_align == 'center' then
-    for _ = 1, (height / 2) - (#text / 2) do
-      table.insert(lines, '')
-    end
-  elseif opts.v_align == 'bottom' then
-    local num_lines = height
-    if opts.actions then
-      num_lines = num_lines - 2
-    end
-    while #lines + #text < num_lines do
-      table.insert(lines, '')
-    end
-  end
-
-  -- Add the lines of text
-  for _, line in ipairs(text) do
-    line = M.h_align(line, opts.h_align, width)
-    table.insert(lines, line)
-  end
-
-  -- Render the actions (if any) at the bottom
-  local highlights = {}
-  if opts.actions then
-    while #lines < height - 1 do
-      table.insert(lines, '')
-    end
-    local last_line, padding = M.h_align(table.concat(opts.actions, '    '), 'center', width)
-    local col = padding
-    for _, action in ipairs(opts.actions) do
-      table.insert(highlights, { 'Special', #lines, col, col + 3 })
-      col = padding + action:len() + 4
-    end
-    table.insert(lines, last_line)
-  end
-
-  vim.bo[bufnr].modifiable = true
-  pcall(vim.api.nvim_buf_set_lines, bufnr, 0, -1, false, lines)
-  vim.bo[bufnr].modifiable = false
-  vim.bo[bufnr].modified = false
-  M.set_highlights(bufnr, highlights)
+M.render_text = function(...)
+  return require('canola.render').render_text(...)
 end
 
----Run a function in the context of a full-editor window
----@param bufnr nil|integer
----@param callback fun()
-M.run_in_fullscreen_win = function(bufnr, callback)
-  if not bufnr then
-    bufnr = vim.api.nvim_create_buf(false, true)
-    vim.bo[bufnr].bufhidden = 'wipe'
-  end
-  local winid = vim.api.nvim_open_win(bufnr, false, {
-    relative = 'editor',
-    width = vim.o.columns,
-    height = vim.o.lines,
-    row = 0,
-    col = 0,
-    noautocmd = true,
-  })
-  local winnr = vim.api.nvim_win_get_number(winid)
-  vim.cmd.wincmd({ count = winnr, args = { 'w' }, mods = { noautocmd = true } })
-  callback()
-  vim.cmd.close({ count = winnr, mods = { noautocmd = true, emsg_silent = true } })
+M.run_in_fullscreen_win = function(...)
+  return require('canola.win_util').run_in_fullscreen_win(...)
 end
 
 ---@param bufnr integer
@@ -683,58 +399,16 @@ M.hack_around_termopen_autocmd = function(prev_mode)
   end, 10)
 end
 
----@param opts? {include_not_owned?: boolean}
----@return nil|integer
-M.get_preview_win = function(opts)
-  opts = opts or {}
-
-  for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-    if
-      vim.api.nvim_win_is_valid(winid)
-      and vim.wo[winid].previewwindow
-      and (opts.include_not_owned or vim.w[winid]['oil_preview'])
-    then
-      return winid
-    end
-  end
+M.get_preview_win = function(...)
+  return require('canola.win_util').get_preview_win(...)
 end
 
----@return fun() restore Function that restores the cursor
 M.hide_cursor = function()
-  vim.api.nvim_set_hl(0, 'CanolaPreviewCursor', { nocombine = true, blend = 100 })
-  local original_guicursor = vim.go.guicursor
-  vim.go.guicursor = 'a:CanolaPreviewCursor/CanolaPreviewCursor'
-
-  return function()
-    -- HACK: see https://github.com/neovim/neovim/issues/21018
-    vim.go.guicursor = 'a:'
-    vim.cmd.redrawstatus()
-    vim.go.guicursor = original_guicursor
-  end
+  return require('canola.win_util').hide_cursor()
 end
 
----@param bufnr integer
----@param preferred_win nil|integer
----@return nil|integer
-M.buf_get_win = function(bufnr, preferred_win)
-  if
-    preferred_win
-    and vim.api.nvim_win_is_valid(preferred_win)
-    and vim.api.nvim_win_get_buf(preferred_win) == bufnr
-  then
-    return preferred_win
-  end
-  for _, winid in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-    if vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_buf(winid) == bufnr then
-      return winid
-    end
-  end
-  for _, winid in ipairs(vim.api.nvim_list_wins()) do
-    if vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_buf(winid) == bufnr then
-      return winid
-    end
-  end
-  return nil
+M.buf_get_win = function(...)
+  return require('canola.win_util').buf_get_win(...)
 end
 
 ---@param adapter canola.Adapter
@@ -766,101 +440,12 @@ M.adapter_list_all = function(adapter, url, opts, callback)
   end)
 end
 
----Send files from the current oil directory to quickfix
----based on the provided options.
----@param opts {target?: "qflist"|"loclist", action?: "r"|"a", only_matching_search?: boolean}
-M.send_to_quickfix = function(opts)
-  if type(opts) ~= 'table' then
-    opts = {}
-  end
-  local canola = require('canola')
-  local dir = canola.get_current_dir()
-  if type(dir) ~= 'string' then
-    return
-  end
-  local range = M.get_visual_range()
-  if not range then
-    range = { start_lnum = 1, end_lnum = vim.fn.line('$') }
-  end
-  local match_all = not opts.only_matching_search
-  local qf_entries = {}
-  for i = range.start_lnum, range.end_lnum do
-    local entry = canola.get_entry_on_line(0, i)
-    if entry and entry.type == 'file' and (match_all or M.is_matching(entry)) then
-      local qf_entry = {
-        filename = dir .. entry.name,
-        lnum = 1,
-        col = 1,
-        text = entry.name,
-      }
-      table.insert(qf_entries, qf_entry)
-    end
-  end
-  if #qf_entries == 0 then
-    vim.notify('[canola] No entries found to send to quickfix', vim.log.levels.WARN)
-    return
-  end
-  vim.api.nvim_exec_autocmds('QuickFixCmdPre', {})
-  local qf_title = 'canola files'
-  local action = opts.action == 'a' and 'a' or 'r'
-  if opts.target == 'loclist' then
-    vim.fn.setloclist(0, {}, action, { title = qf_title, items = qf_entries })
-    vim.cmd.lopen()
-  else
-    vim.fn.setqflist({}, action, { title = qf_title, items = qf_entries })
-    vim.cmd.copen()
-  end
-  vim.api.nvim_exec_autocmds('QuickFixCmdPost', {})
+M.send_to_quickfix = function(...)
+  return require('canola.quickfix').send_to_quickfix(...)
 end
 
-M.add_to_quickfix = function(opts)
-  if type(opts) ~= 'table' then
-    opts = {}
-  end
-  local canola = require('canola')
-  local dir = canola.get_current_dir()
-  if type(dir) ~= 'string' then
-    return
-  end
-  local range = M.get_visual_range()
-  local qf_entries = {}
-  if range then
-    for i = range.start_lnum, range.end_lnum do
-      local entry = canola.get_entry_on_line(0, i)
-      if entry and entry.type == 'file' then
-        table.insert(qf_entries, {
-          filename = dir .. entry.name,
-          lnum = 1,
-          col = 1,
-        })
-      end
-    end
-  else
-    local entry = canola.get_cursor_entry()
-    if entry and entry.type == 'file' then
-      table.insert(qf_entries, {
-        filename = dir .. entry.name,
-        lnum = 1,
-        col = 1,
-      })
-    end
-  end
-  if #qf_entries == 0 then
-    vim.notify('[canola] No file entries to add to quickfix', vim.log.levels.WARN)
-    return
-  end
-  vim.api.nvim_exec_autocmds('QuickFixCmdPre', {})
-  if opts.target == 'loclist' then
-    vim.fn.setloclist(0, {}, 'a', { title = 'canola files', items = qf_entries })
-  else
-    vim.fn.setqflist({}, 'a', { title = 'canola files', items = qf_entries })
-  end
-  vim.api.nvim_exec_autocmds('QuickFixCmdPost', {})
-  local count = #qf_entries
-  local names = vim.tbl_map(function(e)
-    return e.text
-  end, qf_entries)
-  vim.notify(('[canola] Added %s to quickfix'):format(table.concat(names, ', ')))
+M.add_to_quickfix = function(...)
+  return require('canola.quickfix').add_to_quickfix(...)
 end
 
 ---@return boolean
@@ -958,70 +543,8 @@ M.get_edit_path = function(bufnr, entry, callback)
   end
 end
 
---- Check for an icon provider and return a common icon provider API
----@return (canola.IconProvider)?
 M.get_icon_provider = function()
-  -- prefer mini.icons
-  local _, mini_icons = pcall(require, 'mini.icons')
-  -- selene: allow(global_usage)
-  ---@diagnostic disable-next-line: undefined-field
-  if _G.MiniIcons then
-    return function(type, name, conf, ft)
-      if ft then
-        return mini_icons.get('filetype', ft)
-      end
-      return mini_icons.get(type == 'directory' and 'directory' or 'file', name)
-    end
-  end
-
-  local has_nonicons, nonicons = pcall(require, 'nonicons')
-  if has_nonicons and nonicons.get_icon then
-    local has_devicons, devicons = pcall(require, 'nvim-web-devicons')
-    if not has_devicons then
-      devicons = nil
-    end
-    return function(type, name, conf, ft)
-      if type == 'directory' then
-        local icon, hl = nonicons.get('file-directory-fill')
-        return icon or (conf and conf.directory or ''), hl or 'CanolaDirIcon'
-      end
-      if ft then
-        local ft_icon, ft_hl = nonicons.get_icon_by_filetype(ft)
-        if ft_icon then
-          return ft_icon, ft_hl or 'CanolaFileIcon'
-        end
-      end
-      local icon, hl = nonicons.get_icon(name)
-      if icon then
-        return icon, hl or 'CanolaFileIcon'
-      end
-      local fallback, fallback_hl = nonicons.get('file')
-      return fallback or (conf and conf.default_file or ''), fallback_hl or 'CanolaFileIcon'
-    end
-  end
-
-  local has_devicons, devicons = pcall(require, 'nvim-web-devicons')
-
-  if not has_devicons then
-    return
-  end
-
-  return function(type, name, conf, ft)
-    if type == 'directory' then
-      return conf and conf.directory or '', 'CanolaDirIcon'
-    else
-      if ft then
-        local ft_icon, ft_hl = devicons.get_icon_by_filetype(ft)
-        if ft_icon and ft_icon ~= '' then
-          return ft_icon, ft_hl
-        end
-      end
-      local icon, hl = devicons.get_icon(name)
-      hl = hl or 'CanolaFileIcon'
-      icon = icon or (conf and conf.default_file or '')
-      return icon, hl
-    end
-  end
+  return require('canola.icons').get_icon_provider()
 end
 
 ---Read a buffer into a scratch buffer and apply syntactic highlighting when possible
