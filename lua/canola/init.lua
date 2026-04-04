@@ -1089,7 +1089,7 @@ M._get_highlights = function()
     },
     {
       name = 'CanolaDir',
-      link = 'Directory',
+      terminal_color = 4,
       bold = true,
       desc = 'Directory names in an oil buffer',
     },
@@ -1110,7 +1110,8 @@ M._get_highlights = function()
     },
     {
       name = 'CanolaSocket',
-      link = 'Keyword',
+      terminal_color = 5,
+      bold = true,
       desc = 'Socket files in an oil buffer',
     },
     {
@@ -1120,12 +1121,13 @@ M._get_highlights = function()
     },
     {
       name = 'CanolaLink',
-      link = nil,
+      terminal_color = 6,
+      bold = true,
       desc = 'Soft links in an oil buffer',
     },
     {
       name = 'CanolaOrphanLink',
-      link = nil,
+      link = 'DiagnosticError',
       desc = 'Orphaned soft links in an oil buffer',
     },
     {
@@ -1146,6 +1148,7 @@ M._get_highlights = function()
     {
       name = 'CanolaOrphanLinkTarget',
       link = 'DiagnosticError',
+      underline = true,
       desc = 'The target of an orphaned soft link',
     },
     {
@@ -1159,6 +1162,27 @@ M._get_highlights = function()
       desc = 'The target of an hidden orphaned soft link',
     },
     {
+      name = 'CanolaLinkArrow',
+      link = 'Comment',
+      desc = 'The arrow separator (-> ) between a soft link and its target',
+    },
+    {
+      name = 'CanolaLinkArrowHidden',
+      link = 'CanolaHidden',
+      desc = 'Hidden arrow separator for soft links',
+    },
+    {
+      name = 'CanolaLinkPath',
+      terminal_color = 6,
+      bold = true,
+      desc = 'The directory prefix of a soft link target path',
+    },
+    {
+      name = 'CanolaLinkPathHidden',
+      link = 'CanolaHidden',
+      desc = 'Hidden directory prefix of a soft link target path',
+    },
+    {
       name = 'CanolaFile',
       link = nil,
       desc = 'Normal files in an oil buffer',
@@ -1170,7 +1194,8 @@ M._get_highlights = function()
     },
     {
       name = 'CanolaExecutable',
-      link = 'DiagnosticOk',
+      terminal_color = 2,
+      bold = true,
       desc = 'Executable files in an oil buffer',
     },
     {
@@ -1205,50 +1230,50 @@ M._get_highlights = function()
     },
     {
       name = 'CanolaPermUserRead',
-      link = 'DiagnosticWarn',
+      terminal_color = 3,
       bold = true,
       desc = 'User read permission',
     },
     {
       name = 'CanolaPermUserWrite',
-      link = 'DiagnosticError',
+      terminal_color = 1,
       bold = true,
       desc = 'User write permission',
     },
     {
       name = 'CanolaPermUserExec',
-      link = 'DiagnosticOk',
+      terminal_color = 2,
       bold = true,
       desc = 'User execute permission',
     },
     {
       name = 'CanolaPermGroupRead',
-      link = 'DiagnosticWarn',
+      terminal_color = 3,
       desc = 'Group read permission',
     },
     {
       name = 'CanolaPermGroupWrite',
-      link = 'DiagnosticError',
+      terminal_color = 1,
       desc = 'Group write permission',
     },
     {
       name = 'CanolaPermGroupExec',
-      link = 'DiagnosticOk',
+      terminal_color = 2,
       desc = 'Group execute permission',
     },
     {
       name = 'CanolaPermOtherRead',
-      link = 'DiagnosticWarn',
+      terminal_color = 3,
       desc = 'Other read permission',
     },
     {
       name = 'CanolaPermOtherWrite',
-      link = 'DiagnosticError',
+      terminal_color = 1,
       desc = 'Other write permission',
     },
     {
       name = 'CanolaPermOtherExec',
-      link = 'DiagnosticOk',
+      terminal_color = 2,
       desc = 'Other execute permission',
     },
     {
@@ -1314,14 +1339,27 @@ end
 
 local function set_colors()
   for _, conf in ipairs(M._get_highlights()) do
-    if conf.link then
-      if conf.bold then
+    if conf.terminal_color then
+      local fg = vim.g['terminal_color_' .. conf.terminal_color]
+      if fg then
+        vim.api.nvim_set_hl(0, conf.name, {
+          default = true,
+          fg = fg,
+          ctermfg = conf.terminal_color,
+          bold = conf.bold or nil,
+          underline = conf.underline or nil,
+        })
+      end
+    elseif conf.link then
+      if conf.bold or conf.underline then
         local base = vim.api.nvim_get_hl(0, { name = conf.link, link = false })
-        vim.api.nvim_set_hl(
-          0,
-          conf.name,
-          { default = true, fg = base.fg, ctermfg = base.ctermfg, bold = true }
-        )
+        vim.api.nvim_set_hl(0, conf.name, {
+          default = true,
+          fg = base.fg,
+          ctermfg = base.ctermfg,
+          bold = conf.bold or nil,
+          underline = conf.underline or nil,
+        })
       else
         vim.api.nvim_set_hl(0, conf.name, { default = true, link = conf.link })
       end
