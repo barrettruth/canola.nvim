@@ -3,7 +3,9 @@ local cache = require('canola.cache')
 local columns = require('canola.columns')
 local config = require('canola.config')
 local constants = require('canola.constants')
-local fs = require('canola.fs')
+local cursor = require('canola.cursor')
+local entry_format = require('canola.entry_format')
+local insert = require('canola.insert')
 local keymap_util = require('canola.keymap_util')
 local loading = require('canola.loading')
 local util = require('canola.util')
@@ -14,12 +16,8 @@ local FIELD_NAME = constants.FIELD_NAME
 local FIELD_TYPE = constants.FIELD_TYPE
 local FIELD_META = constants.FIELD_META
 
----@type table<string, string>
-local last_cursor_entry = {}
-
 ---@type integer
 local non_canola_enter_count = 0
-local get_col_pad
 
 M.setup_cleanup_autocmd = function()
   vim.api.nvim_create_autocmd('BufEnter', {
@@ -61,38 +59,16 @@ M.should_display = function(bufnr, entry)
   end
 end
 
----@param bufname string
----@param name nil|string
 M.set_last_cursor = function(bufname, name)
-  last_cursor_entry[bufname] = name
+  cursor.set_last_cursor(bufname, name)
 end
 
----Set the cursor to the last_cursor_entry if one exists
 M.maybe_set_cursor = function()
-  local canola = require('canola')
-  local bufname = vim.api.nvim_buf_get_name(0)
-  local entry_name = last_cursor_entry[bufname]
-  if not entry_name then
-    return
-  end
-  local line_count = vim.api.nvim_buf_line_count(0)
-  for lnum = 1, line_count do
-    local entry = canola.get_entry_on_line(0, lnum)
-    if entry and entry.name == entry_name then
-      local line = vim.api.nvim_buf_get_lines(0, lnum - 1, lnum, true)[1]
-      local id_str = line:match('^/(%d+)')
-      local col = line:find(entry_name, 1, true) or (id_str:len() + 1)
-      vim.api.nvim_win_set_cursor(0, { lnum, col - 1 })
-      M.set_last_cursor(bufname, nil)
-      break
-    end
-  end
+  cursor.maybe_set_cursor()
 end
 
----@param bufname string
----@return nil|string
 M.get_last_cursor = function(bufname)
-  return last_cursor_entry[bufname]
+  return cursor.get_last_cursor(bufname)
 end
 
 ---@return boolean
@@ -104,26 +80,6 @@ local function are_any_modified()
     end
   end
   return false
-end
-
----@param entry canola.InternalEntry
----@return boolean
-local function is_unix_executable(entry)
-  if entry[FIELD_TYPE] == 'directory' then
-    return false
-  end
-  local meta = entry[FIELD_META]
-  if not meta or not meta.stat then
-    return false
-  end
-  if meta.stat.type == 'directory' then
-    return false
-  end
-
-  local S_IXUSR = 64
-  local S_IXGRP = 8
-  local S_IXOTH = 1
-  return bit.band(meta.stat.mode, bit.bor(S_IXUSR, S_IXGRP, S_IXOTH)) ~= 0
 end
 
 M.toggle_hidden = function()
@@ -181,7 +137,7 @@ local session = {}
 ---@type table<integer, boolean>
 local _rendering = {}
 
-get_col_pad = function(bufnr)
+M.get_col_pad = function(bufnr)
   if bufnr == 0 then
     bufnr = vim.api.nvim_get_current_buf()
   end
@@ -228,9 +184,6 @@ local function render_col_virt_chunks(adapter, column_defs, col_width, col_align
   end
   return virt_chunks
 end
-
----@type table<integer, { lnum: integer, min_col: integer }>
-local insert_boundary = {}
 
 ---@return integer[]
 M.get_all_buffers = function()
@@ -352,202 +305,6 @@ M.delete_hidden_buffers = function()
   cache.clear_everything()
 end
 
---- @param bufnr integer
---- @param adapter canola.Adapter
---- @param mode false|"name"|"editable"
---- @param cur integer[]
---- @return integer[]|nil
-local function calc_constrained_cursor_pos(bufnr, adapter, mode, cur)
-  local line = vim.api.nvim_buf_get_lines(bufnr, cur[1] - 1, cur[1], true)[1]
-  local id_prefix = line:match('^/%d+ ')
-  if id_prefix then
-    local min_col = #id_prefix + get_col_pad(bufnr)
-    if cur[2] < min_col then
-      return { cur[1], min_col }
-    end
-  end
-end
-
----Force cursor to be after hidden/immutable columns
----@param bufnr integer
----@param mode false|"name"|"editable"
-local function constrain_cursor(bufnr, mode)
-  if not mode then
-    return
-  end
-  if bufnr ~= vim.api.nvim_get_current_buf() then
-    return
-  end
-
-  local adapter = util.get_adapter(bufnr, true)
-  if not adapter then
-    return
-  end
-
-  local mc = package.loaded['multicursor-nvim']
-  if mc then
-    mc.onSafeState(function()
-      mc.action(function(ctx)
-        ctx:forEachCursor(function(cursor)
-          local new_cur =
-            calc_constrained_cursor_pos(bufnr, adapter, mode, { cursor:line(), cursor:col() - 1 })
-          if new_cur then
-            cursor:setPos({ new_cur[1], new_cur[2] + 1 })
-          end
-        end)
-      end)
-    end, { once = true })
-  else
-    local cur = vim.api.nvim_win_get_cursor(0)
-    local new_cur = calc_constrained_cursor_pos(bufnr, adapter, mode, cur)
-    if new_cur then
-      vim.api.nvim_win_set_cursor(0, new_cur)
-    end
-  end
-end
-
----@param bufnr integer
-local function show_insert_guide(bufnr)
-  if not config._constrain_cursor then
-    return
-  end
-  if bufnr ~= vim.api.nvim_get_current_buf() then
-    return
-  end
-  local adapter = util.get_adapter(bufnr, true)
-  if not adapter then
-    return
-  end
-
-  local cur = vim.api.nvim_win_get_cursor(0)
-  local current_line = vim.api.nvim_buf_get_lines(bufnr, cur[1] - 1, cur[1], true)[1]
-  if current_line ~= '' then
-    return
-  end
-
-  local all_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
-  local ref_line
-  if cur[1] > 1 and all_lines[cur[1] - 1] ~= '' then
-    ref_line = all_lines[cur[1] - 1]
-  elseif cur[1] < #all_lines and all_lines[cur[1] + 1] ~= '' then
-    ref_line = all_lines[cur[1] + 1]
-  else
-    for i, line in ipairs(all_lines) do
-      if line ~= '' and i ~= cur[1] then
-        ref_line = line
-        break
-      end
-    end
-  end
-  if not ref_line then
-    return
-  end
-
-  local id_prefix = ref_line:match('^/%d+ ')
-  if not id_prefix then
-    return
-  end
-
-  local id_width
-  local cole = vim.wo.conceallevel
-  if cole >= 2 then
-    id_width = 0
-  elseif cole == 1 then
-    id_width = 1
-  else
-    id_width = vim.api.nvim_strwidth(ref_line:sub(1, #id_prefix - 1))
-  end
-
-  local virtual_col = id_width + get_col_pad(bufnr)
-  if virtual_col <= 0 then
-    return
-  end
-
-  vim.w.canola_saved_ve = vim.wo.virtualedit
-  vim.wo.virtualedit = 'all'
-  vim.api.nvim_win_set_cursor(0, { cur[1], virtual_col })
-
-  vim.api.nvim_create_autocmd('TextChangedI', {
-    group = 'Canola',
-    buffer = bufnr,
-    once = true,
-    callback = function()
-      if vim.w.canola_saved_ve ~= nil then
-        vim.wo.virtualedit = vim.w.canola_saved_ve
-        vim.w.canola_saved_ve = nil
-      end
-    end,
-  })
-end
-
----@param bufnr integer
----@return integer
-local function update_insert_boundary(bufnr)
-  local cur = vim.api.nvim_win_get_cursor(0)
-  local cached = insert_boundary[bufnr]
-  if cached and cached.lnum == cur[1] then
-    return cached.min_col
-  end
-
-  local adapter = util.get_adapter(bufnr, true)
-  if not adapter then
-    return 0
-  end
-
-  local line = vim.api.nvim_buf_get_lines(bufnr, cur[1] - 1, cur[1], true)[1]
-  local id_prefix = line:match('^/%d+ ')
-  local min_col = (id_prefix and #id_prefix or 0) + get_col_pad(bufnr)
-  insert_boundary[bufnr] = { lnum = cur[1], min_col = min_col }
-  return min_col
-end
-
----@param bufnr integer
-local function setup_insert_constraints(bufnr)
-  if not config._constrain_cursor then
-    return
-  end
-
-  local function make_bs_rhs(bufnr_inner)
-    return function()
-      local min_col = update_insert_boundary(bufnr_inner)
-      local col = vim.fn.col('.')
-      if col <= min_col + 1 then
-        return ''
-      end
-      return '<BS>'
-    end
-  end
-
-  local function make_cu_rhs(bufnr_inner)
-    return function()
-      local min_col = update_insert_boundary(bufnr_inner)
-      local col = vim.fn.col('.')
-      if col <= min_col + 1 then
-        return ''
-      end
-      local count = col - min_col - 1
-      return string.rep('<BS>', count)
-    end
-  end
-
-  local function make_cw_rhs(bufnr_inner)
-    return function()
-      local min_col = update_insert_boundary(bufnr_inner)
-      local col = vim.fn.col('.')
-      if col <= min_col + 1 then
-        return ''
-      end
-      return '<C-w>'
-    end
-  end
-
-  local opts = { buffer = bufnr, expr = true, nowait = true, silent = true }
-  vim.keymap.set('i', '<BS>', make_bs_rhs(bufnr), opts)
-  vim.keymap.set('i', '<C-h>', make_bs_rhs(bufnr), opts)
-  vim.keymap.set('i', '<C-u>', make_cu_rhs(bufnr), opts)
-  vim.keymap.set('i', '<C-w>', make_cw_rhs(bufnr), opts)
-end
-
 ---@param bufnr integer
 M.initialize = function(bufnr)
   if bufnr == 0 then
@@ -583,7 +340,7 @@ M.initialize = function(bufnr)
     callback = function()
       local view_data = session[bufnr]
       session[bufnr] = nil
-      insert_boundary[bufnr] = nil
+      insert.clear_boundary(bufnr)
       if view_data and view_data.fs_event then
         view_data.fs_event:stop()
       end
@@ -621,11 +378,9 @@ M.initialize = function(bufnr)
     group = 'Canola',
     buffer = bufnr,
     callback = function()
-      -- For some reason the cursor bounces back to its original position,
-      -- so we have to defer the call
       vim.schedule(function()
-        constrain_cursor(bufnr, config._constrain_cursor)
-        show_insert_guide(bufnr)
+        cursor.constrain_cursor(bufnr, config._constrain_cursor)
+        insert.show_insert_guide(bufnr)
       end)
     end,
   })
@@ -633,7 +388,7 @@ M.initialize = function(bufnr)
     group = 'Canola',
     buffer = bufnr,
     callback = function()
-      insert_boundary[bufnr] = nil
+      insert.clear_boundary(bufnr)
       if vim.w.canola_saved_ve ~= nil then
         vim.wo.virtualedit = vim.w.canola_saved_ve
         vim.w.canola_saved_ve = nil
@@ -650,7 +405,7 @@ M.initialize = function(bufnr)
         return
       end
 
-      constrain_cursor(bufnr, config._constrain_cursor)
+      cursor.constrain_cursor(bufnr, config._constrain_cursor)
 
       local cur_entry = canola.get_cursor_entry()
       if cur_entry then
@@ -754,7 +509,7 @@ M.initialize = function(bufnr)
     end
   end)
   keymap_util.set_keymaps(config.keymaps, bufnr)
-  setup_insert_constraints(bufnr)
+  insert.setup_insert_constraints(bufnr)
 end
 
 ---@param adapter canola.Adapter
@@ -808,40 +563,6 @@ local function get_sort_function(adapter, num_entries)
     end
     return a[FIELD_NAME] < b[FIELD_NAME]
   end
-end
-
-local function compute_highlights_for_cols(cols, col_width, col_align, line_len)
-  local highlights = {}
-  local col = 0
-  for i, chunk in ipairs(cols) do
-    local text, hl
-    if type(chunk) == 'table' then
-      text = chunk[1]
-      hl = chunk[2]
-    else
-      text = chunk
-    end
-    local unpadded_len = #text
-    local padded_text, padding = util.pad_align(text, col_width[i], (col_align or {})[i] or 'left')
-    if hl then
-      local hl_end = col + padding + unpadded_len
-      if i == #cols and line_len then
-        hl_end = line_len
-      end
-      if type(hl) == 'table' then
-        for _, sub_hl in ipairs(hl) do
-          table.insert(
-            highlights,
-            { sub_hl[1], col + padding + sub_hl[2], col + padding + sub_hl[3] }
-          )
-        end
-      else
-        table.insert(highlights, { hl, col + padding, hl_end })
-      end
-    end
-    col = col + #padded_text + 1
-  end
-  return highlights
 end
 
 ---@param bufnr integer
@@ -1004,7 +725,7 @@ local function render_buffer(bufnr, opts)
             end
           end
 
-          constrain_cursor(bufnr, 'name')
+          cursor.constrain_cursor(bufnr, 'name')
         end
       end
     end)
@@ -1012,165 +733,8 @@ local function render_buffer(bufnr, opts)
   return seek_after_render_found
 end
 
----@param name string
----@param meta? table
----@return string filename
----@return string|nil arrow "-> "
----@return string|nil link_dir Directory prefix of target path
----@return string|nil link_base Basename of target path
-local function get_link_text(name, meta)
-  local arrow, link_dir, link_base
-  if meta then
-    if meta.link then
-      local link = meta.link:gsub('\n', '')
-      arrow = '-> '
-      local last_sep = link:match('.*()/')
-      if last_sep then
-        link_dir = link:sub(1, last_sep)
-        link_base = link:sub(last_sep + 1)
-      else
-        link_base = link
-      end
-    end
-  end
-
-  return name, arrow, link_dir, link_base
-end
-
----@param entry canola.InternalEntry
----@param adapter canola.Adapter
----@param is_hidden boolean
----@param bufnr integer
----@return canola.TextChunk[]
 M.format_entry_line = function(entry, adapter, is_hidden, bufnr)
-  local name = entry[FIELD_NAME]
-  local meta = entry[FIELD_META]
-  local hl_suffix = ''
-  if is_hidden then
-    hl_suffix = 'Hidden'
-  end
-  if meta and meta.display_name then
-    name = meta.display_name
-  end
-  -- We can't handle newlines in filenames (and shame on you for doing that)
-  name = name:gsub('\n', '')
-  -- First put the unique ID
-  local cols = {}
-  local id_key = cache.format_id(entry[FIELD_ID])
-  table.insert(cols, id_key)
-  -- Always add the entry name at the end
-  local entry_type = entry[FIELD_TYPE]
-
-  local custom_hl
-  for _, pair in ipairs(config.highlights.filename) do
-    if name:match(pair[1]) then
-      custom_hl = pair[2]
-      break
-    end
-  end
-
-  local link_name, link_name_hl, link_arrow, link_dir, link_base, link_target_hl
-  if custom_hl then
-    if entry_type == 'link' then
-      link_name, link_arrow, link_dir, link_base = get_link_text(name, meta)
-      link_name_hl = custom_hl
-      link_target_hl = custom_hl
-    else
-      if entry_type == 'directory' then
-        name = name .. '/'
-      end
-      table.insert(cols, { name, custom_hl })
-      return cols
-    end
-  end
-
-  local highlight_as_executable = false
-  if entry_type ~= 'directory' then
-    local lower = name:lower()
-    if
-      lower:match('%.exe$')
-      or lower:match('%.bat$')
-      or lower:match('%.cmd$')
-      or lower:match('%.com$')
-      or lower:match('%.ps1$')
-    then
-      highlight_as_executable = true
-    -- selene: allow(if_same_then_else)
-    elseif is_unix_executable(entry) then
-      highlight_as_executable = true
-    end
-  end
-
-  if entry_type == 'directory' then
-    table.insert(cols, { name .. '/', 'CanolaDir' .. hl_suffix })
-  elseif entry_type == 'socket' then
-    table.insert(cols, { name, 'CanolaSocket' .. hl_suffix })
-  elseif entry_type == 'link' then
-    if not link_arrow then
-      link_name, link_arrow, link_dir, link_base = get_link_text(name, meta)
-    end
-    local is_orphan = not (meta and meta.link_stat)
-    if not link_name_hl then
-      if highlight_as_executable then
-        link_name_hl = 'CanolaExecutable' .. hl_suffix
-      else
-        link_name_hl = 'CanolaLink' .. hl_suffix
-      end
-    end
-    table.insert(cols, { link_name, link_name_hl })
-
-    if link_arrow then
-      if link_target_hl then
-        local target_text = link_arrow .. (link_dir or '') .. (link_base or '')
-        table.insert(cols, { target_text, link_target_hl })
-      else
-        local target_text = link_arrow .. (link_dir or '') .. (link_base or '')
-        local sub_hls = {}
-        local off = 0
-        local orphan_hl = 'CanolaOrphanLinkTarget' .. hl_suffix
-        local orphan_arrow_hl = 'CanolaOrphanLink' .. hl_suffix
-        sub_hls[#sub_hls + 1] = {
-          is_orphan and orphan_arrow_hl or ('CanolaLinkArrow' .. hl_suffix),
-          off,
-          off + #link_arrow,
-        }
-        off = off + #link_arrow
-        if link_dir then
-          sub_hls[#sub_hls + 1] = {
-            is_orphan and orphan_hl or ('CanolaLinkPath' .. hl_suffix),
-            off,
-            off + #link_dir,
-          }
-          off = off + #link_dir
-        end
-        if link_base then
-          local base_hl
-          if is_orphan then
-            base_hl = orphan_hl
-          elseif highlight_as_executable then
-            base_hl = 'CanolaExecutable' .. hl_suffix
-          else
-            local target_type = meta and meta.link_stat and meta.link_stat.type
-            if target_type == 'directory' then
-              base_hl = 'CanolaDir' .. hl_suffix
-            elseif target_type == 'socket' then
-              base_hl = 'CanolaSocket' .. hl_suffix
-            else
-              base_hl = 'CanolaFile' .. hl_suffix
-            end
-          end
-          sub_hls[#sub_hls + 1] = { base_hl, off, off + #link_base }
-        end
-        table.insert(cols, { target_text, sub_hls })
-      end
-    end
-  elseif highlight_as_executable then
-    table.insert(cols, { name, 'CanolaExecutable' .. hl_suffix })
-  else
-    table.insert(cols, { name, 'CanolaFile' .. hl_suffix })
-  end
-
-  return cols
+  return entry_format.format_entry_line(entry, adapter, is_hidden, bufnr)
 end
 
 ---Get the column names that are used for view and sort
@@ -1421,7 +985,7 @@ M.setup_decoration_provider = function()
         end
         local _, is_hidden = M.should_display(bufnr, entry)
         local cols = M.format_entry_line(entry, ctx.adapter, is_hidden, bufnr)
-        name_highlights = compute_highlights_for_cols(cols, {}, {}, #line)
+        name_highlights = entry_format.compute_highlights_for_cols(cols, {}, {}, #line)
         if not hl_cache then
           hl_cache = {}
           sess.hl_cache = hl_cache
