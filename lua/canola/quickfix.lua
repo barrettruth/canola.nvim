@@ -68,6 +68,7 @@ M.add_to_quickfix = function(opts)
           filename = dir .. entry.name,
           lnum = 1,
           col = 1,
+          text = entry.name,
         })
       end
     end
@@ -78,6 +79,7 @@ M.add_to_quickfix = function(opts)
         filename = dir .. entry.name,
         lnum = 1,
         col = 1,
+        text = entry.name,
       })
     end
   end
