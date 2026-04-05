@@ -52,7 +52,7 @@ M.get_icon_provider = function()
 
   return function(type, name, conf, ft)
     if type == 'directory' then
-      return conf and conf.directory or '', 'CanolaDirIcon'
+      return conf and conf.directory or '', 'CanolaDirIcon'
     else
       if ft then
         local ft_icon, ft_hl = devicons.get_icon_by_filetype(ft)
@@ -62,7 +62,7 @@ M.get_icon_provider = function()
       end
       local icon, hl = devicons.get_icon(name)
       hl = hl or 'CanolaFileIcon'
-      icon = icon or (conf and conf.default_file or '')
+      icon = icon or (conf and conf.default_file or '')
       return icon, hl
     end
   end
