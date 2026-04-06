@@ -269,7 +269,10 @@ describe('regression tests', function()
         [constants.FIELD_TYPE] = 'file',
         [constants.FIELD_META] = nil,
       }
-      assert.are.same({ ' ', 'CanolaDirIcon' }, columns.render_col(adapter, 'icon', directory, 0))
+      assert.are.same(
+        { ' ', 'CanolaDirIcon' },
+        columns.render_col(adapter, 'icon', directory, 0)
+      )
       assert.are.same({ ' ', 'CanolaFileIcon' }, columns.render_col(adapter, 'icon', file, 0))
     end)
   end)
