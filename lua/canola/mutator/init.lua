@@ -13,19 +13,6 @@ local util = require('canola.util')
 local view = require('canola.view')
 local M = {}
 
-local function wipe_buffer(bufnr)
-  local wins = vim.fn.win_findbuf(bufnr)
-  for _, winid in ipairs(wins) do
-    if vim.api.nvim_win_is_valid(winid) then
-      vim.api.nvim_win_call(winid, function()
-        vim.api.nvim_buf_delete(bufnr, { force = true })
-      end)
-      return
-    end
-  end
-  vim.api.nvim_buf_delete(bufnr, { force = true })
-end
-
 M.create_actions_from_diffs = function(all_diffs)
   return action_creation.create_actions_from_diffs(all_diffs)
 end
@@ -82,7 +69,19 @@ M.process_actions = function(actions, cb)
               local os_path = fs.posix_to_os_path(path)
               local bufnr = vim.fn.bufnr(os_path)
               if bufnr ~= -1 then
-                wipe_buffer(bufnr)
+                local did_delete = false
+                for _, winid in ipairs(vim.fn.win_findbuf(bufnr)) do
+                  if vim.api.nvim_win_is_valid(winid) then
+                    vim.api.nvim_win_call(winid, function()
+                      vim.api.nvim_buf_delete(bufnr, { force = true })
+                    end)
+                    did_delete = true
+                    break
+                  end
+                end
+                if not did_delete then
+                  vim.api.nvim_buf_delete(bufnr, { force = true })
+                end
               end
             end
           end
