@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64, netcup, general]
     strategy:
       fail-fast: false
       matrix:
@@ -16,7 +16,14 @@ jobs:
     name: Test (Neovim ${{ matrix.nvim }})
     steps:
       - uses: actions/checkout@v4
-
-      - uses: nvim-neorocks/nvim-busted-action@v1
         with:
-          nvim_version: ${{ matrix.nvim }}
+          path: repo
+      - uses: rhysd/action-setup-vim@v1
+        id: setup-vim
+        with:
+          neovim: true
+          version: ${{ matrix.nvim }}
+      - run: |
+          export PATH="$(dirname '${{ steps.setup-vim.outputs.executable }}'):$PATH"
+          nix develop --command busted
+        working-directory: repo
