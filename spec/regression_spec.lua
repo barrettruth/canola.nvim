@@ -4,6 +4,47 @@ local canola = require('canola')
 local test_util = require('spec.test_util')
 local view = require('canola.view')
 
+local function with_icon_modules_stubbed(devicons, cb)
+  local old_loaded = {
+    mini_icons = package.loaded['mini.icons'],
+    nonicons = package.loaded['nonicons'],
+    devicons = package.loaded['nvim-web-devicons'],
+    columns = package.loaded['canola.columns'],
+    icons = package.loaded['canola.icons'],
+  }
+  local old_preload = {
+    mini_icons = package.preload['mini.icons'],
+    nonicons = package.preload['nonicons'],
+    devicons = package.preload['nvim-web-devicons'],
+  }
+  package.loaded['mini.icons'] = nil
+  package.loaded['nonicons'] = nil
+  package.loaded['nvim-web-devicons'] = nil
+  package.loaded['canola.columns'] = nil
+  package.loaded['canola.icons'] = nil
+  package.preload['mini.icons'] = function()
+    error("module 'mini.icons' not found")
+  end
+  package.preload['nonicons'] = function()
+    error("module 'nonicons' not found")
+  end
+  package.preload['nvim-web-devicons'] = function()
+    return devicons
+  end
+  local ok, err = xpcall(cb, debug.traceback)
+  package.loaded['mini.icons'] = old_loaded.mini_icons
+  package.loaded['nonicons'] = old_loaded.nonicons
+  package.loaded['nvim-web-devicons'] = old_loaded.devicons
+  package.loaded['canola.columns'] = old_loaded.columns
+  package.loaded['canola.icons'] = old_loaded.icons
+  package.preload['mini.icons'] = old_preload.mini_icons
+  package.preload['nonicons'] = old_preload.nonicons
+  package.preload['nvim-web-devicons'] = old_preload.devicons
+  if not ok then
+    error(err)
+  end
+end
+
 describe('regression tests', function()
   local tmpdir
   before_each(function()
@@ -198,5 +239,41 @@ describe('regression tests', function()
       return vim.fn.expand('%:t') == 'a.txt'
     end, 10)
     assert.equals('a.txt', vim.fn.expand('%:t'))
+  end)
+
+  it('preserves built-in icon fallbacks with devicons', function()
+    local constants = require('canola.constants')
+    with_icon_modules_stubbed({
+      get_icon_by_filetype = function()
+        return nil
+      end,
+      get_icon = function()
+        return nil
+      end,
+    }, function()
+      local columns = require('canola.columns')
+      local adapter = {
+        get_column = function()
+          return nil
+        end,
+      }
+      local directory = {
+        [constants.FIELD_ID] = 1,
+        [constants.FIELD_NAME] = 'src',
+        [constants.FIELD_TYPE] = 'directory',
+        [constants.FIELD_META] = nil,
+      }
+      local file = {
+        [constants.FIELD_ID] = 2,
+        [constants.FIELD_NAME] = 'README',
+        [constants.FIELD_TYPE] = 'file',
+        [constants.FIELD_META] = nil,
+      }
+      assert.are.same(
+        { ' ', 'CanolaDirIcon' },
+        columns.render_col(adapter, 'icon', directory, 0)
+      )
+      assert.are.same({ ' ', 'CanolaFileIcon' }, columns.render_col(adapter, 'icon', file, 0))
+    end)
   end)
 end)
