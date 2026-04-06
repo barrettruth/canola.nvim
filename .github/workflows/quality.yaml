@@ -9,20 +9,15 @@ on:
 
 jobs:
   changes:
-    runs-on: [self-hosted, linux, x64, netcup, general]
-    permissions:
-      pull-requests: read
+    runs-on: ubuntu-latest
     outputs:
       lua: ${{ steps.changes.outputs.lua }}
       markdown: ${{ steps.changes.outputs.markdown }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          path: repo
       - uses: dorny/paths-filter@v3
         id: changes
         with:
-          working-directory: repo
           filters: |
             lua:
               - 'lua/**'
@@ -37,53 +32,42 @@ jobs:
 
   lua-format:
     name: Lua Format Check
-    runs-on: [self-hosted, linux, x64, netcup, general]
+    runs-on: ubuntu-latest
     needs: changes
     if: ${{ needs.changes.outputs.lua == 'true' }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          path: repo
       - uses: cachix/install-nix-action@v31
       - run: nix develop --command stylua --check lua spec
-        working-directory: repo
 
   lua-lint:
     name: Lua Lint Check
-    runs-on: [self-hosted, linux, x64, netcup, general]
+    runs-on: ubuntu-latest
     needs: changes
     if: ${{ needs.changes.outputs.lua == 'true' }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          path: repo
       - uses: cachix/install-nix-action@v31
       - run: nix develop --command selene --display-style quiet .
-        working-directory: repo
 
   lua-typecheck:
     name: Lua Type Check
-    runs-on: [self-hosted, linux, x64, netcup, general]
+    runs-on: ubuntu-latest
     needs: changes
     if: ${{ needs.changes.outputs.lua == 'true' }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          path: repo
       - uses: stevearc/nvim-typecheck-action@v2
         with:
-          path: repo/lua
+          path: lua
           luals-version: 3.16.4
 
   markdown-format:
     name: Markdown Format Check
-    runs-on: [self-hosted, linux, x64, netcup, general]
+    runs-on: ubuntu-latest
     needs: changes
     if: ${{ needs.changes.outputs.markdown == 'true' }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          path: repo
       - uses: cachix/install-nix-action@v31
       - run: nix develop --command prettier --check .
-        working-directory: repo
