@@ -218,6 +218,25 @@ describe('files adapter', function()
       assert.is_false(vim.api.nvim_buf_is_valid(bufnr))
     end)
 
+    it('wipes the buffer for a deleted file behind a float', function()
+      local canola = require('canola')
+      tmpdir:create({ 'c.txt' })
+      local dirurl = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p')
+      local filepath = vim.fn.fnamemodify(tmpdir.path, ':p') .. 'c.txt'
+      cache.create_and_store_entry(dirurl, 'c.txt', 'file')
+      vim.cmd.edit({ args = { filepath } })
+      local bufnr = vim.api.nvim_get_current_buf()
+      test_util.await(canola.open_float, 3, tmpdir.path)
+      local original_win = vim.w.canola_original_win
+      assert(vim.api.nvim_win_is_valid(original_win))
+      assert.equals(bufnr, vim.api.nvim_win_get_buf(original_win))
+      local url = 'canola://' .. filepath
+      test_util.await(mutator.process_actions, 2, {
+        { type = 'delete', url = url, entry_type = 'file' },
+      })
+      assert.is_false(vim.api.nvim_buf_is_valid(bufnr))
+    end)
+
     it('does not wipe the buffer when disabled', function()
       config.delete.wipe = false
       tmpdir:create({ 'b.txt' })
