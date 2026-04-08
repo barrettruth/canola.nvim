@@ -1592,6 +1592,19 @@ M.setup = function(opts)
       end
     end,
   })
+  vim.api.nvim_create_autocmd('VimLeavePre', {
+    desc = 'Clear buftype on oil buffers so mksession saves their URLs',
+    group = aug,
+    pattern = '*',
+    callback = function()
+      local util = require('oil.util')
+      for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_valid(bufnr) and util.is_oil_bufnr(bufnr) then
+          vim.bo[bufnr].buftype = ''
+        end
+      end
+    end,
+  })
 
   if config.default_to_float then
     vim.api.nvim_create_autocmd('VimEnter', {
