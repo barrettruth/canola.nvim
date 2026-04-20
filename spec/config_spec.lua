@@ -1,6 +1,11 @@
 local config = require('oil.config')
+local test_util = require('spec.test_util')
 
 describe('config', function()
+  after_each(function()
+    test_util.reset_editor()
+  end)
+
   it('uses defaults when setup() is called with no args', function()
     config.setup()
     assert.is_false(config.delete_to_trash)
