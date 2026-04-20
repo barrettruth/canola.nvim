@@ -229,9 +229,6 @@ M.generate = function()
   if cfg.cleanup_buffers_on_delete then
     delete.wipe = true
   end
-  if cfg.delete_to_trash then
-    delete.trash = true
-  end
   if next(delete) then
     out.delete = delete
   end
@@ -527,9 +524,9 @@ end)
   mv = function(src, dest) return true end,
   rm = function(path) return true end,
 }]],
-      after = [[-- Install canola-collection for automatic git integration.
--- canola-git handles git add/mv/rm, git-aware hidden files,
--- and a git_status column. No config needed:
+      after = [[-- Install canola-collection and enable canola-git:
+--   vim.g.canola_git = {}
+-- Optional:
 --   vim.g.canola = { columns = { "git_status" } }]],
     })
   end
@@ -537,7 +534,7 @@ end)
   if cfg.delete_to_trash then
     table.insert(
       adapters,
-      'delete_to_trash -> delete = { trash = true } (requires canola-collection)'
+      'delete_to_trash -> vim.g.canola_trash = {} (requires canola-collection)'
     )
   end
   if cfg.extra_scp_args and #cfg.extra_scp_args > 0 then
@@ -678,8 +675,11 @@ M.print = function()
         'end)',
       })
       add(md, '')
-      add(md, 'If your `is_hidden_file` was git-based, install `canola-collection` instead —')
-      add(md, 'canola-git handles git-aware hiding automatically.')
+      add(md, 'If your `is_hidden_file` was git-based, install `barrettruth/canola-collection`')
+      add(md, 'and enable canola-git:')
+      block(md, {
+        'vim.g.canola_git = {}',
+      })
     end
 
     if hook_map['view_options.is_always_hidden'] then
@@ -696,8 +696,14 @@ M.print = function()
       add(md, '')
       add(md, '### `git.add/mv/rm` → canola-collection')
       add(md, '')
-      add(md, 'Install `barrettruth/canola-collection`. canola-git replaces these hooks with')
-      add(md, 'automatic git integration, a `git_status` column, and git-aware hidden files.')
+      add(md, 'canola does not support these config hooks directly.')
+      add(md, 'If you relied on custom add/mv/rm behavior, migrate it manually.')
+      add(md, 'If you only want git-aware hiding and the `git_status` column, install')
+      add(md, '`barrettruth/canola-collection` and enable canola-git:')
+      block(md, {
+        'vim.g.canola_git = {}',
+        'vim.g.canola = { columns = { "git_status" } }',
+      })
     end
   end
 
