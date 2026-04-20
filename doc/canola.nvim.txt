@@ -1762,8 +1762,7 @@ CanolaFileCreated                                          *CanolaFileCreated*
 ------------------------------------------------------------------------------
 TRASH                                                           *canola-trash*
 
-Trash support is provided by canola-collection. Install it and set
-`vim.g.canola_trash = {}`: >lua
+Trash support is provided by canola-collection. Configure it in your init: >lua
     vim.g.canola_trash = {}
 <
 Deleted files are sent to the system trash instead of being permanently
