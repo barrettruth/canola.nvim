@@ -12,6 +12,10 @@ describe('migrate', function()
     config.setup()
   end)
 
+  after_each(function()
+    test_util.reset_editor()
+  end)
+
   it('moves delete_to_trash to canola-collection config', function()
     config.setup({ delete_to_trash = true })
     local out, _, _, adapters = migrate.generate()
