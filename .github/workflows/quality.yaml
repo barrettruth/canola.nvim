@@ -2,10 +2,6 @@ name: quality
 
 on:
   workflow_call:
-  pull_request:
-    branches: [main, canola]
-  push:
-    branches: [main, canola, ci/upstream-digest]
 
 jobs:
   quality:
