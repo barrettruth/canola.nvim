@@ -276,4 +276,57 @@ describe('regression tests', function()
       assert.are.same({ ' ', 'CanolaFileIcon' }, columns.render_col(adapter, 'icon', file, 0))
     end)
   end)
+
+  it('keeps fully empty custom columns collapsed by default', function()
+    local test_adapter = require('canola.adapters.test')
+    canola.register_column('blank', {
+      render = function()
+        return require('canola.columns').EMPTY
+      end,
+    })
+    vim.g.canola = {
+      cursor = true,
+      columns = { 'blank' },
+      adapters = {
+        ['canola-test://'] = 'test',
+      },
+      save = false,
+    }
+    canola.init()
+    test_adapter.test_set('/foo/a.txt', 'file')
+    test_adapter.test_set('/foo/b.txt', 'file')
+    vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+    test_util.wait_for_autocmd({ 'User', pattern = 'CanolaEnter' })
+    assert.equals(0, view.get_col_pad(0))
+  end)
+
+  it('can reserve width for fully empty custom columns', function()
+    local test_adapter = require('canola.adapters.test')
+    canola.register_column('blank_reserved', {
+      render = function()
+        return require('canola.columns').EMPTY
+      end,
+      all_empty_width = 1,
+    })
+    vim.g.canola = {
+      cursor = true,
+      columns = { 'blank_reserved' },
+      adapters = {
+        ['canola-test://'] = 'test',
+      },
+      save = false,
+    }
+    canola.init()
+    test_adapter.test_set('/foo/a.txt', 'file')
+    test_adapter.test_set('/foo/b.txt', 'file')
+    vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+    test_util.wait_for_autocmd({ 'User', pattern = 'CanolaEnter' })
+    assert.equals(2, view.get_col_pad(0))
+    local ns = vim.api.nvim_get_namespaces().CanolaColumns
+    local extmarks = vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, { details = true })
+    assert.is_true(#extmarks > 0)
+    for _, extmark in ipairs(extmarks) do
+      assert.equals('  ', extmark[4].virt_text[1][1])
+    end
+  end)
 end)

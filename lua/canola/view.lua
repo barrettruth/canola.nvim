@@ -129,6 +129,7 @@ end
 ---@field fs_event? any uv_fs_event_t
 ---@field col_width? integer[]
 ---@field col_align? canola.ColumnAlign[]
+---@field col_blank? boolean[]
 ---@field hl_cache? table<integer, { line: string, name_highlights: table[], virt_chunks: table[] }>
 
 -- List of bufnrs
@@ -159,10 +160,22 @@ local col_ns = vim.api.nvim_create_namespace('CanolaColumns')
 ---@type table<integer, {adapter: canola.Adapter, column_defs: canola.ColumnSpec[]}>
 local decor_ctx = {}
 
-local function render_col_virt_chunks(adapter, column_defs, col_width, col_align, entry, bufnr)
+local function render_col_virt_chunks(
+  adapter,
+  column_defs,
+  col_width,
+  col_align,
+  col_blank,
+  entry,
+  bufnr
+)
   local virt_chunks = {}
   for i, col_def in ipairs(column_defs) do
     if (col_width[i] or 0) > 0 then
+      if col_blank[i] then
+        table.insert(virt_chunks, { string.rep(' ', col_width[i]) .. ' ' })
+        goto continue
+      end
       local chunk = columns.render_col(adapter, col_def, entry, bufnr)
       local text = type(chunk) == 'table' and chunk[1] or chunk
       ---@cast text string
@@ -181,6 +194,7 @@ local function render_col_virt_chunks(adapter, column_defs, col_width, col_align
         table.insert(virt_chunks, { padded .. ' ', hl })
       end
     end
+    ::continue::
   end
   return virt_chunks
 end
@@ -605,9 +619,11 @@ local function render_buffer(bufnr, opts)
   local line_table = {}
   local col_width = {}
   local col_align = {}
+  local col_blank = {}
   local col_has_data = {}
   for i, col_def in ipairs(column_defs) do
     col_width[i] = 1
+    col_blank[i] = false
     col_has_data[i] = false
     local name, conf = util.split_config(col_def)
     local col = columns.get_column(adapter, col_def)
@@ -650,7 +666,14 @@ local function render_buffer(bufnr, opts)
   local col_pad = 0
   for i = 1, #col_width do
     if not col_has_data[i] then
-      col_width[i] = 0
+      local width = columns.get_all_empty_width(adapter, column_defs[i], bufnr)
+      if width then
+        col_width[i] = width
+        col_blank[i] = true
+        col_pad = col_pad + col_width[i] + 1
+      else
+        col_width[i] = 0
+      end
     else
       col_pad = col_pad + col_width[i] + 1
     end
@@ -683,8 +706,15 @@ local function render_buffer(bufnr, opts)
     if id then
       local entry = id == 0 and parent_entry or cache.get_entry_by_id(id)
       if entry then
-        local virt_chunks =
-          render_col_virt_chunks(adapter, column_defs, col_width, col_align, entry, bufnr)
+        local virt_chunks = render_col_virt_chunks(
+          adapter,
+          column_defs,
+          col_width,
+          col_align,
+          col_blank,
+          entry,
+          bufnr
+        )
         if #virt_chunks > 0 then
           local id_prefix = line:match('^/%d+ ')
           if id_prefix then
@@ -702,6 +732,7 @@ local function render_buffer(bufnr, opts)
   _rendering[bufnr] = nil
   session[bufnr].col_width = col_width
   session[bufnr].col_align = col_align
+  session[bufnr].col_blank = col_blank
   session[bufnr].hl_cache = nil
 
   if opts.jump then
@@ -959,8 +990,9 @@ M.setup_decoration_provider = function()
         if entry and sess then
           local cw = sess.col_width or {}
           local ca = sess.col_align or {}
+          local cb = sess.col_blank or {}
           local cd = ctx.column_defs
-          local virt_chunks = render_col_virt_chunks(ctx.adapter, cd, cw, ca, entry, bufnr)
+          local virt_chunks = render_col_virt_chunks(ctx.adapter, cd, cw, ca, cb, entry, bufnr)
           if #virt_chunks > 0 then
             local id_prefix = line:match('^/%d+ ')
             if id_prefix then
