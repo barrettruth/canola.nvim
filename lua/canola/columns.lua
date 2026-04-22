@@ -20,6 +20,7 @@ local all_columns = {}
 ---@field get_sort_value? fun(entry: canola.InternalEntry): number|string
 ---@field create_sort_value_factory? fun(num_entries: integer): fun(entry: canola.InternalEntry): number|string
 ---@field default_align? canola.ColumnAlign
+---@field all_empty_width? integer|fun(conf: nil|table, bufnr: integer): integer|nil
 
 ---@param name string
 ---@param column canola.ColumnDefinition
@@ -89,6 +90,25 @@ M.render_col = function(adapter, col_def, entry, bufnr)
     end
   end
   return chunk
+end
+
+---@param adapter canola.Adapter
+---@param col_def canola.ColumnSpec
+---@param bufnr integer
+---@return integer?
+M.get_all_empty_width = function(adapter, col_def, bufnr)
+  local name, conf = util.split_config(col_def)
+  local column = M.get_column(adapter, name)
+  if not column then
+    return
+  end
+  local width = column.all_empty_width
+  if type(width) == 'function' then
+    width = width(conf, bufnr)
+  end
+  if type(width) == 'number' and width > 0 then
+    return width
+  end
 end
 
 ---@param adapter canola.Adapter

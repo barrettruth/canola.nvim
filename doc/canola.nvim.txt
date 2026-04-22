@@ -687,6 +687,11 @@ register_column({name}, {column})                     *canola.register_column*
               Alternative to `get_sort_value` for implementations that need
               to precompute state across all entries. Takes precedence when
               present.
+          {all_empty_width} `nil|integer|fun(conf, bufnr): integer|nil`
+              Reserve this width when the column is fully empty for the
+              current listing. The reserved area renders as blank space.
+              Columns without this hook still collapse when all visible
+              entries return `columns.EMPTY`.
           {compare} `nil|fun(entry, parsed_value): boolean`
               Returns true when the parsed value differs from the entry's
               current state. Only needed for columns representing mutable
