@@ -47,6 +47,10 @@ end
 --- @param col_pad integer
 --- @return integer[]|nil
 M.calc_constrained_cursor_pos = function(bufnr, adapter, mode, cur, col_pad)
+  local line_count = vim.api.nvim_buf_line_count(bufnr)
+  if cur[1] < 1 or cur[1] > line_count then
+    return
+  end
   local line = vim.api.nvim_buf_get_lines(bufnr, cur[1] - 1, cur[1], true)[1]
   local id_prefix = line:match('^/%d+ ')
   if id_prefix then
