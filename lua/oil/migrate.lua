@@ -19,9 +19,35 @@ local sort_presets = {
   ['size,desc|name,asc'] = 'size',
 }
 
+local default_sort = {
+  { 'type', 'asc' },
+  { 'name', 'asc' },
+}
+
+local canola_default_keys = {
+  ['g?'] = true,
+  ['<CR>'] = true,
+  ['<C-s>'] = true,
+  ['<C-h>'] = true,
+  ['<C-t>'] = true,
+  ['<C-p>'] = true,
+  ['<C-c>'] = true,
+  ['<C-l>'] = true,
+  ['-'] = true,
+  ['_'] = true,
+  ['`'] = true,
+  ['g~'] = true,
+  ['gs'] = true,
+  ['gx'] = true,
+  ['g.'] = true,
+  ['gy'] = true,
+  ['q'] = true,
+}
+
+local default_simple_border = vim.fn.has('nvim-0.11') == 0 and 'rounded' or nil
+
 local removed_defaults = {
   default_file_explorer = true,
-  use_default_keymaps = true,
   cleanup_delay_ms = 2000,
   extra_scp_args = {},
   extra_s3_args = {},
@@ -174,12 +200,17 @@ local function is_default_git(git)
   return a and m and r
 end
 
+local function add_manual(manual, option, reason)
+  table.insert(manual, string.format('`%s`: %s', option, reason))
+end
+
 M.generate = function()
   local cfg = require('oil.config')
   local out = {}
   local hooks = {}
   local removed = {}
   local adapters = {}
+  local manual = {}
 
   out.columns = cfg.columns
 
@@ -188,13 +219,28 @@ M.generate = function()
   elseif cfg.constrain_cursor == false then
     out.cursor = false
   end
+  if cfg.constrain_cursor == 'name' then
+    add_manual(
+      manual,
+      'constrain_cursor = "name"',
+      'canola only supports `cursor = true|false`; `true` behaves like oil `"editable"`'
+    )
+  end
 
   out.watch = cfg.watch_for_changes or false
 
-  if not is_default_table(cfg.view_options.sort, { { 'type', 'asc' }, { 'name', 'asc' } }) then
+  if
+    not is_default_table(cfg.view_options.sort, default_sort)
+    or cfg.view_options.natural_order ~= 'fast'
+    or cfg.view_options.case_insensitive ~= false
+  then
     local key = sort_key(cfg.view_options.sort)
     local preset = sort_presets[key]
-    if preset then
+    if
+      preset
+      and cfg.view_options.natural_order == 'fast'
+      and cfg.view_options.case_insensitive == false
+    then
       out.sort = preset
     else
       out.sort = {
@@ -212,11 +258,23 @@ M.generate = function()
     hidden.enabled = true
   end
   out.hidden = hidden
+  if cfg.view_options.show_hidden_when_empty then
+    add_manual(manual, 'view_options.show_hidden_when_empty', 'removed in canola')
+  end
 
-  if cfg.skip_confirm_for_simple_edits and cfg.skip_confirm_for_delete then
-    out.confirm = false
-  elseif cfg.skip_confirm_for_simple_edits then
-    out.confirm = 'delete'
+  if cfg.skip_confirm_for_simple_edits or cfg.skip_confirm_for_delete then
+    local parts = {}
+    if cfg.skip_confirm_for_simple_edits then
+      table.insert(parts, 'skip_confirm_for_simple_edits')
+    end
+    if cfg.skip_confirm_for_delete then
+      table.insert(parts, 'skip_confirm_for_delete')
+    end
+    add_manual(
+      manual,
+      table.concat(parts, ' / '),
+      'canola `confirm` cannot exactly reproduce oil confirmation rules; review this manually'
+    )
   end
 
   if cfg.auto_save_on_select_new_entry then
@@ -271,14 +329,23 @@ M.generate = function()
     ['g\\'] = true,
   }
   local custom_keymaps = {}
-  for k, v in pairs(keymaps) do
-    if not default_keys[k] then
+  if not cfg.use_default_keymaps then
+    for k in pairs(canola_default_keys) do
+      custom_keymaps[k] = false
+    end
+    for k, v in pairs(keymaps) do
       custom_keymaps[k] = v
     end
-  end
-  for k, v in pairs(keymaps) do
-    if default_keys[k] and v == false then
-      custom_keymaps[k] = false
+  else
+    for k, v in pairs(keymaps) do
+      if not default_keys[k] then
+        custom_keymaps[k] = v
+      end
+    end
+    for k, v in pairs(keymaps) do
+      if default_keys[k] and v == false then
+        custom_keymaps[k] = false
+      end
     end
   end
   if next(custom_keymaps) then
@@ -288,6 +355,9 @@ M.generate = function()
   local float = {}
   if cfg.default_to_float then
     float.default = true
+  end
+  if cfg.float.title == false then
+    float.title = false
   end
   if cfg.float.padding ~= 2 then
     float.padding = cfg.float.padding
@@ -317,6 +387,12 @@ M.generate = function()
   end
   if cfg.preview_win.preview_method == 'load' then
     preview.live = true
+  elseif cfg.preview_win.preview_method == 'scratch' then
+    add_manual(
+      manual,
+      'preview_win.preview_method = "scratch"',
+      'canola has no scratch preview mode; `preview.live = false` uses fast_scratch'
+    )
   end
   if cfg.preview_win.max_file_size ~= 10 then
     preview.max_file_size_mb = cfg.preview_win.max_file_size
@@ -395,6 +471,14 @@ M.generate = function()
   end
   if next(progress) then
     out.progress = progress
+  end
+
+  if not is_default_table(cfg.ssh, { border = default_simple_border }) then
+    add_manual(manual, 'ssh.border', 'no core canola equivalent; SSH UI lives in canola-collection')
+  end
+
+  if not is_default_table(cfg.keymaps_help, { border = default_simple_border }) then
+    add_manual(manual, 'keymaps_help.border', 'removed in canola; help now uses vimdoc')
   end
 
   if type(cfg.float.override) == 'function' and not is_default_override(cfg.float.override) then
@@ -559,7 +643,7 @@ end)
     end
   end
 
-  return out, hooks, removed, adapters
+  return out, hooks, removed, adapters, manual
 end
 
 local function add(md, s)
@@ -576,7 +660,7 @@ local function block(md, lines)
 end
 
 M.print = function()
-  local out, hooks, removed, adapters = M.generate()
+  local out, hooks, removed, adapters, manual = M.generate()
   local md = {}
   local hook_map = {}
   for _, h in ipairs(hooks) do
@@ -718,6 +802,17 @@ M.print = function()
     end
   end
 
+  if #manual > 0 then
+    add(md, '')
+    add(md, '## Manual Review')
+    add(md, '')
+    add(md, 'These oil.nvim settings do not have an exact canola equivalent:')
+    add(md, '')
+    for _, item in ipairs(manual) do
+      add(md, '- ' .. item)
+    end
+  end
+
   if #removed > 0 then
     add(md, '')
     add(md, '## Removed Options')
@@ -741,6 +836,10 @@ M.print = function()
   if next(hook_map) then
     step = step + 1
     add(md, step .. '. Add the autocmd replacements from Hook Replacements')
+  end
+  if #manual > 0 then
+    step = step + 1
+    add(md, step .. '. Review the Manual Review section and adjust any lossy settings')
   end
   step = step + 1
   add(md, step .. '. See `:h canola-recipes` for new features (git, brace expansion, etc.)')
