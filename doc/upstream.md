@@ -29,7 +29,7 @@ issues against this fork.
 | [#708](https://github.com/stevearc/oil.nvim/pull/708) | Move file into new dir by renaming                                     | consolidated into [#32](https://github.com/barrettruth/canola.nvim/issues/32)                                                     |
 | [#721](https://github.com/stevearc/oil.nvim/pull/721) | `create_hook` to populate file contents                                | not actionable — `OilFileCreated` event already covers the use case (see [#280](https://github.com/stevearc/oil.nvim/issues/280)) |
 | [#728](https://github.com/stevearc/oil.nvim/pull/728) | `open_split` for opening oil in a split                                | deferred — tracked as [#2](https://github.com/barrettruth/canola.nvim/issues/2)                                                   |
-| [#744](https://github.com/stevearc/oil.nvim/pull/744) | fix: use os path when watching for changes                             | open                                                                                                                              |
+| [#744](https://github.com/stevearc/oil.nvim/pull/744) | fix: use os path when watching for changes                             | fixed ([#320](https://github.com/barrettruth/canola.nvim/pull/320))                                                               |
 | [#748](https://github.com/stevearc/oil.nvim/pull/748) | fix: add bounds check in calc_constrained_cursor_pos to prevent index… | open                                                                                                                              |
 
 ## Issues
