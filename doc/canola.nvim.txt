@@ -333,7 +333,7 @@ After (canola.nvim): >lua
       win = { wrap = false, signcolumn = "no" },
       cursor = true,
       watch = true,
-      delete = { wipe = true, trash = true },
+      delete = { wipe = true },
       confirm = false,
       save = "prompt",
       create = { file_mode = 420, dir_mode = 493 },
@@ -388,6 +388,7 @@ The full list of options with their defaults:
       save = "prompt",
       delete = { wipe = false, recursive = false },
       create = { file_mode = 420, dir_mode = 493 },
+      extglob = false,
 
       keymaps = {
         ["g?"] = { callback = "actions.show_help", mode = "n" },
@@ -567,6 +568,13 @@ create                                                         *canola.create*
     default: `{ file_mode = 420, dir_mode = 493 }`
     Unix permissions for newly created files and directories.
     `420` = `0644`, `493` = `0755`.
+
+extglob                                                       *canola.extglob*
+    type: `boolean|integer` default: `false`
+    Enables brace expansion in mutations. When `true`, canola expands patterns
+    such as `foo/{bar,baz}.txt` before applying filesystem operations. When set
+    to an integer, canola prompts for confirmation if expansion would exceed
+    that number of results. When `false`, brace expansion is disabled.
 
 keymaps                                                       *canola.keymaps*
     type: `table<string, any>` default: see |canola-config|
