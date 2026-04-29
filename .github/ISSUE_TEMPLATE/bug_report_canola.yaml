@@ -1,16 +1,16 @@
-name: Bug Report (main / oil-compatible)
-description: Report a bug on the backwards-compatible oil track
-title: 'bug(main): '
+name: Bug Report (canola)
+description: Report a bug on the active canola track
+title: 'bug(canola): '
 labels: [bug]
 body:
   - type: markdown
     attributes:
       value: |
-        You are filing against the `main` branch.
+        You are filing against the `canola` branch.
 
-        - `main` is the backwards-compatible oil track.
-        - Use `require('oil').setup(...)`.
-        - If your repro uses `vim.g.canola` or `require('canola')`, use **Bug Report (canola)** instead.
+        - `canola` is the active refactor track.
+        - Use `vim.g.canola` before the plugin loads.
+        - If you need drop-in `require('oil').setup(...)` compatibility, use **Bug Report (main / oil-compatible)** instead.
 
   - type: checkboxes
     attributes:
@@ -20,13 +20,13 @@ body:
             I have searched [existing
             issues](https://github.com/barrettruth/canola.nvim/issues)
           required: true
-        - label: I have updated to the latest `main` branch
+        - label: I have updated to the latest `canola` branch
           required: true
         - label:
-            This report targets the `main` branch, the backwards-compatible
-            oil track
+            This report targets the `canola` branch, the active
+            non-backwards-compatible track
           required: true
-        - label: I ran the repro below with `branch = 'main'` left intact
+        - label: I ran the repro below with `branch = 'canola'` left intact
           required: true
 
   - type: textarea
@@ -71,8 +71,8 @@ body:
         ```
         nvim -u repro.lua
         ```
-        Do not remove or change `branch = 'main'`. That pin tells us this issue
-        is on the backwards-compatible track.
+        Do not remove or change `branch = 'canola'`. That pin tells us this
+        issue is on the active canola track.
       render: lua
       value: |
         vim.env.LAZY_STDPATH = '.repro'
@@ -81,9 +81,9 @@ body:
           spec = {
             {
               'barrettruth/canola.nvim',
-              branch = 'main',
-              config = function()
-                require('oil').setup({})
+              branch = 'canola',
+              init = function()
+                vim.g.canola = {}
               end,
             },
           },
