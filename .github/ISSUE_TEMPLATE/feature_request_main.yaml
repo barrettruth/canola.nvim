@@ -1,0 +1,52 @@
+name: Feature Request (main / oil-compatible)
+description: Propose a backwards-compatible improvement for the stable oil track
+title: 'feat(main): '
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        You are filing against the `main` branch.
+
+        - `main` is the backwards-compatible oil track.
+        - Requests here must preserve `require('oil').setup(...)`, existing keymaps, and drop-in compatibility.
+        - If you want a canola-only API or config shape, use **Feature Request (canola)** instead.
+
+  - type: checkboxes
+    attributes:
+      label: Prerequisites
+      options:
+        - label:
+            I have searched [existing
+            issues](https://github.com/barrettruth/canola.nvim/issues)
+          required: true
+        - label: This request targets the `main` branch
+          required: true
+        - label:
+            This request preserves `require('oil').setup(...)` and backwards
+            compatibility
+          required: true
+
+  - type: textarea
+    attributes:
+      label: Why should this land on `main`?
+      description: Explain why this belongs on the backwards-compatible oil track instead of `canola`.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Problem
+      description: What problem does this solve?
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Alternatives considered
