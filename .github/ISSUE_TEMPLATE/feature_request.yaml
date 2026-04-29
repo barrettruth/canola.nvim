@@ -11,7 +11,7 @@ body:
         - `canola` is the active refactor track.
         - Use `vim.g.canola` for config.
         - New canola-only APIs, config shapes, and behavior changes belong here.
-        - If this must preserve `require('oil').setup(...)` compatibility, use **Feature Request (main / oil-compatible)** instead.
+        - If this must preserve `require('oil').setup(...)` compatibility, target `main` instead of `canola`.
 
   - type: checkboxes
     attributes:

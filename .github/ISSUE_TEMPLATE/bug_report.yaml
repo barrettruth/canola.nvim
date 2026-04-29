@@ -10,7 +10,7 @@ body:
 
         - `canola` is the active refactor track.
         - Use `vim.g.canola` before the plugin loads.
-        - If you need drop-in `require('oil').setup(...)` compatibility, use **Bug Report (main / oil-compatible)** instead.
+        - If you need drop-in `require('oil').setup(...)` compatibility, file against `main` instead of `canola`.
 
   - type: checkboxes
     attributes:
