@@ -1,8 +1,17 @@
-name: Bug Report
-description: Report a bug
-title: 'bug: '
+name: Bug Report (canola)
+description: Report a bug on the active canola track
+title: 'bug(canola): '
 labels: [bug]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        You are filing against the `canola` branch.
+
+        - `canola` is the active refactor track.
+        - Use `vim.g.canola` before the plugin loads.
+        - If you need drop-in `require('oil').setup(...)` compatibility, file against `main` instead of `canola`.
+
   - type: checkboxes
     attributes:
       label: Prerequisites
@@ -11,7 +20,13 @@ body:
             I have searched [existing
             issues](https://github.com/barrettruth/canola.nvim/issues)
           required: true
-        - label: I have updated to the latest version
+        - label: I have updated to the latest `canola` branch
+          required: true
+        - label:
+            This report targets the `canola` branch, the active
+            non-backwards-compatible track
+          required: true
+        - label: I ran the repro below with `branch = 'canola'` left intact
           required: true
 
   - type: textarea
@@ -51,11 +66,13 @@ body:
     attributes:
       label: Minimal reproduction
       description: |
-        Save the script below as `repro.lua`, edit if needed, and run:
+        Save the script below as `repro.lua`, edit only what you need to
+        reproduce the bug, and run:
         ```
         nvim -u repro.lua
         ```
-        Confirm the bug reproduces with this config before submitting.
+        Do not remove or change `branch = 'canola'`. That pin tells us this
+        issue is on the active canola track.
       render: lua
       value: |
         vim.env.LAZY_STDPATH = '.repro'
@@ -64,6 +81,7 @@ body:
           spec = {
             {
               'barrettruth/canola.nvim',
+              branch = 'canola',
               init = function()
                 vim.g.canola = {}
               end,

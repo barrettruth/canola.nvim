@@ -1,8 +1,18 @@
-name: Feature Request
-description: Suggest a feature
-title: 'feat: '
+name: Feature Request (canola)
+description: Propose a feature for the active canola track
+title: 'feat(canola): '
 labels: [enhancement]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        You are filing against the `canola` branch.
+
+        - `canola` is the active refactor track.
+        - Use `vim.g.canola` for config.
+        - New canola-only APIs, config shapes, and behavior changes belong here.
+        - If this must preserve `require('oil').setup(...)` compatibility, target `main` instead of `canola`.
+
   - type: checkboxes
     attributes:
       label: Prerequisites
@@ -10,6 +20,11 @@ body:
         - label:
             I have searched [existing
             issues](https://github.com/barrettruth/canola.nvim/issues)
+          required: true
+        - label: This request targets the `canola` branch
+          required: true
+        - label:
+            I understand `canola` is the active non-backwards-compatible track
           required: true
 
   - type: textarea
