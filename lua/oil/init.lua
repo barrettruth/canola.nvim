@@ -327,8 +327,8 @@ M.open_float = function(dir, opts, cb)
         end
 
         if config.float.title then
-          if config.float.border ~= nil and config.float.border ~= 'none' then
-            local cur_win_opts = vim.api.nvim_win_get_config(winid)
+          local cur_win_opts = vim.api.nvim_win_get_config(winid)
+          if cur_win_opts.border ~= 'none' then
             vim.api.nvim_win_set_config(winid, {
               relative = 'editor',
               row = cur_win_opts.row,
@@ -359,7 +359,7 @@ M.open_float = function(dir, opts, cb)
     end
   end)
 
-  if config.float.title and (config.float.border == nil or config.float.border == 'none') then
+  if config.float.title and vim.api.nvim_win_get_config(winid).border == 'none' then
     util.add_title_to_win(winid)
   end
 end
