@@ -823,14 +823,14 @@ M.print = function()
       add(md, '- `' .. key .. '`')
     end
     add(md, '')
-    add(md, 'See `:h canola-migration-removed` for details.')
+    add(md, 'See `:h canola-migration-removed` for canola-branch details.')
   end
 
   add(md, '')
   add(md, '## Next Steps')
   add(md, '')
   local step = 1
-  add(md, step .. '. Set `branch = "canola"` in your plugin manager')
+  add(md, step .. '. Switch your plugin manager entry to `branch = "canola"`')
   step = step + 1
   add(md, step .. '. Replace `require("oil").setup({...})` with the config above')
   if next(hook_map) then
@@ -842,9 +842,13 @@ M.print = function()
     add(md, step .. '. Review the Manual Review section and adjust any lossy settings')
   end
   step = step + 1
-  add(md, step .. '. See `:h canola-recipes` for new features (git, brace expansion, etc.)')
+  add(
+    md,
+    step
+      .. '. After switching branches, see `:h canola-recipes` for new features (git, brace expansion, etc.)'
+  )
   add(md, '')
-  add(md, 'Full reference: `:h canola-migration`')
+  add(md, 'Full canola-branch reference: `:h canola-migration`')
 
   local text = table.concat(md, '\n')
 

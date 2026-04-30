@@ -15,6 +15,7 @@ CONTENTS                                                            *oil-content
   10. Recipes                                                    |oil-recipes|
   11. Events                                                      |oil-events|
   12. Trash                                                        |oil-trash|
+  13. Canola migration                                    |canola-migration|
 
 --------------------------------------------------------------------------------
 INTRODUCTION                                                    *oil-introduction*
@@ -1516,6 +1517,33 @@ Mac:
 
 Windows:
     Oil supports the Windows Recycle Bin. All features should work.
+
+--------------------------------------------------------------------------------
+MIGRATING TO THE CANOLA BRANCH                            *canola-migration*
+
+The full `canola-migration` guide ships with the `canola` branch, not `main`.
+If you are reading this help file on `main`, switch your plugin manager entry
+to `branch = "canola"` and update the plugin before following the guide.
+
+You can run `:Oil --migrate` on `main` to generate a starting point from your
+current oil.nvim config. After switching branches, use these help topics:
+
+- `:h canola-migration`
+- `:h canola-migration-removed`
+- `:h canola-recipes`
+
+------------------------------------------------------------------------------
+REMOVED OPTIONS                                  *canola-migration-removed*
+
+This section is documented on the `canola` branch as part of
+`:h canola-migration`. Switch to `branch = "canola"` and reopen that topic
+there.
+
+------------------------------------------------------------------------------
+RECIPES                                                     *canola-recipes*
+
+This section is documented on the `canola` branch. Switch to
+`branch = "canola"` to view the current canola recipes.
 
 ================================================================================
 vim:tw=80:ts=2:ft=help:norl:syntax=help:
