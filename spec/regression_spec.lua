@@ -70,6 +70,45 @@ describe('regression tests', function()
     assert.equals('canola', vim.bo.filetype)
   end)
 
+  it("doesn't finish async directory loads in an unrelated current buffer", function()
+    local files = require('canola.adapters.files')
+    local old_normalize_url = files.normalize_url
+    local pending_finish
+
+    files.normalize_url = function(url, callback)
+      pending_finish = function()
+        callback(url)
+      end
+    end
+
+    local ok, err = xpcall(function()
+      tmpdir:create({ 'a.txt' })
+      vim.cmd.edit({ args = { 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. '/' } })
+      local canola_bufnr = vim.api.nvim_get_current_buf()
+      assert.equals('canola', vim.bo[canola_bufnr].filetype)
+      vim.bo[canola_bufnr].bufhidden = 'hide'
+
+      vim.cmd.enew()
+      local fugitive_bufnr = vim.api.nvim_get_current_buf()
+      vim.api.nvim_buf_set_name(fugitive_bufnr, 'fugitive://test/.git//0')
+      vim.bo[fugitive_bufnr].filetype = 'fugitive'
+      vim.cmd.only()
+
+      assert.is_function(pending_finish)
+      pending_finish()
+
+      assert.is_true(vim.api.nvim_buf_is_valid(canola_bufnr))
+      assert.equals(fugitive_bufnr, vim.api.nvim_get_current_buf())
+      assert.equals('fugitive', vim.bo[fugitive_bufnr].filetype)
+      assert.equals('canola', vim.bo[canola_bufnr].filetype)
+    end, debug.traceback)
+
+    files.normalize_url = old_normalize_url
+    if not ok then
+      error(err)
+    end
+  end)
+
   it('places the cursor on correct entry when opening on file', function()
     vim.cmd.edit({ args = { '.' } })
     test_util.wait_for_autocmd({ 'User', pattern = 'CanolaEnter' })
