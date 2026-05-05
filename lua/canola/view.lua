@@ -345,7 +345,10 @@ M.initialize = function(bufnr)
   for k, v in pairs(config.buf) do
     vim.bo[bufnr][k] = v
   end
-  vim.api.nvim_buf_call(bufnr, M.set_win_options)
+  local visible_winid = util.buf_get_win(bufnr)
+  if visible_winid then
+    vim.api.nvim_win_call(visible_winid, M.set_win_options)
+  end
 
   vim.api.nvim_create_autocmd('BufUnload', {
     group = 'Canola',

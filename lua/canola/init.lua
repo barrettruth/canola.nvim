@@ -436,11 +436,7 @@ M.load_oil_buffer = function(bufnr)
     if not vim.api.nvim_buf_is_valid(bufnr) then
       return
     end
-    -- Since this was async, we may have left the window with this buffer. People often write
-    -- BufReadPre/Post autocmds with the expectation that the current window is the one that
-    -- contains the buffer. Let's then do our best to make sure that that assumption isn't violated.
-    winid = util.buf_get_win(bufnr, winid) or vim.api.nvim_get_current_win()
-    vim.api.nvim_win_call(winid, function()
+    local function finish_in_context()
       if new_url ~= bufname then
         if util.rename_buffer(bufnr, new_url) then
           -- If the buffer was replaced then don't initialize it. It's dead. The replacement will
@@ -469,7 +465,18 @@ M.load_oil_buffer = function(bufnr)
         adapter.read_file(bufnr)
       end
       restore_alt_buf()
-    end)
+    end
+
+    -- Since this was async, we may have left the window with this buffer. People often write
+    -- BufReadPre/Post autocmds with the expectation that the current window is the one that
+    -- contains the buffer. If the buffer is no longer visible, still make the target buffer
+    -- current for the finish path instead of falling back to an unrelated current window.
+    winid = util.buf_get_win(bufnr, winid)
+    if winid then
+      vim.api.nvim_win_call(winid, finish_in_context)
+    else
+      vim.api.nvim_buf_call(bufnr, finish_in_context)
+    end
   end
 
   adapter.normalize_url(bufname, finish)
