@@ -30,7 +30,9 @@ body:
   - type: textarea
     attributes:
       label: Why should this land on `main`?
-      description: Explain why this belongs on the backwards-compatible oil track instead of `canola`.
+      description:
+        Explain why this belongs on the backwards-compatible oil track instead
+        of `canola`.
     validations:
       required: true
 

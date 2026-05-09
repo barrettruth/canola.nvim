@@ -1,53 +1,75 @@
-*oil.txt*
-*Oil* *oil* *Canola* *canola*
---------------------------------------------------------------------------------
-CONTENTS                                                            *oil-contents*
+*canola.txt* *canola.nvim.txt* *oil.txt*
+*canola* *canola.nvim* *Canola* *oil* *Oil*
+------------------------------------------------------------------------------
+CONTENTS                                                        *oil-contents*
 
-  1. Introduction                                            |oil-introduction|
-  2. Requirements                                            |oil-requirements|
-  3. Config                                                       |oil-config|
-  4. Options                                                     |oil-options|
-  5. Api                                                             |oil-api|
-  6. Columns                                                     |oil-columns|
-  7. Actions                                                     |oil-actions|
-  8. Highlights                                               |oil-highlights|
-  9. Adapters                                                   |oil-adapters|
-  10. Recipes                                                    |oil-recipes|
-  11. Events                                                      |oil-events|
-  12. Trash                                                        |oil-trash|
-  13. Canola migration                                    |canola-migration|
+  1. Introduction ......................................... |oil-introduction|
+  2. Quick Start ........................................ |canola-quick-start|
+  3. Requirements ......................................... |oil-requirements|
+  4. Config ..................................................... |oil-config|
+  5. Options ................................................... |oil-options|
+  6. Api ........................................................... |oil-api|
+  7. Columns ................................................... |oil-columns|
+  8. Actions ................................................... |oil-actions|
+  9. Highlights ............................................. |oil-highlights|
+ 10. Adapters ................................................. |oil-adapters|
+ 11. Recipes ................................................... |oil-recipes|
+ 12. Events ..................................................... |oil-events|
+ 13. Trash ....................................................... |oil-trash|
+ 14. Canola migration ..................................... |canola-migration|
 
---------------------------------------------------------------------------------
-INTRODUCTION                                                    *oil-introduction*
+------------------------------------------------------------------------------
+INTRODUCTION                                                *oil-introduction*
 
-oil.nvim is a file explorer for Neovim in the style of vim-vinegar. It lets
-you edit your filesystem like a normal buffer: create files and directories by
-typing new lines, delete them by removing lines, rename or move them by
-changing the text. When you save the buffer, oil diffs it against the original
-listing and performs the corresponding filesystem operations.
-
-Open a directory with `nvim .`, `:edit <path>`, or `:Oil <path>`. Use `<CR>`
-to open a file or descend into a directory, and `-` to go up. Treat the
-listing like any other buffer — edit freely, then `:w` to apply changes.
-
-To open oil in a floating window, use `:Oil --float <path>`.
-
-To mimic vim-vinegar's parent-directory keymap: >lua
-    vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
-<
+canola.nvim is a drop-in replacement for oil.nvim. It keeps the `:Oil` command
+and `require("oil")` Lua API while letting you edit your filesystem like a
+normal buffer: create files and directories by typing new lines, delete them
+by removing lines, rename or move them by changing the text. When you save the
+buffer, canola diffs it against the original listing and performs the
+corresponding filesystem operations.
 
 File operations work across adapters. You can copy files between your local
 machine and a remote server over SSH, or between local directories and S3
 buckets, using the same buffer-editing workflow.
 
---------------------------------------------------------------------------------
-REQUIREMENTS                                                    *oil-requirements*
+------------------------------------------------------------------------------
+QUICK START                                               *canola-quick-start*
+
+Install canola where oil.nvim used to be, then keep using your existing
+`require("oil").setup(opts)` configuration.
+
+Use a parent-directory key when you want a vinegar-style entry point: >lua
+    vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+<
+
+Open a project directory when you want to browse and edit it as a buffer: >
+    nvim .
+<
+
+Open another directory from inside Neovim when you already know the path: >
+    :Oil <path>
+<
+
+Inside the listing, press `<CR>` to open a file or descend into a directory,
+and press `-` to move back up.
+
+Rename, create, or delete entries by editing the listing as text, then write
+the buffer to apply the filesystem changes: >
+    :w
+<
+
+To open canola in a floating window, use: >
+    :Oil --float <path>
+<
+
+------------------------------------------------------------------------------
+REQUIREMENTS                                                *oil-requirements*
 
 - Neovim 0.8+
 - (optional) mini.icons or nvim-web-devicons for file icons
 
---------------------------------------------------------------------------------
-CONFIG                                                                *oil-config*
+------------------------------------------------------------------------------
+CONFIG                                                            *oil-config*
 
 Configure oil via `setup()`: >lua
     require("oil").setup({
@@ -291,18 +313,18 @@ The full list of options with their defaults:
     })
 <
 
---------------------------------------------------------------------------------
-OPTIONS                                                              *oil-options*
+------------------------------------------------------------------------------
+OPTIONS                                                          *oil-options*
 
 
-default_to_float                                          *oil.default_to_float*
+default_to_float                                        *oil.default_to_float*
     type: `boolean` default: `false`
     When `true`, oil always opens in a floating window. Applies to all
     `open()` calls (`:Oil`, default keymaps) and to directory buffers opened
     on startup (e.g. `nvim .`). Individual calls to `open_float()` or
     `open()` still work regardless of this setting.
 
-skip_confirm_for_simple_edits                  *oil.skip_confirm_for_simple_edits*
+skip_confirm_for_simple_edits              *oil.skip_confirm_for_simple_edits*
     type: `boolean` default: `false`
     Before performing filesystem operations, Oil displays a confirmation popup to ensure
     that all operations are intentional. When this option is `true`, the popup will be
@@ -312,12 +334,12 @@ skip_confirm_for_simple_edits                  *oil.skip_confirm_for_simple_edit
         * contain at most one copy or move
         * contain at most five creates
 
-skip_confirm_for_delete                              *oil.skip_confirm_for_delete*
+skip_confirm_for_delete                          *oil.skip_confirm_for_delete*
     type: `boolean` default: `false`
     When this option is `true`, the confirmation popup will be skipped if all pending
     actions are deletes.
 
-prompt_save_on_select_new_entry              *oil.prompt_save_on_select_new_entry*
+prompt_save_on_select_new_entry          *oil.prompt_save_on_select_new_entry*
     type: `boolean` default: `true`
     There are two cases where this option is relevant:
     1. You copy a file to a new location, then you select it and make edits before
@@ -336,32 +358,32 @@ prompt_save_on_select_new_entry              *oil.prompt_save_on_select_new_entr
     When this option is `true`, Oil will prompt you to save before entering a file or
     directory that is pending within oil, but does not exist on disk.
 
-auto_save_on_select_new_entry          *oil.auto_save_on_select_new_entry*
+auto_save_on_select_new_entry              *oil.auto_save_on_select_new_entry*
     type: `boolean` default: `false`
     When `prompt_save_on_select_new_entry` is true and you select a
     new/moved/renamed entry, automatically save without prompting instead of
     showing a confirmation dialog.
 
-cleanup_buffers_on_delete                          *oil.cleanup_buffers_on_delete*
+cleanup_buffers_on_delete                      *oil.cleanup_buffers_on_delete*
     type: `boolean` default: `false`
     When `true`, oil will wipe any open buffer whose path matches a file that
     was successfully deleted via oil. This prevents stale buffers from
     appearing in the jumplist after a deletion.
 
-show_hidden_when_empty                          *oil.show_hidden_when_empty*
+show_hidden_when_empty                            *oil.show_hidden_when_empty*
     type: `boolean` default: `false`
     When `true` and a directory contains no visible entries (because all
     entries are hidden), oil will display the hidden entries anyway.
     Entries matching `is_always_hidden` are never shown. Hidden entries
     are still rendered with the dimmed hidden style.
 
-preview_win.max_file_size                          *oil.preview_win*
+preview_win.max_file_size                                    *oil.preview_win*
     type: `number` default: `10`
     Maximum file size in MB to load into the preview window. Files larger
     than this limit will show a placeholder message instead of being loaded.
     Set to `nil` to disable the limit.
 
-ssh_hosts                                                        *oil.ssh_hosts*
+ssh_hosts                                                      *oil.ssh_hosts*
     type: `table<string, {extra_scp_args?: string[]}>` default: `{}`
     Per-host SCP argument overrides. Keys are exact hostnames as they appear
     in the SSH URL. Per-host args are appended after the global
@@ -371,7 +393,7 @@ ssh_hosts                                                        *oil.ssh_hosts*
         }
 <
 
-s3_buckets                                                      *oil.s3_buckets*
+s3_buckets                                                    *oil.s3_buckets*
     type: `table<string, {extra_s3_args?: string[]}>` default: `{}`
     Per-bucket S3 argument overrides. Keys are exact S3 bucket names.
     Per-bucket args are appended after the global `extra_s3_args`. Example: >lua
@@ -381,31 +403,31 @@ s3_buckets                                                      *oil.s3_buckets*
 <
 
 
---------------------------------------------------------------------------------
-API                                                                      *oil-api*
+------------------------------------------------------------------------------
+API                                                                  *oil-api*
 
-get_entry_on_line({bufnr}, {lnum}): nil|oil.Entry          *oil.get_entry_on_line*
+get_entry_on_line({bufnr}, {lnum}): nil|oil.Entry      *oil.get_entry_on_line*
     Get the entry on a specific line (1-indexed)
 
     Parameters:
       {bufnr} `integer`
       {lnum}  `integer`
 
-get_cursor_entry(): nil|oil.Entry                           *oil.get_cursor_entry*
+get_cursor_entry(): nil|oil.Entry                       *oil.get_cursor_entry*
     Get the entry currently under the cursor
 
 
-discard_all_changes()                                    *oil.discard_all_changes*
+discard_all_changes()                                *oil.discard_all_changes*
     Discard all changes made to oil buffers
 
 
-set_columns({cols})                                              *oil.set_columns*
+set_columns({cols})                                          *oil.set_columns*
     Change the display columns for oil
 
     Parameters:
       {cols} `oil.ColumnSpec[]`
 
-set_sort({sort})                                                    *oil.set_sort*
+set_sort({sort})                                                *oil.set_sort*
     Change the sort order for oil
 
     Parameters:
@@ -416,18 +438,18 @@ set_sort({sort})                                                    *oil.set_sor
       require("oil").set_sort({ { "type", "asc" }, { "size", "desc" } })
 <
 
-set_is_hidden_file({is_hidden_file})                      *oil.set_is_hidden_file*
+set_is_hidden_file({is_hidden_file})                  *oil.set_is_hidden_file*
     Change how oil determines if the file is hidden
 
     Parameters:
       {is_hidden_file} `fun(filename: string, bufnr: integer, entry: oil.Entry): boolean`
                        Return true if the file/dir should be hidden
 
-toggle_hidden()                                                *oil.toggle_hidden*
+toggle_hidden()                                            *oil.toggle_hidden*
     Toggle hidden files and directories
 
 
-get_current_dir({bufnr}): nil|string                         *oil.get_current_dir*
+get_current_dir({bufnr}): nil|string                     *oil.get_current_dir*
     Get the current directory as a local filesystem path. Returns nil for
     non-local adapters (SSH, S3, trash). See |oil.get_current_url| for an
     adapter-agnostic alternative.
@@ -435,7 +457,7 @@ get_current_dir({bufnr}): nil|string                         *oil.get_current_di
     Parameters:
       {bufnr} `nil|integer`
 
-get_current_url({bufnr}): nil|string                         *oil.get_current_url*
+get_current_url({bufnr}): nil|string                     *oil.get_current_url*
     Get the current buffer's oil URL (e.g. "oil:///path/" or
     "oil-ssh://host/path/"). Works for all adapters. Returns nil if the
     buffer is not an oil buffer.
@@ -443,7 +465,7 @@ get_current_url({bufnr}): nil|string                         *oil.get_current_ur
     Parameters:
       {bufnr} `nil|integer`
 
-open_float({dir}, {opts}, {cb})                                   *oil.open_float*
+open_float({dir}, {opts}, {cb})                               *oil.open_float*
     Open oil browser in a floating window
 
     Parameters:
@@ -458,7 +480,7 @@ open_float({dir}, {opts}, {cb})                                   *oil.open_floa
                            plit modifier
       {cb}   `nil|fun()` Called after the oil buffer is ready
 
-toggle_float({dir}, {opts}, {cb})                               *oil.toggle_float*
+toggle_float({dir}, {opts}, {cb})                           *oil.toggle_float*
     Open oil browser in a floating window, or close it if open
 
     Parameters:
@@ -473,7 +495,7 @@ toggle_float({dir}, {opts}, {cb})                               *oil.toggle_floa
                            plit modifier
       {cb}   `nil|fun()` Called after the oil buffer is ready
 
-open_split({dir}, {opts}, {cb})                                   *oil.open_split*
+open_split({dir}, {opts}, {cb})                               *oil.open_split*
     Open oil browser in a split window
 
     Parameters:
@@ -486,7 +508,7 @@ open_split({dir}, {opts}, {cb})                                   *oil.open_spli
                        modifier
       {cb}   `nil|fun()` Called after the oil buffer is ready
 
-toggle_split({dir}, {opts}, {cb})                               *oil.toggle_split*
+toggle_split({dir}, {opts}, {cb})                           *oil.toggle_split*
     Open oil browser in a split window, or close it if open
 
     Parameters:
@@ -499,7 +521,7 @@ toggle_split({dir}, {opts}, {cb})                               *oil.toggle_spli
                        modifier
       {cb}   `nil|fun()` Called after the oil buffer is ready
 
-open({dir}, {opts}, {cb})                                               *oil.open*
+open({dir}, {opts}, {cb})                                           *oil.open*
     Open oil browser for a directory
 
     Parameters:
@@ -514,7 +536,7 @@ open({dir}, {opts}, {cb})                                               *oil.ope
                            plit modifier
       {cb}   `nil|fun()` Called after the oil buffer is ready
 
-close({opts})                                                          *oil.close*
+close({opts})                                                      *oil.close*
     Restore the buffer that was present when oil was opened
 
     Parameters:
@@ -522,7 +544,7 @@ close({opts})                                                          *oil.clos
           {exit_if_last_buf} `nil|boolean` Exit vim if this oil buffer is the
                              last open buffer
 
-toggle({dir}, {opts}, {cb})                                        *oil.toggle*
+toggle({dir}, {opts}, {cb})                                       *oil.toggle*
     Open oil browser for a directory, or close it if already open
 
     Parameters:
@@ -537,7 +559,7 @@ toggle({dir}, {opts}, {cb})                                        *oil.toggle*
                            plit modifier
       {cb}   `nil|fun()` Called after the oil buffer is ready
 
-open_preview({opts}, {callback})                                *oil.open_preview*
+open_preview({opts}, {callback})                            *oil.open_preview*
     Preview the entry under the cursor in a split
 
     Parameters:
@@ -549,7 +571,7 @@ open_preview({opts}, {callback})                                *oil.open_previe
       {callback} `nil|fun(err: nil|string)` Called once the preview window has
                  been opened
 
-select({opts}, {callback})                                            *oil.select*
+select({opts}, {callback})                                        *oil.select*
     Select the entry under the cursor
 
     Parameters:
@@ -568,7 +590,7 @@ select({opts}, {callback})                                            *oil.selec
       {callback} `nil|fun(err: nil|string)` Called once all entries have been
                  opened
 
-save({opts}, {cb})                                                      *oil.save*
+save({opts}, {cb})                                                  *oil.save*
     Save all changes
 
     Parameters:
@@ -580,19 +602,19 @@ save({opts}, {cb})                                                      *oil.sav
     Note:
       If you provide your own callback function, there will be no notification for errors.
 
-setup({opts})                                                          *oil.setup*
+setup({opts})                                                      *oil.setup*
     Initialize oil
 
     Parameters:
       {opts} `oil.setupOpts|nil`
 
---------------------------------------------------------------------------------
-COLUMNS                                                              *oil-columns*
+------------------------------------------------------------------------------
+COLUMNS                                                          *oil-columns*
 
 Columns can be specified as a string to use default arguments (e.g. `"icon"`),
 or as a table to pass parameters (e.g. `{"size", highlight = "Special"}`)
 
-type                                                                 *column-type*
+type                                                             *column-type*
     Adapters: *
     Sortable: this column can be used in view_props.sort
     The type of the entry (file, directory, link, etc)
@@ -603,7 +625,7 @@ type                                                                 *column-typ
       {align}     `"left"|"center"|"right"` Text alignment within the column
       {icons}     `table<string, string>` Mapping of entry type to icon
 
-icon                                                                 *column-icon*
+icon                                                             *column-icon*
     Adapters: *
     An icon for the entry's type (requires nvim-web-devicons)
 
@@ -619,7 +641,7 @@ icon                                                                 *column-ico
       {use_slow_filetype_detection} `boolean` Set to true to detect filetypes by
                      reading the first lines of each file (e.g. shebangs).
 
-size                                                                 *column-size*
+size                                                             *column-size*
     Adapters: files, ssh, s3
     Sortable: this column can be used in view_props.sort
     The size of the file
@@ -629,7 +651,7 @@ size                                                                 *column-siz
                   function that returns a highlight group
       {align}     `"left"|"center"|"right"` Text alignment within the column
 
-permissions                                                   *column-permissions*
+permissions                                               *column-permissions*
     Adapters: files, ssh
     Editable: this column is read/write
     Access permissions of the file
@@ -639,7 +661,7 @@ permissions                                                   *column-permission
                   function that returns a highlight group
       {align}     `"left"|"center"|"right"` Text alignment within the column
 
-owner                                                               *column-owner*
+owner                                                           *column-owner*
     Adapters: files, ssh
     Display-only: this column is read-only
     The file owner. On local files, resolves UID to username via /etc/passwd.
@@ -650,7 +672,7 @@ owner                                                               *column-owne
                   function that returns a highlight group
       {align}     `"left"|"center"|"right"` Text alignment within the column
 
-group                                                               *column-group*
+group                                                           *column-group*
     Adapters: files, ssh
     Display-only: this column is read-only
     The file group. On local files, resolves GID to group name via /etc/group.
@@ -661,7 +683,7 @@ group                                                               *column-grou
                   function that returns a highlight group
       {align}     `"left"|"center"|"right"` Text alignment within the column
 
-ctime                                                               *column-ctime*
+ctime                                                           *column-ctime*
     Adapters: files
     Sortable: this column can be used in view_props.sort
     Change timestamp of the file
@@ -672,7 +694,7 @@ ctime                                                               *column-ctim
       {align}     `"left"|"center"|"right"` Text alignment within the column
       {format}    `string` Format string (see :help strftime)
 
-mtime                                                               *column-mtime*
+mtime                                                           *column-mtime*
     Adapters: files
     Sortable: this column can be used in view_props.sort
     Last modified time of the file
@@ -683,7 +705,7 @@ mtime                                                               *column-mtim
       {align}     `"left"|"center"|"right"` Text alignment within the column
       {format}    `string` Format string (see :help strftime)
 
-atime                                                               *column-atime*
+atime                                                           *column-atime*
     Adapters: files
     Sortable: this column can be used in view_props.sort
     Last access time of the file
@@ -694,7 +716,7 @@ atime                                                               *column-atim
       {align}     `"left"|"center"|"right"` Text alignment within the column
       {format}    `string` Format string (see :help strftime)
 
-birthtime                                                       *column-birthtime*
+birthtime                                                   *column-birthtime*
     Adapters: files, s3
     Sortable: this column can be used in view_props.sort
     The time the file was created
@@ -705,10 +727,11 @@ birthtime                                                       *column-birthtim
       {align}     `"left"|"center"|"right"` Text alignment within the column
       {format}    `string` Format string (see :help strftime)
 
---------------------------------------------------------------------------------
-ACTIONS                                                              *oil-actions*
+------------------------------------------------------------------------------
+ACTIONS                                                          *oil-actions*
 
-The `keymaps` option in `oil.setup` allow you to create mappings using all the same parameters as |vim.keymap.set|.
+The `keymaps` option in `oil.setup` allow you to create mappings using all the
+same parameters as |vim.keymap.set()|.
 >lua
     keymaps = {
         -- Mappings can be a string
@@ -744,11 +767,11 @@ The `keymaps` option in `oil.setup` allow you to create mappings using all the s
     }
 
 Below are the actions that can be used in the `keymaps` section of config
-options. You can refer to them as strings (e.g. "actions.<action_name>") or you
-can use the functions directly with
+options. You can refer to them as strings (e.g. "actions.<action_name>") or
+you can use the functions directly with
 `require("oil.actions").action_name.callback()`
 
-cd                                                                    *actions.cd*
+cd                                                                *actions.cd*
     :cd to the current oil directory
 
     Parameters:
@@ -756,29 +779,29 @@ cd                                                                    *actions.c
                or |:lcd|)
       {silent} `boolean` Do not show a message when changing directories
 
-change_sort                                                  *actions.change_sort*
+change_sort                                              *actions.change_sort*
     Change the sort order
 
     Parameters:
       {sort} `oil.SortSpec[]` List of columns plus direction (see
              |oil.set_sort|) instead of interactive selection
 
-close                                                              *actions.close*
+close                                                          *actions.close*
     Close oil and restore original buffer
 
     Parameters:
       {exit_if_last_buf} `boolean` Exit vim if oil is closed as the last buffer
 
-close_float                                                  *actions.close_float*
+close_float                                              *actions.close_float*
     Close oil if the window is floating, otherwise do nothing
 
     Parameters:
       {exit_if_last_buf} `boolean` Exit vim if oil is closed as the last buffer
 
-copy_to_system_clipboard                        *actions.copy_to_system_clipboard*
+copy_to_system_clipboard                    *actions.copy_to_system_clipboard*
     Copy the entry under the cursor to the system clipboard
 
-open_cmdline                                                *actions.open_cmdline*
+open_cmdline                                            *actions.open_cmdline*
     Open vim cmdline with current entry as an argument
 
     Parameters:
@@ -786,25 +809,25 @@ open_cmdline                                                *actions.open_cmdlin
                      the mods argument
       {shorten_path} `boolean` Use relative paths when possible
 
-open_cwd                                                        *actions.open_cwd*
+open_cwd                                                    *actions.open_cwd*
     Open oil in Neovim's current working directory
 
-open_external                                              *actions.open_external*
+open_external                                          *actions.open_external*
     Open the entry under the cursor in an external program
 
-open_terminal                                              *actions.open_terminal*
+open_terminal                                          *actions.open_terminal*
     Open a terminal in the current directory
 
-parent                                                            *actions.parent*
+parent                                                        *actions.parent*
     Navigate to the parent path
 
-paste_from_system_clipboard                  *actions.paste_from_system_clipboard*
+paste_from_system_clipboard              *actions.paste_from_system_clipboard*
     Paste the system clipboard into the current oil directory
 
     Parameters:
       {delete_original} `boolean` Delete the original file after copying
 
-preview                                                          *actions.preview*
+preview                                                      *actions.preview*
     Open the entry under the cursor in a preview window, or close the preview
     window if already open
 
@@ -814,26 +837,26 @@ preview                                                          *actions.previe
                    modifier
       {vertical}   `boolean` Open the buffer in a vertical split
 
-preview_scroll_down                                  *actions.preview_scroll_down*
+preview_scroll_down                              *actions.preview_scroll_down*
     Scroll down in the preview window
 
-preview_scroll_left                                  *actions.preview_scroll_left*
+preview_scroll_left                              *actions.preview_scroll_left*
     Scroll left in the preview window
 
-preview_scroll_right                                *actions.preview_scroll_right*
+preview_scroll_right                            *actions.preview_scroll_right*
     Scroll right in the preview window
 
-preview_scroll_up                                      *actions.preview_scroll_up*
+preview_scroll_up                                  *actions.preview_scroll_up*
     Scroll up in the preview window
 
-refresh                                                          *actions.refresh*
+refresh                                                      *actions.refresh*
     Refresh current directory list
 
     Parameters:
       {force} `boolean` When true, do not prompt user if they will be discarding
               changes
 
-select                                                            *actions.select*
+select                                                        *actions.select*
     Open the entry under the cursor
 
     Parameters:
@@ -845,7 +868,7 @@ select                                                            *actions.selec
       {tab}        `boolean` Open the buffer in a new tab
       {vertical}   `boolean` Open the buffer in a vertical split
 
-send_to_qflist                                            *actions.send_to_qflist*
+send_to_qflist                                        *actions.send_to_qflist*
     Sends files in the current oil directory to the quickfix list, replacing the
     previous entries.
 
@@ -857,115 +880,115 @@ send_to_qflist                                            *actions.send_to_qflis
                highlighting is active
       {target} `"qflist"|"loclist"` The target list to send files to
 
-show_help                                                      *actions.show_help*
+show_help                                                  *actions.show_help*
     Show default keymaps
 
-toggle_hidden                                              *actions.toggle_hidden*
+toggle_hidden                                          *actions.toggle_hidden*
     Toggle hidden files and directories
 
-toggle_trash                                                *actions.toggle_trash*
+toggle_trash                                            *actions.toggle_trash*
     Jump to and from the trash for the current directory
 
-yank_entry                                                    *actions.yank_entry*
+yank_entry                                                *actions.yank_entry*
     Yank the filepath of the entry under the cursor to a register
 
     Parameters:
       {modify} `string` Modify the path with |fnamemodify()| using this as the
                mods argument
 
---------------------------------------------------------------------------------
-HIGHLIGHTS                                                        *oil-highlights*
+------------------------------------------------------------------------------
+HIGHLIGHTS                                                    *oil-highlights*
 
-OilEmpty                                                             *hl-OilEmpty*
+OilEmpty                                                         *hl-OilEmpty*
     Empty column values
 
-OilHidden                                                           *hl-OilHidden*
+OilHidden                                                       *hl-OilHidden*
     Hidden entry in an oil buffer
 
-OilDir                                                                 *hl-OilDir*
+OilDir                                                             *hl-OilDir*
     Directory names in an oil buffer
 
-OilDirHidden                                                     *hl-OilDirHidden*
+OilDirHidden                                                 *hl-OilDirHidden*
     Hidden directory names in an oil buffer
 
-OilDirIcon                                                         *hl-OilDirIcon*
+OilDirIcon                                                     *hl-OilDirIcon*
     Icon for directories
 
-OilFileIcon                                                       *hl-OilFileIcon*
+OilFileIcon                                                   *hl-OilFileIcon*
     Icon for files
 
-OilSocket                                                           *hl-OilSocket*
+OilSocket                                                       *hl-OilSocket*
     Socket files in an oil buffer
 
-OilSocketHidden                                               *hl-OilSocketHidden*
+OilSocketHidden                                           *hl-OilSocketHidden*
     Hidden socket files in an oil buffer
 
-OilLink                                                               *hl-OilLink*
+OilLink                                                           *hl-OilLink*
     Soft links in an oil buffer
 
-OilOrphanLink                                                   *hl-OilOrphanLink*
+OilOrphanLink                                               *hl-OilOrphanLink*
     Orphaned soft links in an oil buffer
 
-OilLinkHidden                                                   *hl-OilLinkHidden*
+OilLinkHidden                                               *hl-OilLinkHidden*
     Hidden soft links in an oil buffer
 
-OilOrphanLinkHidden                                       *hl-OilOrphanLinkHidden*
+OilOrphanLinkHidden                                   *hl-OilOrphanLinkHidden*
     Hidden orphaned soft links in an oil buffer
 
-OilLinkTarget                                                   *hl-OilLinkTarget*
+OilLinkTarget                                               *hl-OilLinkTarget*
     The target of a soft link
 
-OilOrphanLinkTarget                                       *hl-OilOrphanLinkTarget*
+OilOrphanLinkTarget                                   *hl-OilOrphanLinkTarget*
     The target of an orphaned soft link
 
-OilLinkTargetHidden                                       *hl-OilLinkTargetHidden*
+OilLinkTargetHidden                                   *hl-OilLinkTargetHidden*
     The target of a hidden soft link
 
-OilOrphanLinkTargetHidden                           *hl-OilOrphanLinkTargetHidden*
+OilOrphanLinkTargetHidden                       *hl-OilOrphanLinkTargetHidden*
     The target of an hidden orphaned soft link
 
-OilFile                                                               *hl-OilFile*
+OilFile                                                           *hl-OilFile*
     Normal files in an oil buffer
 
-OilFileHidden                                                   *hl-OilFileHidden*
+OilFileHidden                                               *hl-OilFileHidden*
     Hidden normal files in an oil buffer
 
-OilExecutable                                                   *hl-OilExecutable*
+OilExecutable                                               *hl-OilExecutable*
     Executable files in an oil buffer
 
-OilExecutableHidden                                       *hl-OilExecutableHidden*
+OilExecutableHidden                                   *hl-OilExecutableHidden*
     Hidden executable files in an oil buffer
 
-OilCreate                                                           *hl-OilCreate*
+OilCreate                                                       *hl-OilCreate*
     Create action in the oil preview window
 
-OilDelete                                                           *hl-OilDelete*
+OilDelete                                                       *hl-OilDelete*
     Delete action in the oil preview window
 
-OilMove                                                               *hl-OilMove*
+OilMove                                                           *hl-OilMove*
     Move action in the oil preview window
 
-OilCopy                                                               *hl-OilCopy*
+OilCopy                                                           *hl-OilCopy*
     Copy action in the oil preview window
 
-OilChange                                                           *hl-OilChange*
+OilChange                                                       *hl-OilChange*
     Change action in the oil preview window
 
-OilRestore                                                         *hl-OilRestore*
+OilRestore                                                     *hl-OilRestore*
     Restore (from the trash) action in the oil preview window
 
-OilPurge                                                             *hl-OilPurge*
+OilPurge                                                         *hl-OilPurge*
     Purge (Permanently delete a file from trash) action in the oil preview
     window
 
-OilTrash                                                             *hl-OilTrash*
+OilTrash                                                         *hl-OilTrash*
     Trash (delete a file to trash) action in the oil preview window
 
-OilTrashSourcePath                                         *hl-OilTrashSourcePath*
+OilTrashSourcePath                                     *hl-OilTrashSourcePath*
     Virtual text that shows the original path of file in the trash
 
---------------------------------------------------------------------------------
-ADAPTERS                                                            *oil-adapters*
+------------------------------------------------------------------------------
+ADAPTERS                                                        *oil-adapters*
 
 Oil performs all filesystem interaction through an adapter abstraction. This
 means oil can view and modify files in places beyond the local filesystem, as
@@ -973,7 +996,7 @@ long as the destination has an adapter implementation. File operations work
 across adapters — you can copy files between local and remote with the same
 buffer-editing workflow.
 
-SSH                                                              *oil-adapter-ssh*
+SSH                                                          *oil-adapter-ssh*
 
     Browse files over SSH, much like netrw. Open a buffer with: >
         nvim oil-ssh://[username@]hostname[:port]/[path]
@@ -1038,7 +1061,7 @@ SSH                                                              *oil-adapter-ss
     different directory tree over SFTP than over SSH. Try adding `-O` to
     `extra_scp_args` to force the legacy SCP protocol.
 
-S3                                                                *oil-adapter-s3*
+S3                                                            *oil-adapter-s3*
 
     Browse files stored in AWS S3. Make sure `aws` is configured correctly,
     then open a buffer with: >
@@ -1049,15 +1072,15 @@ S3                                                                *oil-adapter-s
 
     The adapter supports the `size` and `birthtime` columns.
 
-Trash                                                        *oil-adapter-trash*
+Trash                                                      *oil-adapter-trash*
 
     See |oil-trash| for details on the built-in trash adapter.
 
---------------------------------------------------------------------------------
-RECIPES                                                              *oil-recipes*
+------------------------------------------------------------------------------
+RECIPES                                                          *oil-recipes*
 
 Toggle file detail view ~
-                                                    *oil-recipe-toggle-detail-view*
+                                               *oil-recipe-toggle-detail-view*
 >lua
     local detail = false
     require("oil").setup({
@@ -1078,7 +1101,7 @@ Toggle file detail view ~
 <
 
 Show CWD in the winbar ~
-                                                          *oil-recipe-cwd-winbar*
+                                                       *oil-recipe-cwd-winbar*
 >lua
     function _G.get_oil_winbar()
       local bufnr = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
@@ -1098,7 +1121,7 @@ Show CWD in the winbar ~
 <
 
 Hide gitignored files and show git tracked hidden files ~
-                                                       *oil-recipe-git-is-hidden*
+                                                    *oil-recipe-git-is-hidden*
 >lua
     local function parse_output(proc)
       local result = proc:wait()
@@ -1206,7 +1229,7 @@ buffer, pass the buffer number explicitly: >lua
 <
 
 Add custom column for file extension ~
-                                                     *oil-recipe-extension-column*
+                                                 *oil-recipe-extension-column*
 >lua
     local oil_cfg = require "oil.config"
     local oil_constant = require "oil.constants"
@@ -1282,7 +1305,7 @@ Add custom column for file extension ~
 <
 
 Disable dimming of hidden files ~
-                                                     *oil-recipe-no-hidden-dimming*
+                                                *oil-recipe-no-hidden-dimming*
 
 By default, hidden files (toggled with `g.`) are dimmed via the `OilHidden`
 highlight group, which links to `Comment`. To make hidden files look identical
@@ -1298,7 +1321,7 @@ variant after calling `setup()`:
 <
 
 Use FreeDesktop trash on macOS ~
-                                               *oil-recipe-macos-freedesktop-trash*
+                                          *oil-recipe-macos-freedesktop-trash*
 
 For full FreeDesktop spec compliance on macOS (list, restore operations), or
 for compatibility with FreeDesktop-compliant trash programs like gtrash:
@@ -1307,7 +1330,7 @@ for compatibility with FreeDesktop-compliant trash programs like gtrash:
 <
 
 Flash highlight on opened file ~
-                                              *oil-recipe-highlight-opened-file*
+                                            *oil-recipe-highlight-opened-file*
 
 When opening a directory from a file buffer, briefly highlight the originating
 file's name in the listing. Uses |OilReadPost| to apply a timed extmark after
@@ -1344,11 +1367,11 @@ the buffer renders.
     })
 <
 
-                                          *oil-recipe-paste-file-from-clipboard*
+                                        *oil-recipe-paste-file-from-clipboard*
 
 Copy a file into the current oil directory by pasting its absolute path from
-the system clipboard. Useful on macOS where copying a file in Finder places its
-path in the clipboard.
+the system clipboard. Useful on macOS where copying a file in Finder places
+its path in the clipboard.
 >lua
     vim.keymap.set("n", "gp", function()
       local oil = require("oil")
@@ -1377,7 +1400,7 @@ path in the clipboard.
     end, { desc = "Paste file from clipboard path into oil directory" })
 <
 
-                                              *oil-recipe-file-templates*
+                                                   *oil-recipe-file-templates*
 
 Apply initial content to newly created files using the |OilFileCreated| event.
 This is the recommended alternative to relying on |BufNewFile|, which does not
@@ -1422,10 +1445,11 @@ buffers on |BufRead|: >lua
 <
 
 Open file in a picked window ~
-                                              *oil-recipe-pick-window*
+                                                      *oil-recipe-pick-window*
 
 Open the entry under the cursor in a window chosen via
-https://github.com/s1n7ax/nvim-window-picker. Add to `after/ftplugin/oil.lua`: >lua
+https://github.com/s1n7ax/nvim-window-picker. Add to `after/ftplugin/oil.lua`:
+>lua
     vim.keymap.set("n", "<C-w>", function()
       local oil = require("oil")
       local entry = oil.get_cursor_entry()
@@ -1444,11 +1468,11 @@ https://github.com/s1n7ax/nvim-window-picker. Add to `after/ftplugin/oil.lua`: >
     end, { buffer = true, desc = "Open file in picked window" })
 <
 
---------------------------------------------------------------------------------
-EVENTS                                                                *oil-events*
+------------------------------------------------------------------------------
+EVENTS                                                            *oil-events*
 
 Oil emits the following |User| autocmd events. Listen for them with
-|nvim_create_autocmd|: >lua
+|nvim_create_autocmd()|: >lua
     vim.api.nvim_create_autocmd("User", {
       pattern = "OilEnter",
       callback = function(args)
@@ -1457,25 +1481,25 @@ Oil emits the following |User| autocmd events. Listen for them with
     })
 <
 
-OilEnter                                                             *OilEnter*
+OilEnter                                                            *OilEnter*
     Fired once per oil buffer, after the initial directory listing has been
     rendered and the buffer is ready. The `args.data.buf` field contains the
     buffer number. Use this event for one-time buffer setup such as setting
     keymaps or window options.
 
-OilReadPost                                                       *OilReadPost*
+OilReadPost                                                      *OilReadPost*
     Fired after every successful buffer render, including the initial render
     and all subsequent re-renders (e.g. after directory changes, refreshes, or
     mutations). The `args.data.buf` field contains the buffer number. Use this
     event for logic that must run each time the directory listing updates.
 
-OilMutationComplete                                       *OilMutationComplete*
+OilMutationComplete                                      *OilMutationComplete*
     Fired after all pending mutations (create, delete, rename, move, copy)
     have been executed and the affected buffers have been re-rendered. No
     additional data fields. Use this event for post-mutation side effects such
     as refreshing external status indicators.
 
-OilFileCreated                                             *OilFileCreated*
+OilFileCreated                                                *OilFileCreated*
     Fired after a new file is successfully created on the local filesystem.
     The `args.data.path` field contains the absolute path of the created file.
     Use this event to populate initial file contents, run formatters, or
@@ -1491,15 +1515,15 @@ OilFileCreated                                             *OilFileCreated*
         })
 <
 
---------------------------------------------------------------------------------
-TRASH                                                                  *oil-trash*
+------------------------------------------------------------------------------
+TRASH                                                              *oil-trash*
 
 
-Oil has built-in support for using the system trash. When
-`delete_to_trash = true`, any deleted files will be sent to the trash instead
-of being permanently deleted. You can browse the trash for a directory using
-the `toggle_trash` action (bound to `g\` by default). You can view all files
-in the trash with `:Oil --trash /`.
+Oil has built-in support for using the system trash. When `delete_to_trash =
+true`, any deleted files will be sent to the trash instead of being
+permanently deleted. You can browse the trash for a directory using the
+`toggle_trash` action (bound to `g\` by default). You can view all files in
+the trash with `:Oil --trash /`.
 
 To restore files, simply move them from the trash to the desired destination,
 the same as any other file operation. If you delete files from the trash they
@@ -1518,8 +1542,8 @@ Mac:
 Windows:
     Oil supports the Windows Recycle Bin. All features should work.
 
---------------------------------------------------------------------------------
-MIGRATING TO THE CANOLA BRANCH                            *canola-migration*
+------------------------------------------------------------------------------
+MIGRATING TO THE CANOLA BRANCH                              *canola-migration*
 
 The full `canola-migration` guide ships with the `canola` branch, not `main`.
 If you are reading this help file on `main`, switch your plugin manager entry
@@ -1533,17 +1557,16 @@ current oil.nvim config. After switching branches, use these help topics:
 - `:h canola-recipes`
 
 ------------------------------------------------------------------------------
-REMOVED OPTIONS                                  *canola-migration-removed*
+REMOVED OPTIONS                                     *canola-migration-removed*
 
-This section is documented on the `canola` branch as part of
-`:h canola-migration`. Switch to `branch = "canola"` and reopen that topic
-there.
+This section is documented on the `canola` branch as part of `:h
+canola-migration`. Switch to `branch = "canola"` and reopen that topic there.
 
 ------------------------------------------------------------------------------
-RECIPES                                                     *canola-recipes*
+RECIPES                                                       *canola-recipes*
 
-This section is documented on the `canola` branch. Switch to
-`branch = "canola"` to view the current canola recipes.
+This section is documented on the `canola` branch. Switch to `branch =
+"canola"` to view the current canola recipes.
 
-================================================================================
+==============================================================================
 vim:tw=80:ts=2:ft=help:norl:syntax=help:
