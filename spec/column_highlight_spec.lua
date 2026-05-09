@@ -1,3 +1,4 @@
+local TmpDir = require('spec.tmpdir')
 local config = require('canola.config')
 local permissions = require('canola.adapters.files.permissions')
 local test_util = require('spec.test_util')
@@ -327,6 +328,101 @@ describe('column highlights', function()
       local result = col.render(entry, nil)
       assert.equals('string', type(result))
       assert.equals('.rw-r--r--', result)
+    end)
+  end)
+
+  describe('executable filename highlighting', function()
+    local tmpdir
+
+    before_each(function()
+      tmpdir = TmpDir.new()
+    end)
+
+    after_each(function()
+      if tmpdir then
+        tmpdir:dispose()
+        tmpdir = nil
+      end
+    end)
+
+    local function list_entries(url, column_defs)
+      local done = false
+      local err
+      local all_entries = {}
+      local files = require('canola.adapters.files')
+
+      files.list(url, column_defs, function(list_err, entries, fetch_more)
+        if list_err then
+          err = list_err
+          done = true
+          return
+        end
+
+        if entries then
+          vim.list_extend(all_entries, entries)
+        end
+
+        if fetch_more then
+          fetch_more()
+        else
+          done = true
+        end
+      end)
+
+      vim.wait(10000, function()
+        return done
+      end, 10)
+
+      if not done then
+        error('Timed out waiting for files.list')
+      end
+      if err then
+        error(err)
+      end
+
+      return all_entries
+    end
+
+    local function find_entry(entries, name)
+      local constants = require('canola.constants')
+      for _, entry in ipairs(entries) do
+        if entry[constants.FIELD_NAME] == name then
+          return entry
+        end
+      end
+      error('Missing entry: ' .. name)
+    end
+
+    local function filename_highlight(entry)
+      local entry_format = require('canola.entry_format')
+      local files = require('canola.adapters.files')
+      local constants = require('canola.constants')
+      for _, chunk in ipairs(entry_format.format_entry_line(entry, files, false, 0)) do
+        if type(chunk) == 'table' and chunk[1] == entry[constants.FIELD_NAME] then
+          return chunk[2]
+        end
+      end
+    end
+
+    it('detects executable files without a stat-backed column', function()
+      local constants = require('canola.constants')
+      if require('canola.fs').is_windows then
+        pending('POSIX executable mode bits are not used on Windows')
+        return
+      end
+
+      vim.g.canola = { columns = {}, highlights = { filename = {}, columns = true } }
+      config.init()
+
+      tmpdir:create({ 'runs' })
+      assert(vim.uv.fs_chmod(tmpdir.path .. '/runs', tonumber('755', 8)))
+
+      local url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. '/'
+      local entry = find_entry(list_entries(url, { 'type', 'name' }), 'runs')
+      entry[constants.FIELD_ID] = entry[constants.FIELD_ID] or 1
+
+      assert.truthy(entry[constants.FIELD_META] and entry[constants.FIELD_META].stat)
+      assert.equals('CanolaExecutable', filename_highlight(entry))
     end)
   end)
 end)
