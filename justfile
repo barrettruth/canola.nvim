@@ -4,7 +4,7 @@ default:
 format:
     nix fmt -- --ci
     stylua --check lua spec
-    prettier --check .
+    biome format .
 
 test:
     busted
