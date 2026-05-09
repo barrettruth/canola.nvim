@@ -53,6 +53,11 @@ M.get_column = function(name)
   return file_columns.get_column(name)
 end
 
+local function should_fetch_entry_stat(column_defs)
+  -- POSIX executable filename highlights need mode bits even when no visible column does.
+  return not fs.is_windows or file_columns.columns_require_stat(column_defs)
+end
+
 ---@param url string
 ---@param callback fun(url: string)
 M.normalize_url = function(url, callback)
@@ -227,7 +232,7 @@ end
 local function list_windows_drives(url, column_defs, cb)
   local _, path = util.parse_url(url)
   assert(path)
-  local require_stat = file_columns.columns_require_stat(column_defs)
+  local require_stat = should_fetch_entry_stat(column_defs)
   vim.system(
     { 'wmic', 'logicaldisk', 'get', 'name' },
     { text = true },
@@ -270,7 +275,7 @@ M.list = function(url, column_defs, cb)
     return list_windows_drives(url, column_defs, cb)
   end
   local dir = fs.posix_to_os_path(path)
-  local require_stat = file_columns.columns_require_stat(column_defs)
+  local require_stat = should_fetch_entry_stat(column_defs)
 
   ---@diagnostic disable-next-line: param-type-mismatch, discard-returns
   uv.fs_opendir(dir, function(open_err, fd)
