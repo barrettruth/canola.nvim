@@ -22,7 +22,7 @@
       devShells = forEachSystem (pkgs: {
         default = pkgs.mkShell {
           packages = [
-            pkgs.prettier
+            pkgs.biome
             pkgs.stylua
             pkgs.selene
             pkgs.neovim
