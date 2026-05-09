@@ -1,22 +1,23 @@
-*canola.nvim.txt*
+*canola.txt* *canola.nvim.txt*
 
 *canola* *canola.nvim* *Canola*
 ------------------------------------------------------------------------------
 CONTENTS                                                     *canola-contents*
 
   1. Introduction                                            |canola-introduction|
-  2. Migrating from oil.nvim                                    |canola-migration|
-  3. Requirements                                            |canola-requirements|
-  4. Config                                                       |canola-config|
-  5. Options                                                     |canola-options|
-  6. Api                                                             |canola-api|
-  7. Columns                                                     |canola-columns|
-  8. Keymaps                                                     |canola-keymaps|
-  9. Actions                                                     |canola-actions|
-  10. Highlights                                               |canola-highlights|
-  11. Adapters                                                   |canola-adapters|
-  12. Recipes                                                    |canola-recipes|
-  13. Events                                                      |canola-events|
+  2. Quick Start                                              |canola-quick-start|
+  3. Migrating from oil.nvim                                    |canola-migration|
+  4. Requirements                                            |canola-requirements|
+  5. Config                                                       |canola-config|
+  6. Options                                                     |canola-options|
+  7. Api                                                             |canola-api|
+  8. Columns                                                     |canola-columns|
+  9. Keymaps                                                     |canola-keymaps|
+  10. Actions                                                     |canola-actions|
+  11. Highlights                                               |canola-highlights|
+  12. Adapters                                                   |canola-adapters|
+  13. Recipes                                                    |canola-recipes|
+  14. Events                                                      |canola-events|
 
 ------------------------------------------------------------------------------
 INTRODUCTION                                             *canola-introduction*
@@ -27,19 +28,36 @@ typing new lines, delete them by removing lines, rename or move them by
 changing the text. When you save the buffer, canola diffs it against the
 original listing and performs the corresponding filesystem operations.
 
-Open a directory with `nvim .`, `:edit <path>`, or `:Canola <path>`. Use
-`<CR>` to open a file or descend into a directory, and `-` to go up. Treat the
-listing like any other buffer — edit freely, then `:w` to apply changes.
-
-To open canola in a floating window, use `:Canola --float <path>`.
-
-To mimic vim-vinegar's parent-directory keymap: >lua
-    vim.keymap.set("n", "-", "<CMD>Canola<CR>", { desc = "Open parent directory" })
-<
-
 File operations work across adapters. Install canola-collection for additional
 adapters (SSH, S3, trash, etc.). You can copy files between adapters using the
 same buffer-editing workflow.
+
+------------------------------------------------------------------------------
+QUICK START                                               *canola-quick-start*
+
+Use a parent-directory key when you want a vinegar-style entry point: >lua
+    vim.keymap.set("n", "-", "<CMD>Canola<CR>", { desc = "Open parent directory" })
+<
+
+Open a project directory when you want to browse and edit it as a buffer: >
+    nvim .
+<
+
+Open another directory from inside Neovim when you already know the path: >
+    :Canola <path>
+<
+
+Inside the listing, press `<CR>` to open a file or descend into a directory,
+and press `-` to move back up.
+
+Rename, create, or delete entries by editing the listing as text, then write
+the buffer to apply the filesystem changes: >
+    :w
+<
+
+To open canola in a floating window, use: >
+    :Canola --float <path>
+<
 
 ------------------------------------------------------------------------------
 MIGRATING FROM OIL.NVIM                                     *canola-migration*
@@ -1775,10 +1793,10 @@ CanolaFileCreated                                          *CanolaFileCreated*
 ------------------------------------------------------------------------------
 TRASH                                                           *canola-trash*
 
-Trash support is provided by canola-collection. Configure it in your init: >lua
+Trash support is provided by canola-collection. Configure it in your init:
+>lua
     vim.g.canola_trash = {}
-<
-Deleted files are sent to the system trash instead of being permanently
+< Deleted files are sent to the system trash instead of being permanently
 deleted.
 
 You can browse the trash by opening a `canola-trash://` URL provided by

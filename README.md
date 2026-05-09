@@ -1,6 +1,6 @@
 # canola.nvim
 
-A refined [`oil.nvim`](https://tihub.com/stevearc/oil.nvim)
+A refined [`oil.nvim`](https://github.com/stevearc/oil.nvim)
 
 https://github.com/user-attachments/assets/e17fb611-acd9-464e-8a7e-c2a63d4e51a2
 
@@ -38,6 +38,36 @@ Install with your package manager of choice or via
 luarocks install canola.nvim
 ```
 
+## Quick Start
+
+Put canola on a parent-directory key when you want a vinegar-style entry point.
+
+```lua
+vim.keymap.set('n', '-', '<CMD>Canola<CR>', { desc = 'Open parent directory' })
+```
+
+Open a project directory when you want to browse and edit it as a buffer.
+
+```sh
+nvim .
+```
+
+Open another directory from inside Neovim when you already know the path.
+
+```vim
+:Canola <path>
+```
+
+Inside the listing, press `<CR>` to open a file or descend into a directory, and
+press `-` to move back up.
+
+Rename, create, or delete entries by editing the listing as text, then write the
+buffer to apply the filesystem changes.
+
+```vim
+:w
+```
+
 ## Migration/Setup
 
 Configure via `vim.g.canola` before the plugin loads:
@@ -59,7 +89,7 @@ All adapters have been moved to
 ## Documentation
 
 ```vim
-:help canola.nvim
+:help canola
 ```
 
 # Acknowledgements
