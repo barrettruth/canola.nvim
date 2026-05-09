@@ -22,7 +22,31 @@ Or via [luarocks](https://luarocks.org/modules/barrettruth/canola.nvim):
 luarocks install canola.nvim
 ```
 
-See `:help canola.nvim` for full documentation.
+## Quick Start
+
+Put canola on a parent-directory key when you want a vinegar-style entry point.
+
+```lua
+vim.keymap.set('n', '-', '<CMD>Oil<CR>', { desc = 'Open parent directory' })
+```
+
+Open a project directory when you want to browse and edit it as a buffer.
+
+```sh
+nvim .
+```
+
+Inside the listing, press `<CR>` to open a file or descend into a directory, and
+press `-` to move back up.
+
+Rename, create, or delete entries by editing the listing as text, then write the
+buffer to apply the filesystem changes.
+
+```vim
+:w
+```
+
+See `:help canola` for full documentation.
 
 ## Requirements
 

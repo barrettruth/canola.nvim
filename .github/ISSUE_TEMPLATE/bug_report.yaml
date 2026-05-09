@@ -23,8 +23,8 @@ body:
         - label: I have updated to the latest `main` branch
           required: true
         - label:
-            This report targets the `main` branch, the backwards-compatible
-            oil track
+            This report targets the `main` branch, the backwards-compatible oil
+            track
           required: true
         - label: I ran the repro below with `branch = 'main'` left intact
           required: true
