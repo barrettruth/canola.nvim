@@ -1468,6 +1468,17 @@ https://github.com/s1n7ax/nvim-window-picker. Add to `after/ftplugin/oil.lua`:
     end, { buffer = true, desc = "Open file in picked window" })
 <
 
+Session compatibility ~
+                                                         *oil-recipe-sessions*
+With the default 'sessionoptions' (which includes "blank") oil windows are
+saved and restored across |:mksession|. If you remove "blank" from
+'sessionoptions', |:mksession| treats oil buffers ('buftype' is "acwrite") as
+blank windows and omits them, so oil windows are not restored.
+
+Keep "blank" in 'sessionoptions' if you want oil windows to survive a session
+round-trip. Automatic 'buftype' handling depends on a pre-write session event
+tracked upstream at neovim/neovim#22814.
+
 ------------------------------------------------------------------------------
 EVENTS                                                            *oil-events*
 
