@@ -1677,14 +1677,14 @@ https://github.com/s1n7ax/nvim-window-picker. Add to
 
 Session compatibility ~
                                                       *canola-recipe-sessions*
-With the default 'sessionoptions' (which includes "blank") canola windows are
-saved and restored across |:mksession|. If you remove "blank" from
-'sessionoptions', |:mksession| treats canola buffers ('buftype' is "acwrite")
-as blank windows and omits them, so canola windows are not restored.
+On Neovim with the SessionWritePre event, canola clears 'buftype' around
+|:mksession| automatically, so canola windows are saved and restored across a
+session round-trip regardless of 'sessionoptions'.
 
-Keep "blank" in 'sessionoptions' if you want canola windows to survive a
-session round-trip. Automatic 'buftype' handling depends on a pre-write
-session event tracked upstream at neovim/neovim#22814.
+On older Neovim without SessionWritePre, |:mksession| treats canola buffers
+('buftype' is "acwrite") as blank windows and omits them when "blank" is not in
+'sessionoptions'. Keep "blank" in 'sessionoptions' there if you want canola
+windows to survive a session round-trip.
 
 ------------------------------------------------------------------------------
 EVENTS                                                         *canola-events*

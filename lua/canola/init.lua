@@ -769,6 +769,46 @@ M.init = function()
     end,
   })
 
+  -- Canola buffers use buftype=acwrite, which mksession treats as a blank
+  -- window when "blank" is excluded from 'sessionoptions', dropping them from
+  -- the session. Clear buftype before the session is written so their canola://
+  -- urls are saved, then restore it afterwards. Requires the SessionWritePre
+  -- event.
+  if vim.fn.exists('##SessionWritePre') == 1 then
+    ---@diagnostic disable-next-line: param-type-mismatch
+    vim.api.nvim_create_autocmd('SessionWritePre', {
+      desc = 'Clear buftype on canola buffers so mksession saves their urls',
+      group = aug,
+      pattern = '*',
+      callback = function()
+        local util = require('canola.util')
+        for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+          if
+            vim.api.nvim_buf_is_valid(bufnr)
+            and util.is_canola_bufnr(bufnr)
+            and vim.bo[bufnr].buftype == 'acwrite'
+          then
+            vim.b[bufnr].canola_session_buftype = vim.bo[bufnr].buftype
+            vim.bo[bufnr].buftype = ''
+          end
+        end
+      end,
+    })
+    vim.api.nvim_create_autocmd('SessionWritePost', {
+      desc = 'Restore buftype on canola buffers after mksession',
+      group = aug,
+      pattern = '*',
+      callback = function()
+        for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+          if vim.api.nvim_buf_is_valid(bufnr) and vim.b[bufnr].canola_session_buftype ~= nil then
+            vim.bo[bufnr].buftype = vim.b[bufnr].canola_session_buftype
+            vim.b[bufnr].canola_session_buftype = nil
+          end
+        end
+      end,
+    })
+  end
+
   if config.float.default then
     vim.api.nvim_create_autocmd('VimEnter', {
       desc = 'Open oil in a float when starting on a directory',
