@@ -273,6 +273,13 @@ M.init = function()
 
   local new_conf = vim.tbl_deep_extend('keep', opts, default_config)
 
+  -- vim.tbl_deep_extend merges lists element-by-element, so an explicit
+  -- empty list (e.g. columns = {}) gets overridden by the default. Restore
+  -- any list-valued keys the user explicitly set.
+  if opts.columns ~= nil then
+    new_conf.columns = opts.columns
+  end
+
   local user_keymaps = opts.keymaps or {}
   new_conf.keymaps = vim.tbl_deep_extend('keep', {}, default_keymaps)
   for k, v in pairs(user_keymaps) do
