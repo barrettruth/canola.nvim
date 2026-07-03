@@ -225,6 +225,18 @@ M.set_win_options = function()
   end
 end
 
+M.set_filetype = function(bufnr)
+  if not vim.api.nvim_buf_is_valid(bufnr) then
+    return
+  end
+  if vim.bo[bufnr].syntax ~= 'oil' then
+    vim.bo[bufnr].syntax = 'oil'
+  end
+  if vim.bo[bufnr].filetype ~= 'oil' then
+    vim.bo[bufnr].filetype = 'oil'
+  end
+end
+
 ---Get a list of visible oil buffers and a list of hidden oil buffers
 ---@note
 --- If any buffers are modified, return values are nil
@@ -599,8 +611,7 @@ M.initialize = function(bufnr)
   vim.bo[bufnr].buftype = 'acwrite'
   vim.bo[bufnr].readonly = false
   vim.bo[bufnr].swapfile = false
-  vim.bo[bufnr].syntax = 'oil'
-  vim.bo[bufnr].filetype = 'oil'
+  M.set_filetype(bufnr)
   vim.b[bufnr].EditorConfig_disable = 1
   session[bufnr] = session[bufnr] or {}
   for k, v in pairs(config.buf_options) do
