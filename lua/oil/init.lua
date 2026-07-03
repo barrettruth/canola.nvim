@@ -1271,6 +1271,7 @@ M.load_oil_buffer = function(bufnr)
         vim.cmd.doautocmd({ args = { 'BufReadPre', bufname }, mods = { emsg_silent = true } })
         view.initialize(bufnr)
         vim.cmd.doautocmd({ args = { 'BufReadPost', bufname }, mods = { emsg_silent = true } })
+        view.set_filetype(bufnr)
       else
         vim.bo[bufnr].buftype = 'acwrite'
         adapter.read_file(bufnr)
