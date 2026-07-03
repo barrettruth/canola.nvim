@@ -275,6 +275,18 @@ M.set_win_options = function()
   end
 end
 
+M.set_filetype = function(bufnr)
+  if not vim.api.nvim_buf_is_valid(bufnr) then
+    return
+  end
+  if vim.bo[bufnr].syntax ~= 'canola' then
+    vim.bo[bufnr].syntax = 'canola'
+  end
+  if vim.bo[bufnr].filetype ~= 'canola' then
+    vim.bo[bufnr].filetype = 'canola'
+  end
+end
+
 ---Get a list of visible oil buffers and a list of hidden oil buffers
 ---@note
 --- If any buffers are modified, return values are nil
@@ -335,8 +347,7 @@ M.initialize = function(bufnr)
   vim.bo[bufnr].buftype = 'acwrite'
   vim.bo[bufnr].readonly = false
   vim.bo[bufnr].swapfile = false
-  vim.bo[bufnr].syntax = 'canola'
-  vim.bo[bufnr].filetype = 'canola'
+  M.set_filetype(bufnr)
   vim.bo[bufnr].cindent = false
   vim.bo[bufnr].smartindent = false
   vim.bo[bufnr].indentexpr = ''
