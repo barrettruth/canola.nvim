@@ -1389,6 +1389,7 @@ M.setup = function(opts)
   if config.default_file_explorer then
     vim.g.loaded_netrw = 1
     vim.g.loaded_netrwPlugin = 1
+    vim.g.loaded_nvim_dir_plugin = 1
     -- If netrw was already loaded, clear this augroup
     if vim.fn.exists('#FileExplorer') then
       vim.api.nvim_create_augroup('FileExplorer', { clear = true })
