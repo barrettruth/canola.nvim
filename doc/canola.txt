@@ -46,6 +46,11 @@ Open a project directory when you want to browse and edit it as a buffer: >
     nvim .
 <
 
+When `default_file_explorer` is enabled, oil disables Neovim's built-in
+directory browsers before taking over directory buffers. If you disable
+`default_file_explorer`, set `vim.g.loaded_nvim_dir_plugin = 1` before startup
+if you also want Neovim's built-in directory browser disabled.
+
 Open another directory from inside Neovim when you already know the path: >
     :Oil <path>
 <
