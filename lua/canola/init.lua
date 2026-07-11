@@ -613,6 +613,7 @@ M.init = function()
 
   vim.g.loaded_netrw = 1
   vim.g.loaded_netrwPlugin = 1
+  vim.g.loaded_nvim_dir_plugin = 1
   if vim.fn.exists('#FileExplorer') then
     vim.api.nvim_create_augroup('FileExplorer', { clear = true })
   end

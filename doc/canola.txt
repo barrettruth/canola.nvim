@@ -43,6 +43,9 @@ Open a project directory when you want to browse and edit it as a buffer: >
     nvim .
 <
 
+canola.nvim always acts as the default directory explorer, so it disables
+Neovim's built-in directory browsers automatically.
+
 Open another directory from inside Neovim when you already know the path: >
     :Canola <path>
 <
