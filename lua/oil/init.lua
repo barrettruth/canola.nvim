@@ -1228,7 +1228,12 @@ M.load_oil_buffer = function(bufnr)
   end
 
   -- Early return if we're already loading or have already loaded this buffer
-  if loading.is_loading(bufnr) or vim.b[bufnr].filetype ~= nil then
+  if loading.is_loading(bufnr) then
+    if vim.endswith(bufname, '/') then
+      vim.bo[bufnr].filetype = 'oil'
+      vim.bo[bufnr].buftype = 'acwrite'
+      keymap_util.set_keymaps(config.keymaps, bufnr)
+    end
     return
   end
 
@@ -1391,6 +1396,7 @@ M.setup = function(opts)
     vim.g.loaded_netrw = 1
     vim.g.loaded_netrwPlugin = 1
     vim.g.loaded_nvim_dir_plugin = 1
+    pcall(vim.api.nvim_del_augroup_by_name, 'nvim.dir')
     -- If netrw was already loaded, clear this augroup
     if vim.fn.exists('#FileExplorer') then
       vim.api.nvim_create_augroup('FileExplorer', { clear = true })
@@ -1665,14 +1671,22 @@ M.setup = function(opts)
       pattern = '*',
       nested = true,
       callback = function(params)
-        if maybe_hijack_directory_buffer(params.buf) and vim.v.vim_did_enter == 1 then
+        local util = require('oil.util')
+        if
+          maybe_hijack_directory_buffer(params.buf)
+          or (util.is_oil_bufnr(params.buf) and not vim.b[params.buf].oil_ready)
+        then
           M.load_oil_buffer(params.buf)
         end
       end,
     })
 
+    local util = require('oil.util')
     for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-      if maybe_hijack_directory_buffer(bufnr) and vim.v.vim_did_enter == 1 then
+      if
+        maybe_hijack_directory_buffer(bufnr)
+        or (util.is_oil_bufnr(bufnr) and not vim.b[bufnr].oil_ready)
+      then
         M.load_oil_buffer(bufnr)
       end
     end
