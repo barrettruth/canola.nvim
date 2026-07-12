@@ -990,6 +990,7 @@ local function maybe_hijack_directory_buffer(bufnr)
   if bufname == '' then
     return false
   end
+  ---@diagnostic disable-next-line: undefined-field
   if vim.v.startreason == 'restart' then
     if vim.fn.isdirectory(bufname) == 1 then
       vim.api.nvim_buf_delete(bufnr, {})
@@ -1389,6 +1390,7 @@ M.setup = function(opts)
   if config.default_file_explorer then
     vim.g.loaded_netrw = 1
     vim.g.loaded_netrwPlugin = 1
+    vim.g.loaded_nvim_dir_plugin = 1
     -- If netrw was already loaded, clear this augroup
     if vim.fn.exists('#FileExplorer') then
       vim.api.nvim_create_augroup('FileExplorer', { clear = true })
