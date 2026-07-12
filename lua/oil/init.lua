@@ -1228,7 +1228,7 @@ M.load_oil_buffer = function(bufnr)
   end
 
   -- Early return if we're already loading or have already loaded this buffer
-  if loading.is_loading(bufnr) or vim.b[bufnr].filetype ~= nil then
+  if loading.is_loading(bufnr) then
     return
   end
 
