@@ -695,6 +695,27 @@ set_is_hidden_file({is_hidden_file})               *canola.set_is_hidden_file*
 toggle_hidden()                                         *canola.toggle_hidden*
     Toggle hidden files and directories
 
+rename.transform({callback}, {opts})                 *canola.rename.transform*
+    Transform entry names in the current canola buffer. This edits the buffer
+    only; filesystem changes happen when the buffer is saved.
+
+    Parameters:
+      {callback} `fun(name: string, entry: canola.Entry): nil|string`
+                 Receives the parsed buffer name and entry. Return the new name,
+                 or nil to leave the name unchanged.
+      {opts}     `nil|canola.RenameTransformOpts`
+          {types} `nil|canola.EntryType[]` Entry types to transform. Defaults
+                  to `{ "file", "link" }`. Include `"directory"` to transform
+                  directories.
+          {bufnr} `nil|integer` Buffer to transform. Defaults to the current
+                  buffer.
+
+    Examples: >lua
+      require("canola.rename").transform(function(name)
+        return name:gsub(" ", "-")
+      end, { types = { "file", "directory", "link" } })
+<
+
 register_column({name}, {column})                     *canola.register_column*
     Register a custom column. The column will be available by name in the
     `columns` config for all adapters. Call this before or during plugin
@@ -1282,6 +1303,23 @@ for adapter documentation and configuration.
 
 ------------------------------------------------------------------------------
 RECIPES                                                       *canola-recipes*
+
+Replace spaces in entry names ~
+                                           *canola-recipe-replace-name-spaces*
+>lua
+    vim.g.canola = {
+      keymaps = {
+        ["gs"] = {
+          desc = "Replace spaces in entry names",
+          callback = function()
+            require("canola.rename").transform(function(name)
+              return name:gsub(" ", "-")
+            end, { types = { "file", "directory", "link" } })
+          end,
+        },
+      },
+    }
+<
 
 Toggle file detail view ~
                                             *canola-recipe-toggle-detail-view*
