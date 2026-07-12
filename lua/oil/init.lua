@@ -1391,6 +1391,7 @@ M.setup = function(opts)
     vim.g.loaded_netrw = 1
     vim.g.loaded_netrwPlugin = 1
     vim.g.loaded_nvim_dir_plugin = 1
+    pcall(vim.api.nvim_del_augroup_by_name, 'nvim.dir')
     -- If netrw was already loaded, clear this augroup
     if vim.fn.exists('#FileExplorer') then
       vim.api.nvim_create_augroup('FileExplorer', { clear = true })
