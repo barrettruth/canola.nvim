@@ -1229,6 +1229,11 @@ M.load_oil_buffer = function(bufnr)
 
   -- Early return if we're already loading or have already loaded this buffer
   if loading.is_loading(bufnr) then
+    if vim.endswith(bufname, '/') then
+      vim.bo[bufnr].filetype = 'oil'
+      vim.bo[bufnr].buftype = 'acwrite'
+      keymap_util.set_keymaps(config.keymaps, bufnr)
+    end
     return
   end
 
