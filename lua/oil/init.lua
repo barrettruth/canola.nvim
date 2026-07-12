@@ -990,7 +990,7 @@ local function maybe_hijack_directory_buffer(bufnr)
   if bufname == '' then
     return false
   end
-  if vim.v.startreason == "restart" then
+  if vim.v.startreason == 'restart' then
     if vim.fn.isdirectory(bufname) == 1 then
       vim.api.nvim_buf_delete(bufnr, {})
     end

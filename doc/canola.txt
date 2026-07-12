@@ -602,6 +602,23 @@ save({opts}, {cb})                                                  *oil.save*
     Note:
       If you provide your own callback function, there will be no notification for errors.
 
+rename.transform({callback}, {opts})                  *oil.rename.transform*
+    Apply a function to existing entry names in the current oil buffer, editing
+    only the parsed name ranges. The buffer is changed, but filesystem
+    operations still happen through the normal |oil.save| flow.
+
+    Parameters:
+      {callback} `fun(name: string, entry: oil.Entry): nil|string`
+          Receives the current parsed buffer name and exported entry. Return a
+          new name to edit that entry, or nil to leave it unchanged.
+      {opts} `nil|table`
+          {types} `nil|oil.EntryType[]` Entry types to transform. Defaults to
+                  `{ "file", "link" }`.
+          {bufnr} `nil|integer` Buffer to edit. Defaults to the current buffer.
+
+    Returns:
+      `boolean, nil|string` Success flag and error message.
+
 setup({opts})                                                      *oil.setup*
     Initialize oil
 
@@ -1227,6 +1244,33 @@ buffer, pass the buffer number explicitly: >lua
     -- ... some operation that changes the current buffer ...
     local dir = require("oil").get_current_dir(bufnr)
 <
+
+Replace spaces in entry names ~
+                                             *oil-recipe-replace-name-spaces*
+
+A normal |:substitute| acts on the backing oil buffer, including concealed
+entry ids and any rendered columns. This mapping replaces spaces with dashes in
+existing file, directory, and symlink names while leaving ids, columns, and
+symlink targets untouched:
+>lua
+    require("oil").setup({
+      keymaps = {
+        ["g-"] = {
+          desc = "Replace spaces with dashes in entry names",
+          callback = function()
+            local ok, err = require("oil.rename").transform(function(name)
+              return name:gsub(" ", "-")
+            end, { types = { "file", "directory", "link" } })
+            if not ok and err then
+              vim.notify(err, vim.log.levels.ERROR)
+            end
+          end,
+        },
+      },
+    })
+<
+
+After it updates the buffer, review the pending renames and save normally.
 
 Add custom column for file extension ~
                                                  *oil-recipe-extension-column*
