@@ -26,4 +26,15 @@ describe('util', function()
       assert.equals(expected, output)
     end
   end)
+
+  it('does not delete a renamed buffer when the old name resolves to the same buffer', function()
+    local bufnr = vim.api.nvim_create_buf(false, false)
+    vim.api.nvim_buf_set_name(bufnr, 'canola-test:///foo')
+
+    local replaced = util.rename_buffer(bufnr, 'canola-test:///foo/')
+
+    assert.is_false(replaced)
+    assert.is_true(vim.api.nvim_buf_is_valid(bufnr))
+    assert.equals('canola-test:///foo/', vim.api.nvim_buf_get_name(bufnr))
+  end)
 end)

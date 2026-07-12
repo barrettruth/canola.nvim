@@ -149,7 +149,10 @@ M.rename_buffer = function(src_bufnr, dest_buf_name)
       -- Renaming the buffer creates a new buffer with the old name.
       -- Find it and try to delete it, but don't if the buffer is in a context
       -- where Neovim doesn't allow buffer modifications.
-      pcall(vim.api.nvim_buf_delete, vim.fn.bufadd(bufname), {})
+      local old_bufnr = vim.fn.bufadd(bufname)
+      if old_bufnr ~= src_bufnr then
+        pcall(vim.api.nvim_buf_delete, old_bufnr, {})
+      end
       if altbuf and vim.api.nvim_buf_is_valid(altbuf) then
         vim.fn.setreg('#', altbuf)
       end
