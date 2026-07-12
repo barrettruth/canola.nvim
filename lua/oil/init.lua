@@ -1666,14 +1666,22 @@ M.setup = function(opts)
       pattern = '*',
       nested = true,
       callback = function(params)
-        if maybe_hijack_directory_buffer(params.buf) and vim.v.vim_did_enter == 1 then
+        local util = require('oil.util')
+        if
+          maybe_hijack_directory_buffer(params.buf)
+          or (util.is_oil_bufnr(params.buf) and not vim.b[params.buf].oil_ready)
+        then
           M.load_oil_buffer(params.buf)
         end
       end,
     })
 
+    local util = require('oil.util')
     for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-      if maybe_hijack_directory_buffer(bufnr) and vim.v.vim_did_enter == 1 then
+      if
+        maybe_hijack_directory_buffer(bufnr)
+        or (util.is_oil_bufnr(bufnr) and not vim.b[bufnr].oil_ready)
+      then
         M.load_oil_buffer(bufnr)
       end
     end
