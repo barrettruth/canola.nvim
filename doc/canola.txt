@@ -1534,6 +1534,79 @@ Add custom column for file extension ~
     }
 <
 
+Use an ls-style size column ~
+                                                 *canola-recipe-ls-size-column*
+
+The built-in size column follows exa's directory placeholder convention. To
+show directory stat sizes instead, replace the column by registering another
+column named `"size"`: >lua
+    local constants = require("canola.constants")
+    local canola_columns = require("canola.columns")
+    local canola_config = require("canola.config")
+
+    local FIELD_META = constants.FIELD_META
+
+    local function format_size(size)
+      local units = {
+        { "", "CanolaSizeBytes" },
+        { "K", "CanolaSizeKilo" },
+        { "M", "CanolaSizeMega" },
+        { "G", "CanolaSizeGiga" },
+        { "T", "CanolaSizeGiga" },
+        { "P", "CanolaSizeGiga" },
+      }
+      local value = size
+      local unit = 1
+
+      while value >= 1024 and unit < #units do
+        value = value / 1024
+        unit = unit + 1
+      end
+
+      local text
+      if unit == 1 then
+        text = tostring(size)
+      else
+        text = string.format("%.1f%s", value, units[unit][1])
+      end
+
+      return text, units[unit][2]
+    end
+
+    require("canola").register_column("size", {
+      render = function(entry)
+        local meta = entry[FIELD_META]
+        local stat = meta and meta.stat
+        if not stat then
+          return canola_columns.EMPTY
+        end
+
+        local text, hl = format_size(stat.size)
+        if canola_config.highlights.columns then
+          return { text, { { hl, 0, #text } } }
+        end
+        return text
+      end,
+      get_sort_value = function(entry)
+        local meta = entry[FIELD_META]
+        local stat = meta and meta.stat
+        return stat and stat.size or 0
+      end,
+      default_align = "right",
+    })
+
+    vim.g.canola = {
+      columns = {
+        "permissions",
+        "owner",
+        "group",
+        "size",
+        { name = "mtime", format = "%b %d %H:%M" },
+        "icon",
+      },
+    }
+<
+
 Add custom column for hardlink count ~
                                                  *canola-recipe-custom-column*
 
