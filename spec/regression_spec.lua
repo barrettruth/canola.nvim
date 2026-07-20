@@ -45,6 +45,16 @@ local function with_icon_modules_stubbed(devicons, cb)
   end
 end
 
+local function with_vvars(values, cb)
+  local old_v = vim.v
+  vim.v = setmetatable(values, { __index = old_v })
+  local ok, err = xpcall(cb, debug.traceback)
+  vim.v = old_v
+  if not ok then
+    error(err)
+  end
+end
+
 describe('regression tests', function()
   local tmpdir
   before_each(function()
@@ -68,6 +78,23 @@ describe('regression tests', function()
     vim.cmd.edit({ args = { '%:p:h' } })
     test_util.wait_for_autocmd({ 'User', pattern = 'CanolaEnter' })
     assert.equals('canola', vim.bo.filetype)
+  end)
+
+  it('opens directories after restart startup', function()
+    with_vvars({ startreason = 'restart', vim_did_enter = 1 }, function()
+      vim.cmd.edit({ args = { tmpdir.path } })
+      test_util.wait_for_autocmd({ 'User', pattern = 'CanolaEnter' })
+      assert.equals('canola', vim.bo.filetype)
+      assert.is_true(vim.b.canola_ready)
+    end)
+  end)
+
+  it('discards directory buffers while restoring a restart session', function()
+    with_vvars({ startreason = 'restart', vim_did_enter = 0 }, function()
+      vim.cmd.edit({ args = { tmpdir.path } })
+      assert.equals('', vim.api.nvim_buf_get_name(0))
+      assert.not_equals('canola', vim.bo.filetype)
+    end)
   end)
 
   it("doesn't finish async directory loads in an unrelated current buffer", function()
