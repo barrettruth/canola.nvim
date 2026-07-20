@@ -991,7 +991,7 @@ local function maybe_hijack_directory_buffer(bufnr)
     return false
   end
   ---@diagnostic disable-next-line: undefined-field
-  if vim.v.startreason == 'restart' then
+  if vim.v.startreason == 'restart' and vim.v.vim_did_enter == 0 then
     if vim.fn.isdirectory(bufname) == 1 then
       vim.api.nvim_buf_delete(bufnr, {})
     end
@@ -1005,6 +1005,17 @@ local function maybe_hijack_directory_buffer(bufnr)
   )
   local replaced = util.rename_buffer(bufnr, new_name)
   return not replaced
+end
+
+local function maybe_load_directory_buffer(bufnr)
+  local hijacked = maybe_hijack_directory_buffer(bufnr)
+  if not vim.api.nvim_buf_is_valid(bufnr) then
+    return
+  end
+  local util = require('oil.util')
+  if hijacked or (util.is_oil_bufnr(bufnr) and not vim.b[bufnr].oil_ready) then
+    M.load_oil_buffer(bufnr)
+  end
 end
 
 ---@private
@@ -1671,24 +1682,12 @@ M.setup = function(opts)
       pattern = '*',
       nested = true,
       callback = function(params)
-        local util = require('oil.util')
-        if
-          maybe_hijack_directory_buffer(params.buf)
-          or (util.is_oil_bufnr(params.buf) and not vim.b[params.buf].oil_ready)
-        then
-          M.load_oil_buffer(params.buf)
-        end
+        maybe_load_directory_buffer(params.buf)
       end,
     })
 
-    local util = require('oil.util')
     for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-      if
-        maybe_hijack_directory_buffer(bufnr)
-        or (util.is_oil_bufnr(bufnr) and not vim.b[bufnr].oil_ready)
-      then
-        M.load_oil_buffer(bufnr)
-      end
+      maybe_load_directory_buffer(bufnr)
     end
   end
 end
