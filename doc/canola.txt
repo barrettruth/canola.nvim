@@ -746,6 +746,9 @@ register_column({name}, {column})                     *canola.register_column*
               Returns true when the parsed value differs from the entry's
               current state. Only needed for columns representing mutable
               metadata.
+          {parse_new} `nil|fun(line, conf): value, remainder`
+              Parses metadata at the beginning of an unsaved entry. Return the
+              parsed value and remaining filename. Requires {perform_action}.
           {render_action} `nil|fun(action): string`
               Human-readable description of a change action, shown in the
               confirmation prompt.
@@ -967,8 +970,16 @@ size                                                             *column-size*
 
 permissions                                               *column-permissions*
     Adapters: files (ssh via canola-collection)
-    Editable: this column is read/write
     Access permissions of the file
+
+    For local files, when this column is configured, a new entry can begin
+    with nine symbolic permission characters followed by whitespace: >
+        rwxr-xr-x script.sh
+        rwx------ private/
+<
+    The declaration applies to every final entry produced by brace expansion.
+    It is not supported for symbolic links. To create a literal filename that
+    begins with a valid permission declaration, temporarily hide this column.
 
     Parameters:
       {highlight} `string|fun(value: string): string` Highlight group, or

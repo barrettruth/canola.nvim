@@ -120,18 +120,35 @@ M.create_actions_from_diffs = function(all_diffs)
   local seen_creates = {}
 
   ---@param action canola.Action
+  ---@return boolean
   local function add_action(action)
     local adapter = assert(config.get_adapter_by_scheme(action.dest_url or action.url))
     if not adapter.filter_action or adapter.filter_action(action) then
       if action.type == 'create' then
         if seen_creates[action.url] then
-          return
+          return true
         else
           seen_creates[action.url] = true
         end
       end
 
       table.insert(actions, action)
+      return true
+    end
+    return false
+  end
+  ---@param diff canola.DiffNew
+  ---@param url string
+  ---@param entry_type canola.EntryType
+  local function add_changes(diff, url, entry_type)
+    for _, change in ipairs(diff.changes or {}) do
+      add_action({
+        type = 'change',
+        url = url,
+        entry_type = entry_type,
+        column = change.column,
+        value = change.value,
+      })
     end
   end
   for bufnr, diffs in pairs(all_diffs) do
@@ -165,12 +182,15 @@ M.create_actions_from_diffs = function(all_diffs)
               local is_last = i == #segments
               local entry_type = is_last and diff.entry_type or 'directory'
               url = url .. '/' .. seg
-              add_action({
+              local accepted = add_action({
                 type = 'create',
                 url = url,
                 entry_type = entry_type,
                 link = is_last and diff.link or nil,
               })
+              if accepted and is_last then
+                add_changes(diff, url, entry_type)
+              end
             end
           end
         end

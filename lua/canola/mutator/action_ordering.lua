@@ -48,6 +48,10 @@ M.enforce_action_order = function(actions)
       -- Finish operations on this path first
       -- e.g. NEW /a BEFORE CHANGE /a
       dest_trie:accum_actions_at(action.url, ret)
+      if action.entry_type == 'directory' then
+        dest_trie:accum_children_of(action.url, ret)
+        src_trie:accum_children_of(action.url, ret)
+      end
       -- Finish copy from operations first
       -- e.g. COPY /a -> /b BEFORE CHANGE /a
       src_trie:accum_actions_at(action.url, ret, function(entry)

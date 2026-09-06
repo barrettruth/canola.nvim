@@ -48,6 +48,39 @@ describe('files adapter', function()
     })
   end)
 
+  it('Creates files with permissions declared in new entries', function()
+    if not files.get_column('permissions') then
+      pending('permissions column not available on this platform')
+      return
+    end
+    vim.g.canola = vim.tbl_deep_extend('force', vim.g.canola, {
+      columns = { 'permissions' },
+    })
+    require('canola').init()
+
+    local url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p')
+    vim.cmd.edit({ args = { url } })
+    test_util.wait_canola_ready()
+    vim.api.nvim_buf_set_lines(0, 0, -1, true, { 'rwx------ script.sh' })
+
+    assert.are.same({
+      name = 'script.sh',
+      type = 'file',
+      parsed_name = 'script.sh',
+    }, require('canola').get_entry_on_line(0, 1))
+
+    local parser = require('canola.mutator.parser')
+    local mutator = require('canola.mutator')
+    local actions = mutator.create_actions_from_diffs({
+      [vim.api.nvim_get_current_buf()] = parser.parse(0),
+    })
+    local err = test_util.await(mutator.process_actions, 2, actions)
+    assert.is_nil(err)
+
+    local stat = assert(vim.uv.fs_stat(tmpdir.path .. '/script.sh'))
+    assert.equals(tonumber('700', 8), bit.band(stat.mode, tonumber('7777', 8)))
+  end)
+
   it('Deletes files', function()
     tmpdir:create({ 'a.txt' })
     local url = 'canola://' .. vim.fn.fnamemodify(tmpdir.path, ':p') .. 'a.txt'

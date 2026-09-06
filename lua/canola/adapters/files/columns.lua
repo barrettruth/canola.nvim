@@ -135,6 +135,16 @@ if not fs.is_windows then
       return permissions.parse(line)
     end,
 
+    parse_new = function(line, conf)
+      if not line:sub(10, 10):match('%s') then
+        return
+      end
+      local mode, rem = permissions.parse(line)
+      if mode ~= nil and rem and vim.trim(rem) ~= '' then
+        return mode, rem
+      end
+    end,
+
     compare = function(entry, parsed_value)
       local meta = entry[FIELD_META]
       if parsed_value and meta and meta.stat and meta.stat.mode then

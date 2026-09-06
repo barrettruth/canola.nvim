@@ -67,22 +67,14 @@ M.get_entry_on_line = function(bufnr, lnum)
       }
     end
   end
-  -- This is a NEW entry that hasn't been saved yet
-  local name = vim.trim(line)
-  local entry_type
-  if vim.endswith(name, '/') then
-    name = name:sub(1, name:len() - 1)
-    entry_type = 'directory'
-  else
-    entry_type = 'file'
-  end
-  if name == '' then
+  local new_entry = parser.parse_new_entry(adapter, line)
+  if not new_entry then
     return nil
   else
     return {
-      name = name,
-      type = entry_type,
-      parsed_name = name,
+      name = new_entry.name,
+      type = new_entry.entry_type,
+      parsed_name = new_entry.name,
     }
   end
 end
