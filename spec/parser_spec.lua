@@ -38,6 +38,71 @@ describe('parser', function()
     assert.are.same({ { entry_type = 'directory', name = 'foo', type = 'new' } }, diffs)
   end)
 
+  it('parses permissions from new entries when the column is configured', function()
+    local files = require('canola.adapters.files')
+    if not files.get_column('permissions') then
+      pending('permissions column not available on this platform')
+      return
+    end
+    vim.g.canola = vim.tbl_deep_extend('force', vim.g.canola, {
+      columns = { 'permissions' },
+    })
+    require('canola').init()
+
+    local entry, err = parser.parse_new_entry(files, 'rwsr-sr-t private/')
+    assert.is_nil(err)
+    assert.are.same({
+      name = 'private',
+      entry_type = 'directory',
+      changes = {
+        { column = 'permissions', value = tonumber('7755', 8) },
+      },
+    }, entry)
+  end)
+
+  it('requires whitespace after new-entry permissions', function()
+    local files = require('canola.adapters.files')
+    if not files.get_column('permissions') then
+      pending('permissions column not available on this platform')
+      return
+    end
+    vim.g.canola = vim.tbl_deep_extend('force', vim.g.canola, {
+      columns = { 'permissions' },
+    })
+    require('canola').init()
+
+    local entry = parser.parse_new_entry(files, 'rwxrwxrwxscript.sh')
+    assert.are.same({
+      name = 'rwxrwxrwxscript.sh',
+      entry_type = 'file',
+    }, entry)
+  end)
+
+  it('keeps permission-like prefixes when the column is hidden', function()
+    local files = require('canola.adapters.files')
+    local entry = parser.parse_new_entry(files, 'rwxrwxrwx script.sh')
+    assert.are.same({
+      name = 'rwxrwxrwx script.sh',
+      entry_type = 'file',
+    }, entry)
+  end)
+
+  it('rejects metadata on new symbolic links', function()
+    local files = require('canola.adapters.files')
+    if not files.get_column('permissions') then
+      pending('permissions column not available on this platform')
+      return
+    end
+    vim.g.canola = vim.tbl_deep_extend('force', vim.g.canola, {
+      columns = { 'permissions' },
+    })
+    require('canola').init()
+
+    local entry, err = parser.parse_new_entry(files, 'rwx------ script -> target')
+    assert.is_nil(entry)
+    assert.equals('Metadata cannot be set when creating a symbolic link', err)
+  end)
+
   it('detects new links', function()
     vim.cmd.edit({ args = { 'canola-test:///foo/' } })
     local bufnr = vim.api.nvim_get_current_buf()

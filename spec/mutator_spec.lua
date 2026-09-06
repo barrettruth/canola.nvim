@@ -41,6 +41,36 @@ describe('mutator', function()
       }, actions)
     end)
 
+    it('constructs metadata changes for new entries', function()
+      vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+      local bufnr = vim.api.nvim_get_current_buf()
+      local diffs = {
+        {
+          type = 'new',
+          name = 'a.txt',
+          entry_type = 'file',
+          changes = { { column = 'permissions', value = tonumber('700', 8) } },
+        },
+      }
+      local actions = mutator.create_actions_from_diffs({
+        [bufnr] = diffs,
+      })
+      assert.are.same({
+        {
+          type = 'create',
+          entry_type = 'file',
+          url = 'canola-test:///foo/a.txt',
+        },
+        {
+          type = 'change',
+          entry_type = 'file',
+          url = 'canola-test:///foo/a.txt',
+          column = 'permissions',
+          value = tonumber('700', 8),
+        },
+      }, actions)
+    end)
+
     it('constructs DELETE actions', function()
       local file = test_adapter.test_set('/foo/a.txt', 'file')
       vim.cmd.edit({ args = { 'canola-test:///foo/' } })
@@ -184,6 +214,40 @@ describe('mutator', function()
         assert.are.same({
           { type = 'create', entry_type = 'file', url = 'canola-test:///foo/bar.js' },
           { type = 'create', entry_type = 'file', url = 'canola-test:///foo/bar.ts' },
+        }, actions)
+      end)
+
+      it('applies metadata to every expanded entry', function()
+        vim.cmd.edit({ args = { 'canola-test:///foo/' } })
+        local bufnr = vim.api.nvim_get_current_buf()
+        local diffs = {
+          {
+            type = 'new',
+            name = 'bar.{js,ts}',
+            entry_type = 'file',
+            changes = { { column = 'permissions', value = tonumber('700', 8) } },
+          },
+        }
+        local actions = mutator.create_actions_from_diffs({
+          [bufnr] = diffs,
+        })
+        assert.are.same({
+          { type = 'create', entry_type = 'file', url = 'canola-test:///foo/bar.js' },
+          {
+            type = 'change',
+            entry_type = 'file',
+            url = 'canola-test:///foo/bar.js',
+            column = 'permissions',
+            value = tonumber('700', 8),
+          },
+          { type = 'create', entry_type = 'file', url = 'canola-test:///foo/bar.ts' },
+          {
+            type = 'change',
+            entry_type = 'file',
+            url = 'canola-test:///foo/bar.ts',
+            column = 'permissions',
+            value = tonumber('700', 8),
+          },
         }, actions)
       end)
 
@@ -515,6 +579,29 @@ describe('mutator', function()
         local actions = { change, create }
         local ordered_actions = mutator.enforce_action_order(actions)
         assert.are.same({ create, change }, ordered_actions)
+      end)
+
+      it('applies directory CHANGE after operations on children', function()
+        local create_dir = {
+          type = 'create',
+          url = 'canola-test:///a',
+          entry_type = 'directory',
+        }
+        local create_file = {
+          type = 'create',
+          url = 'canola-test:///a/hi.txt',
+          entry_type = 'file',
+        }
+        local change = {
+          type = 'change',
+          url = 'canola-test:///a',
+          entry_type = 'directory',
+          column = 'permissions',
+          value = 0,
+        }
+        local actions = { change, create_file, create_dir }
+        local ordered_actions = mutator.enforce_action_order(actions)
+        assert.are.same({ create_dir, create_file, change }, ordered_actions)
       end)
 
       it('applies CHANGE after COPY src', function()

@@ -1,4 +1,5 @@
 local cache = require('canola.cache')
+local columns = require('canola.columns')
 local config = require('canola.config')
 local constants = require('canola.constants')
 local fs = require('canola.fs')
@@ -19,6 +20,11 @@ local FIELD_META = constants.FIELD_META
 ---@field entry_type canola.EntryType
 ---@field id nil|integer
 ---@field link nil|string
+---@field changes? canola.NewEntryChange[]
+
+---@class (exact) canola.NewEntryChange
+---@field column string
+---@field value any
 
 ---@class (exact) canola.DiffDelete
 ---@field type "delete"
@@ -115,6 +121,49 @@ M.parse_line = function(adapter, line, column_defs)
   end
 
   return { data = ret, entry = entry, ranges = ranges }
+end
+
+---@class (exact) canola.ParsedNewEntry
+---@field name string
+---@field entry_type canola.EntryType
+---@field link? string
+---@field changes? canola.NewEntryChange[]
+
+---@param adapter canola.Adapter
+---@param line string
+---@return canola.ParsedNewEntry?
+---@return string?
+M.parse_new_entry = function(adapter, line)
+  local changes = {}
+  for _, col_def in ipairs(columns.get_supported_columns(adapter)) do
+    local value, rem = columns.parse_new(adapter, col_def, line)
+    if value ~= nil and rem and vim.trim(rem) ~= '' then
+      table.insert(changes, { column = util.split_config(col_def), value = value })
+      line = rem
+    end
+  end
+
+  local name, isdir = parsedir(vim.trim(line))
+  if name == '' then
+    return
+  end
+
+  local link_pieces = vim.split(name, ' -> ', { plain = true })
+  local entry_type = isdir and 'directory' or 'file'
+  local link
+  if #link_pieces == 2 then
+    entry_type = 'link'
+    name, link = unpack(link_pieces)
+  end
+  if entry_type == 'link' and #changes > 0 then
+    return nil, 'Metadata cannot be set when creating a symbolic link'
+  end
+
+  local ret = { name = name, entry_type = entry_type, link = link }
+  if #changes > 0 then
+    ret.changes = changes
+  end
+  return ret
 end
 
 ---@class (exact) canola.ParseError
@@ -238,8 +287,17 @@ M.parse = function(bufnr)
         end
       else
         -- Parse a new entry
-        local name, isdir = parsedir(vim.trim(line))
-        if vim.startswith(name, '/') then
+        local new_entry, new_entry_err = M.parse_new_entry(adapter, line)
+        if new_entry_err then
+          table.insert(errors, {
+            message = new_entry_err,
+            lnum = i - 1,
+            end_lnum = i,
+            col = 0,
+          })
+          return
+        end
+        if new_entry and vim.startswith(new_entry.name, '/') then
           table.insert(errors, {
             message = "Paths cannot start with '/'",
             lnum = i - 1,
@@ -248,21 +306,16 @@ M.parse = function(bufnr)
           })
           return
         end
-        if name ~= '' then
-          local link_pieces = vim.split(name, ' -> ', { plain = true })
-          local entry_type = isdir and 'directory' or 'file'
-          local link
-          if #link_pieces == 2 then
-            entry_type = 'link'
-            name, link = unpack(link_pieces)
-          end
-          check_dupe(name, i)
-          table.insert(diffs, {
+        if new_entry then
+          check_dupe(new_entry.name, i)
+          local diff = {
             type = 'new',
-            name = name,
-            entry_type = entry_type,
-            link = link,
-          })
+            name = new_entry.name,
+            entry_type = new_entry.entry_type,
+            link = new_entry.link,
+          }
+          diff.changes = new_entry.changes
+          table.insert(diffs, diff)
         end
       end
     end)()

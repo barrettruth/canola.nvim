@@ -14,6 +14,7 @@ local all_columns = {}
 
 ---@class (exact) canola.ColumnDefinition
 ---@field render fun(entry: canola.InternalEntry, conf: nil|table, bufnr: integer): nil|canola.TextChunk
+---@field parse_new? fun(line: string, conf: nil|table): nil|any, nil|string
 ---@field compare? fun(entry: canola.InternalEntry, parsed_value: any): boolean
 ---@field render_action? fun(action: canola.ChangeAction): string
 ---@field perform_action? fun(action: canola.ChangeAction, callback: fun(err: nil|string))
@@ -108,6 +109,19 @@ M.get_all_empty_width = function(adapter, col_def, bufnr)
   end
   if type(width) == 'number' and width > 0 then
     return width
+  end
+end
+
+---@param adapter canola.Adapter
+---@param col_def canola.ColumnSpec
+---@param line string
+---@return any?
+---@return string?
+M.parse_new = function(adapter, col_def, line)
+  local name, conf = util.split_config(col_def)
+  local column = M.get_column(adapter, name)
+  if column and column.parse_new and column.perform_action then
+    return column.parse_new(line, conf)
   end
 end
 
