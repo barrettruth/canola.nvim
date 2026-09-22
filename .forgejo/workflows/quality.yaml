@@ -1,0 +1,42 @@
+name: quality
+
+on:
+  pull_request:
+    branches: [main, canola]
+  push:
+    branches: [main, canola]
+
+jobs:
+  format:
+    name: Format
+    runs-on: nix
+    steps:
+      - uses: https://data.forgejo.org/actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Lua format
+        run: nix develop --command stylua --check lua spec
+      - name: Markdown format
+        run: nix develop --command biome format .
+
+  lint:
+    name: Lint
+    runs-on: nix
+    steps:
+      - uses: https://data.forgejo.org/actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Lua lint
+        run: nix develop --command selene --display-style quiet .
+
+  typecheck:
+    name: Typecheck
+    runs-on: nix
+    steps:
+      - uses: https://data.forgejo.org/actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Lua type check
+        run: nix develop --command lua-language-server --check lua --configpath "$PWD/.luarc.json" --checklevel=Warning
+
+  test:
+    name: Test
+    runs-on: nix
+    steps:
+      - uses: https://data.forgejo.org/actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Test
+        run: nix develop --command busted
