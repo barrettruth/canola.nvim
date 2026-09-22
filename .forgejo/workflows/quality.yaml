@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: https://data.forgejo.org/actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: Lua type check
-        run: nix develop --command lua-language-server --check lua --configpath "$PWD/.luarc.json" --checklevel=Warning
+        run: nix develop --command lua-language-server --check lua --configpath "$PWD/.luarc.json" --checklevel=Error
 
   test:
     name: Test
