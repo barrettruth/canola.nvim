@@ -11,7 +11,7 @@ jobs:
     name: Format
     runs-on: nix
     steps:
-      - uses: actions/checkout@v4
+      - uses: https://data.forgejo.org/actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: Lua format
         run: nix develop --command stylua --check lua spec
       - name: Markdown format
@@ -21,7 +21,7 @@ jobs:
     name: Lint
     runs-on: nix
     steps:
-      - uses: actions/checkout@v4
+      - uses: https://data.forgejo.org/actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: Lua lint
         run: nix develop --command selene --display-style quiet .
 
@@ -29,7 +29,7 @@ jobs:
     name: Typecheck
     runs-on: nix
     steps:
-      - uses: actions/checkout@v4
+      - uses: https://data.forgejo.org/actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: Lua type check
         run: nix develop --command lua-language-server --check lua --configpath "$PWD/.luarc.json" --checklevel=Warning
 
@@ -37,6 +37,6 @@ jobs:
     name: Test
     runs-on: nix
     steps:
-      - uses: actions/checkout@v4
+      - uses: https://data.forgejo.org/actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: Test
         run: nix develop --command busted

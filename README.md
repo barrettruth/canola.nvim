@@ -50,7 +50,7 @@ See `:help canola` for full documentation.
 
 ## Requirements
 
-- Neovim 0.10+
+- Neovim 0.12+
 - (Optionally) an icon provider:
   [mini.icons](https://github.com/echasnovski/mini.nvim/blob/main/readmes/mini-icons.md),
   [nvim-web-devicons](https://github.com/nvim-tree/nvim-web-devicons), or
