@@ -17,6 +17,7 @@ CONTENTS                                                        *oil-contents*
  12. Events ..................................................... |oil-events|
  13. Trash ....................................................... |oil-trash|
  14. Canola migration ..................................... |canola-migration|
+ 15. GitHub removal .................................... |oil-github-removal|
 
 ------------------------------------------------------------------------------
 INTRODUCTION                                                *oil-introduction*
@@ -1627,6 +1628,16 @@ RECIPES                                                       *canola-recipes*
 
 This section is documented on the `canola` branch. Switch to `branch =
 "canola"` to view the current canola recipes.
+
+------------------------------------------------------------------------------
+GITHUB REMOVAL                                         *oil-github-removal*
+
+This repository will be removed from GitHub on October 31, 2026. GitHub
+installs will stop receiving updates and clones will fail after that date.
+
+Install from Forgejo and keep using the `oil` module and `:Oil` command: >lua
+    { 'https://forge.barrettruth.com/barrettruth/canola.nvim', opts = {} }
+<
 
 ==============================================================================
 vim:tw=80:ts=2:ft=help:norl:syntax=help:
