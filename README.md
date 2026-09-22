@@ -4,9 +4,7 @@
 [133 upstream issues and PRs triaged](doc/upstream.md). Drop-in replacement —
 zero config changes needed.
 
-<video controls muted playsinline width="100%" poster="assets/canola-main.webp">
-  <source src="assets/canola-main.webm" type="video/webm">
-</video>
+<video src="https://forge.barrettruth.com/attachments/187fc9bd-ec03-4884-8f64-4cf6e8b40cac" poster="https://forge.barrettruth.com/attachments/fade6a9e-adbe-4d42-8cde-53aed9618da3" controls preload="metadata" muted playsinline width="100%"></video>
 
 ## Installation
 
