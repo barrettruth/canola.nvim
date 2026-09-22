@@ -1,11 +1,22 @@
 {
   "runtime": {
     "version": "LuaJIT",
-    "pathStrict": true
+    "pathStrict": true,
+    "path": ["lua/?.lua", "lua/?/init.lua"]
   },
   "workspace": {
     "checkThirdParty": false,
-    "ignoreDir": [".direnv"]
+    "ignoreDir": [".direnv"],
+    "library": [
+      "$VIMRUNTIME/lua",
+      "${3rd}/luv/library",
+      "${3rd}/busted/library",
+      "${3rd}/luassert/library"
+    ]
+  },
+  "diagnostics": {
+    "globals": ["vim", "jit"],
+    "libraryFiles": "Disable"
   },
   "type": {
     "checkTableShape": true
