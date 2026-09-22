@@ -9,7 +9,7 @@ source = {
 description = {
   summary = 'Neovim file explorer: edit your filesystem like a buffer',
   homepage = 'https://github.com/barrettruth/canola.nvim',
-  license = 'MIT',
+  license = 'GPL-3.0',
 }
 
 dependencies = {
