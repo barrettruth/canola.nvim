@@ -16,12 +16,6 @@ identical — same module, same config, same keymaps, same
 { 'barrettruth/canola.nvim', opts = {} }
 ```
 
-Or via [luarocks](https://luarocks.org/modules/barrettruth/canola.nvim):
-
-```
-luarocks install canola.nvim
-```
-
 ## Quick Start
 
 Put canola on a parent-directory key when you want a vinegar-style entry point.
