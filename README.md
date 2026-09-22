@@ -32,12 +32,6 @@ https://github.com/user-attachments/assets/e17fb611-acd9-464e-8a7e-c2a63d4e51a2
 ## Installation
 
 Install with your package manager of choice or via
-[luarocks](https://luarocks.org/modules/barrettruth/canola.nvim):
-
-```
-luarocks install canola.nvim
-```
-
 ## Quick Start
 
 Put canola on a parent-directory key when you want a vinegar-style entry point.
