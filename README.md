@@ -2,7 +2,9 @@
 
 A refined [`oil.nvim`](https://github.com/stevearc/oil.nvim)
 
-https://github.com/user-attachments/assets/e17fb611-acd9-464e-8a7e-c2a63d4e51a2
+<video controls muted playsinline width="100%" poster="assets/canola.webp">
+  <source src="assets/canola.webm" type="video/webm">
+</video>
 
 ## Features
 
@@ -18,7 +20,7 @@ https://github.com/user-attachments/assets/e17fb611-acd9-464e-8a7e-c2a63d4e51a2
 - File preview in split/floating window
 - Extended-glob file-creation syntax
 - External adapters via
-  [canola-collection](https://github.com/barrettruth/canola-collection) (git,
+  [canola-collection](https://forge.barrettruth.com/barrettruth/canola-collection) (git,
   SSH, trash, etc.)
 
 ## Requirements
@@ -27,11 +29,15 @@ https://github.com/user-attachments/assets/e17fb611-acd9-464e-8a7e-c2a63d4e51a2
 - (Optional) an icon provider:
   [mini.icons](https://github.com/echasnovski/mini.nvim/blob/main/readmes/mini-icons.md),
   [nvim-web-devicons](https://github.com/nvim-tree/nvim-web-devicons), or
-  [nonicons.nvim](https://github.com/barrettruth/nonicons.nvim)
+  [nonicons.nvim](https://forge.barrettruth.com/barrettruth/nonicons.nvim)
 
 ## Installation
 
-Install with your package manager of choice or via
+Install with your package manager of choice. Use the `canola` branch:
+
+```lua
+{ 'https://forge.barrettruth.com/barrettruth/canola.nvim', branch = 'canola' }
+```
 ## Quick Start
 
 Put canola on a parent-directory key when you want a vinegar-style entry point.
@@ -78,7 +84,7 @@ See `:help canola-migration` for the canonical re-mapping of every oil.nvim
 option to its canola equivalent.
 
 All adapters have been moved to
-[`canola-collection`](https://github.com/barrettruth/canola-collection).
+[`canola-collection`](https://forge.barrettruth.com/barrettruth/canola-collection).
 
 ## Documentation
 

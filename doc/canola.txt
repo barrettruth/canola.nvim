@@ -18,6 +18,7 @@ CONTENTS                                                     *canola-contents*
   12. Adapters                                                   |canola-adapters|
   13. Recipes                                                    |canola-recipes|
   14. Events                                                      |canola-events|
+  15. GitHub removal                                    |canola-github-removal|
 
 ------------------------------------------------------------------------------
 INTRODUCTION                                             *canola-introduction*
@@ -1938,6 +1939,17 @@ deleted.
 You can browse the trash by opening a `canola-trash://` URL provided by
 canola-collection. To restore files, move them from the trash to the desired
 destination. Deleting files from the trash permanently purges them.
+
+------------------------------------------------------------------------------
+GITHUB REMOVAL                                      *canola-github-removal*
+
+This repository will be removed from GitHub on October 31, 2026. GitHub
+installs will stop receiving updates and clones will fail after that date.
+
+Install from Forgejo. Keep `branch = "canola"` so that you stay on this
+redesigned canola branch: >lua
+    { 'https://forge.barrettruth.com/barrettruth/canola.nvim', branch = 'canola' }
+<
 
 ==============================================================================
 vim:tw=80:ts=2:ft=help:norl:syntax=help:
