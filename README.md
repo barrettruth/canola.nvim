@@ -2,9 +2,7 @@
 
 A refined [`oil.nvim`](https://github.com/stevearc/oil.nvim)
 
-<video controls muted playsinline width="100%" poster="assets/canola.webp">
-  <source src="assets/canola.webm" type="video/webm">
-</video>
+<video src="https://forge.barrettruth.com/attachments/c1a10e1f-2c5b-4f73-a2c8-834b352993f9" poster="https://forge.barrettruth.com/attachments/8be3923f-9a3e-404a-907d-79d02802f29a" controls preload="metadata" muted playsinline width="100%"></video>
 
 ## Features
 
