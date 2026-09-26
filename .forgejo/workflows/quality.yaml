@@ -5,6 +5,7 @@ on:
     branches: [main, canola]
   push:
     branches: [main, canola]
+  workflow_dispatch:
 
 jobs:
   format:
