@@ -7,6 +7,8 @@ local log = require('canola.log')
 local util = require('canola.util')
 local uv = vim.uv
 
+---@class (exact) canola.FilesAdapter: canola.Adapter
+---@field to_short_os_path fun(path: string, entry_type: nil|canola.EntryType): string
 local M = {}
 
 local FIELD_NAME = constants.FIELD_NAME
@@ -14,7 +16,7 @@ local FIELD_TYPE = constants.FIELD_TYPE
 local FIELD_META = constants.FIELD_META
 
 ---@param path string
----@param cb fun(err?: string, link?: string, stat?: uv.aliases.fs_stat_table)
+---@param cb fun(err?: string, link?: string, stat?: uv.fs_stat.result)
 local function read_link_data(path, cb)
   uv.fs_readlink(
     path,
@@ -34,9 +36,6 @@ local function read_link_data(path, cb)
     end)
   )
 end
-
----@class (exact) canola.FilesAdapter: canola.Adapter
----@field to_short_os_path fun(path: string, entry_type: nil|canola.EntryType): string
 
 ---@param path string
 ---@param entry_type nil|canola.EntryType

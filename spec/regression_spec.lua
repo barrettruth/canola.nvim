@@ -99,14 +99,13 @@ describe('regression tests', function()
 
   it("doesn't finish async directory loads in an unrelated current buffer", function()
     local files = require('canola.adapters.files')
-    local old_normalize_url = files.normalize_url
     local pending_finish
 
-    files.normalize_url = function(url, callback)
+    local normalize_url = stub(files, 'normalize_url', function(url, callback)
       pending_finish = function()
         callback(url)
       end
-    end
+    end)
 
     local ok, err = xpcall(function()
       tmpdir:create({ 'a.txt' })
@@ -130,7 +129,7 @@ describe('regression tests', function()
       assert.equals('canola', vim.bo[canola_bufnr].filetype)
     end, debug.traceback)
 
-    files.normalize_url = old_normalize_url
+    normalize_url:revert()
     if not ok then
       error(err)
     end
@@ -242,9 +241,15 @@ describe('regression tests', function()
     local cur = vim.api.nvim_win_get_cursor(0)
     local parser = require('canola.mutator.parser')
     local adapter = require('canola.util').get_adapter(0, true)
+    if not adapter then
+      error('The buffer has no adapter')
+    end
     local columns_mod = require('canola.columns')
     local column_defs = columns_mod.get_supported_columns(adapter)
-    local result = parser.parse_line(adapter, line_before, column_defs)
+    local result, err = parser.parse_line(adapter, line_before, column_defs)
+    if not result then
+      error(err)
+    end
     local name_col = result.ranges.name[1]
     vim.api.nvim_win_set_cursor(0, { cur[1], name_col })
     vim.cmd.startinsert()
@@ -281,9 +286,15 @@ describe('regression tests', function()
     local line_before = vim.api.nvim_get_current_line()
     local parser = require('canola.mutator.parser')
     local adapter = require('canola.util').get_adapter(0, true)
+    if not adapter then
+      error('The buffer has no adapter')
+    end
     local columns_mod = require('canola.columns')
     local column_defs = columns_mod.get_supported_columns(adapter)
-    local result = parser.parse_line(adapter, line_before, column_defs)
+    local result, err = parser.parse_line(adapter, line_before, column_defs)
+    if not result then
+      error(err)
+    end
     local name_col = result.ranges.name[1]
     vim.api.nvim_win_set_cursor(0, { vim.api.nvim_win_get_cursor(0)[1], name_col + 1 })
     vim.cmd.startinsert()
@@ -318,7 +329,12 @@ describe('regression tests', function()
       end,
     }, function()
       local columns = require('canola.columns')
+      local test_adapter = require('canola.adapters.test')
       local adapter = {
+        name = 'test',
+        list = test_adapter.list,
+        is_modifiable = test_adapter.is_modifiable,
+        normalize_url = test_adapter.normalize_url,
         get_column = function()
           return nil
         end,

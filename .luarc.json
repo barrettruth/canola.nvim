@@ -2,7 +2,7 @@
   "runtime": {
     "version": "LuaJIT",
     "pathStrict": true,
-    "path": ["lua/?.lua", "lua/?/init.lua"]
+    "path": ["lua/?.lua", "lua/?/init.lua", "?.lua", "?/init.lua"]
   },
   "workspace": {
     "checkThirdParty": false,

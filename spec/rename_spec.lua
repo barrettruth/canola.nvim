@@ -51,7 +51,7 @@ describe('rename transform', function()
 
     local ok, err = rename.transform(function(name, entry)
       seen[entry.id] = name
-      return name:gsub(' ', '-')
+      return (name:gsub(' ', '-'))
     end)
 
     assert.is_true(ok)
@@ -70,7 +70,7 @@ describe('rename transform', function()
     open_foo()
 
     local ok, err = rename.transform(function(name)
-      return name:gsub(' ', '-')
+      return (name:gsub(' ', '-'))
     end, { types = { 'directory' } })
 
     assert.is_true(ok)
@@ -89,6 +89,9 @@ describe('rename transform', function()
     end)
 
     assert.is_false(ok)
+    if not err then
+      error('Expected a duplicate filename error')
+    end
     assert.matches('Duplicate filename: same%.txt', err)
     assert.are.same(before, lines())
   end)
@@ -108,7 +111,7 @@ describe('rename transform', function()
 
     local ok, err = rename.transform(function(name)
       observed = name
-      return name:gsub(' ', '-')
+      return (name:gsub(' ', '-'))
     end)
 
     assert.is_true(ok)

@@ -58,6 +58,10 @@ local read_file = function(filepath)
     return nil
   end
   local stat = vim.uv.fs_fstat(fd)
+  if not stat then
+    vim.uv.fs_close(fd)
+    return nil
+  end
   local content = vim.uv.fs_read(fd, stat.size)
   vim.uv.fs_close(fd)
   return content
@@ -79,7 +83,7 @@ local function walk(dir)
   return ret
 end
 
----@param paths table<string, string>
+---@param paths table<string, string|true>
 local assert_fs = function(root, paths)
   local unlisted_dirs = {}
   for k in pairs(paths) do
@@ -132,7 +136,7 @@ local assert_fs = function(root, paths)
   end
 end
 
----@param paths table<string, string>
+---@param paths table<string, string|true>
 function TmpDir:assert_fs(paths)
   assert_fs(self.path, paths)
 end

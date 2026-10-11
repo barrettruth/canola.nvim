@@ -33,15 +33,16 @@ describe('config', function()
   it('compiles hidden patterns', function()
     vim.g.canola = { hidden = { patterns = { '^%.', '%.bak$' }, always = {} } }
     config.init()
-    assert.is_true(config._is_hidden_file('.gitignore', 0, {}))
-    assert.is_true(config._is_hidden_file('test.bak', 0, {}))
-    assert.is_false(config._is_hidden_file('readme.md', 0, {}))
+    for _, name in ipairs({ '.gitignore', 'test.bak' }) do
+      assert.is_true(config._is_hidden_file(name, 0, { name = name, type = 'file' }))
+    end
+    assert.is_false(config._is_hidden_file('readme.md', 0, { name = 'readme.md', type = 'file' }))
   end)
 
   it('does not have _disable_preview after removing preview.disable', function()
     vim.g.canola = nil
     config.init()
-    assert.is_nil(config._disable_preview)
+    assert.is_nil(rawget(config, '_disable_preview'))
   end)
 
   it('maps cursor true to editable', function()

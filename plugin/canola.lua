@@ -3,5 +3,5 @@ if vim.g.loaded_canola then
 end
 vim.g.loaded_canola = 1
 
-require('canola.migration').warn_if_github_source()
+require('canola.migration').warn_if_github_source_async()
 require('canola').init()

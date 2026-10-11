@@ -37,7 +37,10 @@
         in
         {
           default = pkgs.mkShell { packages = commonPackages; };
-          ci = pkgs.mkShell { packages = commonPackages ++ [ pkgs.neovim ]; };
+          ci = pkgs.mkShell {
+            VIMRUNTIME = "${pkgs.neovim}/share/nvim/runtime";
+            packages = commonPackages ++ [ pkgs.neovim ];
+          };
         }
       );
     };

@@ -28,32 +28,22 @@ function M.plugin_root()
   return vim.fs.dirname(vim.fs.dirname(vim.fs.dirname(source)))
 end
 
----@param root string
----@return string|nil
-function M.origin(root)
-  if vim.fn.executable('git') ~= 1 then
-    return nil
-  end
-
-  local ok, origin =
-    pcall(vim.fn.system, { 'git', '-C', root, 'config', '--get', 'remote.origin.url' })
-  if not ok or vim.v.shell_error ~= 0 then
-    return nil
-  end
-
-  return vim.trim(origin)
-end
-
 ---@param root? string
----@return boolean
-function M.warn_if_github_source(root)
-  if not M.is_github_origin(M.origin(root or M.plugin_root())) then
-    return false
+function M.warn_if_github_source_async(root)
+  if vim.fn.executable('git') ~= 1 then
+    return
   end
 
-  vim.notify_once(message, vim.log.levels.WARN)
-
-  return true
+  pcall(
+    vim.system,
+    { 'git', '-C', root or M.plugin_root(), 'config', '--get', 'remote.origin.url' },
+    { text = true },
+    vim.schedule_wrap(function(result)
+      if result.code == 0 and M.is_github_origin(vim.trim(result.stdout or '')) then
+        vim.notify_once(message, vim.log.levels.WARN)
+      end
+    end)
+  )
 end
 
 return M

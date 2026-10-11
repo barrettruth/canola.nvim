@@ -7,7 +7,7 @@ local M = {}
 ---@field parsed_name nil|string
 ---@field meta nil|table
 
----@alias canola.EntryType uv.aliases.fs_types
+---@alias canola.EntryType 'file'|'directory'|'link'|'fifo'|'socket'|'char'|'block'|'unknown'
 ---@alias canola.HlRange { [1]: string, [2]: integer, [3]: integer } A tuple of highlight group name, col_start, col_end
 ---@alias canola.HlTuple { [1]: string, [2]: string } A tuple of text, highlight group
 ---@alias canola.HlRangeTuple { [1]: string, [2]: canola.HlRange[] } A tuple of text, internal highlights
@@ -486,9 +486,9 @@ M.load_oil_buffer = function(bufnr)
     -- BufReadPre/Post autocmds with the expectation that the current window is the one that
     -- contains the buffer. If the buffer is no longer visible, still make the target buffer
     -- current for the finish path instead of falling back to an unrelated current window.
-    winid = util.buf_get_win(bufnr, winid)
-    if winid then
-      vim.api.nvim_win_call(winid, finish_in_context)
+    local visible_win = util.buf_get_win(bufnr, winid)
+    if visible_win then
+      vim.api.nvim_win_call(visible_win, finish_in_context)
     else
       vim.api.nvim_buf_call(bufnr, finish_in_context)
     end

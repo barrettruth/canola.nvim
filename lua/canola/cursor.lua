@@ -41,7 +41,7 @@ M.get_last_cursor = function(bufname)
 end
 
 --- @param bufnr integer
---- @param adapter canola.Adapter
+--- @param adapter canola.Adapter|nil
 --- @param mode false|"name"|"editable"
 --- @param cur integer[]
 --- @param col_pad integer

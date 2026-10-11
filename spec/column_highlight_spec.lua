@@ -116,14 +116,19 @@ describe('column highlights', function()
       config.init()
       local files = require('canola.adapters.files')
       local col = files.get_column('size')
+      if not col then
+        error('The size column is missing')
+      end
       local entry = {
         [constants.FIELD_ID] = 1,
         [constants.FIELD_NAME] = 'big.bin',
         [constants.FIELD_TYPE] = 'file',
         [constants.FIELD_META] = { stat = { size = 2e9 } },
       }
-      local result = col.render(entry, nil)
-      assert.equals('table', type(result))
+      local result = col.render(entry, nil, 0)
+      if type(result) ~= 'table' then
+        error('Expected highlighted column text')
+      end
       assert.truthy(result[1]:match('G$'))
       assert.equals('CanolaSizeGiga', result[2][1][1])
     end)
@@ -134,14 +139,19 @@ describe('column highlights', function()
       config.init()
       local files = require('canola.adapters.files')
       local col = files.get_column('size')
+      if not col then
+        error('The size column is missing')
+      end
       local entry = {
         [constants.FIELD_ID] = 1,
         [constants.FIELD_NAME] = 'med.bin',
         [constants.FIELD_TYPE] = 'file',
         [constants.FIELD_META] = { stat = { size = 5e6 } },
       }
-      local result = col.render(entry, nil)
-      assert.equals('table', type(result))
+      local result = col.render(entry, nil, 0)
+      if type(result) ~= 'table' then
+        error('Expected highlighted column text')
+      end
       assert.truthy(result[1]:match('M$'))
       assert.equals('CanolaSizeMega', result[2][1][1])
     end)
@@ -152,14 +162,19 @@ describe('column highlights', function()
       config.init()
       local files = require('canola.adapters.files')
       local col = files.get_column('size')
+      if not col then
+        error('The size column is missing')
+      end
       local entry = {
         [constants.FIELD_ID] = 1,
         [constants.FIELD_NAME] = 'small.txt',
         [constants.FIELD_TYPE] = 'file',
         [constants.FIELD_META] = { stat = { size = 4096 } },
       }
-      local result = col.render(entry, nil)
-      assert.equals('table', type(result))
+      local result = col.render(entry, nil, 0)
+      if type(result) ~= 'table' then
+        error('Expected highlighted column text')
+      end
       assert.truthy(result[1]:match('k$'))
       assert.equals('CanolaSizeKilo', result[2][1][1])
     end)
@@ -170,14 +185,19 @@ describe('column highlights', function()
       config.init()
       local files = require('canola.adapters.files')
       local col = files.get_column('size')
+      if not col then
+        error('The size column is missing')
+      end
       local entry = {
         [constants.FIELD_ID] = 1,
         [constants.FIELD_NAME] = 'tiny.txt',
         [constants.FIELD_TYPE] = 'file',
         [constants.FIELD_META] = { stat = { size = 42 } },
       }
-      local result = col.render(entry, nil)
-      assert.equals('table', type(result))
+      local result = col.render(entry, nil, 0)
+      if type(result) ~= 'table' then
+        error('Expected highlighted column text')
+      end
       assert.equals('42', result[1])
       assert.equals('CanolaSizeBytes', result[2][1][1])
     end)
@@ -188,13 +208,16 @@ describe('column highlights', function()
       config.init()
       local files = require('canola.adapters.files')
       local col = files.get_column('size')
+      if not col then
+        error('The size column is missing')
+      end
       local entry = {
         [constants.FIELD_ID] = 1,
         [constants.FIELD_NAME] = 'test.txt',
         [constants.FIELD_TYPE] = 'file',
         [constants.FIELD_META] = { stat = { size = 42 } },
       }
-      local result = col.render(entry, nil)
+      local result = col.render(entry, nil, 0)
       assert.equals('string', type(result))
       assert.equals('42', result)
     end)
@@ -217,8 +240,10 @@ describe('column highlights', function()
         [constants.FIELD_TYPE] = 'file',
         [constants.FIELD_META] = { stat = { uid = vim.uv.getuid(), gid = 0 } },
       }
-      local result = col.render(entry, nil)
-      assert.equals('table', type(result))
+      local result = col.render(entry, nil, 0)
+      if type(result) ~= 'table' then
+        error('Expected highlighted column text')
+      end
       assert.equals('CanolaOwnerSelf', result[2][1][1])
     end)
 
@@ -238,8 +263,10 @@ describe('column highlights', function()
         [constants.FIELD_TYPE] = 'file',
         [constants.FIELD_META] = { stat = { uid = 99999, gid = 0 } },
       }
-      local result = col.render(entry, nil)
-      assert.equals('table', type(result))
+      local result = col.render(entry, nil, 0)
+      if type(result) ~= 'table' then
+        error('Expected highlighted column text')
+      end
       assert.equals('CanolaOwnerOther', result[2][1][1])
     end)
 
@@ -259,8 +286,10 @@ describe('column highlights', function()
         [constants.FIELD_TYPE] = 'file',
         [constants.FIELD_META] = { stat = { uid = 0, gid = vim.uv.getgid() } },
       }
-      local result = col.render(entry, nil)
-      assert.equals('table', type(result))
+      local result = col.render(entry, nil, 0)
+      if type(result) ~= 'table' then
+        error('Expected highlighted column text')
+      end
       assert.equals('CanolaGroupSelf', result[2][1][1])
     end)
 
@@ -280,8 +309,10 @@ describe('column highlights', function()
         [constants.FIELD_TYPE] = 'file',
         [constants.FIELD_META] = { stat = { uid = 0, gid = 99999 } },
       }
-      local result = col.render(entry, nil)
-      assert.equals('table', type(result))
+      local result = col.render(entry, nil, 0)
+      if type(result) ~= 'table' then
+        error('Expected highlighted column text')
+      end
       assert.equals('CanolaGroupOther', result[2][1][1])
     end)
   end)
@@ -303,8 +334,10 @@ describe('column highlights', function()
         [constants.FIELD_TYPE] = 'file',
         [constants.FIELD_META] = { stat = { mode = tonumber('100644', 8) } },
       }
-      local result = col.render(entry, nil)
-      assert.equals('table', type(result))
+      local result = col.render(entry, nil, 0)
+      if type(result) ~= 'table' then
+        error('Expected highlighted column text')
+      end
       assert.equals('.rw-r--r--', result[1])
       assert.equals(10, #result[2])
     end)
@@ -325,7 +358,7 @@ describe('column highlights', function()
         [constants.FIELD_TYPE] = 'file',
         [constants.FIELD_META] = { stat = { mode = tonumber('100644', 8) } },
       }
-      local result = col.render(entry, nil)
+      local result = col.render(entry, nil, 0)
       assert.equals('string', type(result))
       assert.equals('.rw-r--r--', result)
     end)

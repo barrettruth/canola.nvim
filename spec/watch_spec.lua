@@ -7,7 +7,7 @@ describe('watcher paths', function()
   local uv = vim.uv
   local old_is_windows
   local old_new_fs_event
-  local old_render_buffer_async
+  local render_buffer_async
   local old_watch
   local started_path
   local start_calls
@@ -17,7 +17,6 @@ describe('watcher paths', function()
     start_calls = 0
     old_is_windows = fs.is_windows
     old_new_fs_event = uv.new_fs_event
-    old_render_buffer_async = view.render_buffer_async
     old_watch = config.watch
     fs.is_windows = true
     config.watch = true
@@ -30,14 +29,14 @@ describe('watcher paths', function()
         stop = function() end,
       }
     end
-    view.render_buffer_async = function() end
+    render_buffer_async = stub(view, 'render_buffer_async')
   end)
 
   after_each(function()
     fs.is_windows = old_is_windows
     config.watch = old_watch
     uv.new_fs_event = old_new_fs_event
-    view.render_buffer_async = old_render_buffer_async
+    render_buffer_async:revert()
     test_util.reset_editor()
   end)
 

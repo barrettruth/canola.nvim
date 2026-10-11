@@ -1,7 +1,7 @@
 local util = require('canola.util')
 local M = {}
 
----@type table<integer, uv_timer_t>
+---@type table<integer, uv.uv_timer_t>
 local timers = {}
 
 local FPS = 20
@@ -65,9 +65,13 @@ M.set_loading = function(bufnr, is_loading)
   if is_loading then
     if timers[bufnr] == nil then
       local width = 20
-      timers[bufnr] = vim.uv.new_timer()
+      local timer = vim.uv.new_timer()
+      if not timer then
+        return
+      end
+      timers[bufnr] = timer
       local bar_iter = M.get_bar_iter({ width = width })
-      timers[bufnr]:start(
+      local started = timer:start(
         200, -- Delay the loading screen just a bit to avoid flicker
         math.floor(1000 / FPS),
         vim.schedule_wrap(function()
@@ -80,6 +84,10 @@ M.set_loading = function(bufnr, is_loading)
           util.render_text(bufnr, lines)
         end)
       )
+      if not started then
+        timer:close()
+        timers[bufnr] = nil
+      end
     end
   elseif timers[bufnr] then
     timers[bufnr]:close()
