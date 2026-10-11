@@ -301,7 +301,7 @@ M.recursive_copy = function(entry_type, src_path, dest_path, cb)
     return
   end
   if entry_type ~= 'directory' then
-    uv.fs_copyfile(src_path, dest_path, { excl = true }, cb)
+    uv.fs_copyfile(src_path, dest_path, { excl = true, ficlone = false, ficlone_force = false }, cb)
     move_undofile(src_path, dest_path, true)
     return
   end

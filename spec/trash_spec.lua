@@ -147,3 +147,63 @@ describe('freedesktop', function()
     assert.are.same({ 'a.txt', 'a.txt' }, test_util.parse_entries(0))
   end)
 end)
+
+local function temporary_directory()
+  local root = vim.fn.tempname()
+  vim.fn.mkdir(root, 'p')
+  return root
+end
+
+describe('trash adapters', function()
+  local root
+  local data_home
+  local homedir
+
+  before_each(function()
+    root = temporary_directory()
+    data_home = vim.env.XDG_DATA_HOME
+    vim.env.XDG_DATA_HOME = root
+    homedir = stub(vim.uv, 'os_homedir', function()
+      return root
+    end)
+  end)
+
+  after_each(function()
+    homedir:revert()
+    vim.env.XDG_DATA_HOME = data_home
+    vim.fn.delete(root, 'rf')
+  end)
+
+  it('writes freedesktop trash metadata before moving a file', function()
+    local source = root .. '/source.txt'
+    vim.fn.writefile({ 'contents' }, source)
+    local err =
+      test_util.await(require('oil.adapters.trash.freedesktop').delete_to_trash, 2, source)
+    assert.is_nil(err)
+    assert.equal(0, vim.fn.filereadable(source))
+    local info_files = vim.fn.glob(root .. '/Trash/info/*.trashinfo', false, true)
+    assert.equal(1, #info_files)
+    local contents = vim.fn.readfile(info_files[1])
+    assert.equal('[Trash Info]', contents[1])
+    assert.equal('Path=' .. source, contents[2])
+    assert.matches('^DeletionDate=', contents[3])
+  end)
+
+  it('returns an error for invalid mac trash paths', function()
+    local mac = require('oil.adapters.trash.mac')
+    for _, action_type in ipairs({ 'move', 'copy' }) do
+      for _, urls in ipairs({
+        { 'invalid', 'oil-trash:///file' },
+        { 'oil:///file', 'invalid' },
+      }) do
+        local err = test_util.await(mac.perform_action, 2, {
+          type = action_type,
+          entry_type = 'file',
+          src_url = urls[1],
+          dest_url = urls[2],
+        })
+        assert.equal('Invalid source or destination URL', err)
+      end
+    end
+  end)
+end)

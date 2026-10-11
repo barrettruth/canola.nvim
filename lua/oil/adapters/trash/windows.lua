@@ -70,7 +70,7 @@ M.list = function(url, column_defs, cb)
     )
     local displayed_entries = vim.tbl_map(
       ---@param entry {IsFolder: boolean, DeletionDate: integer, Name: string, Path: string, OriginalPath: string}
-      ---@return {[1]:nil, [2]:string, [3]:string, [4]:{stat: uv_fs_t, trash_info: oil.WindowsTrashInfo, display_name: string}}
+      ---@return {[1]:nil, [2]:string, [3]:string, [4]:{stat: uv.fs_stat.result, trash_info: oil.WindowsTrashInfo, display_name: string}}
       function(entry)
         local parent = win_addslash(assert(vim.fn.fnamemodify(entry.OriginalPath, ':h')))
 
@@ -236,7 +236,7 @@ end
 ---@param cb fun(path: string)
 M.get_entry_path = function(url, entry, cb)
   local internal_entry = assert(cache.get_entry_by_id(entry.id))
-  local meta = internal_entry[FIELD_META] --[[@as {stat: uv_fs_t, trash_info: oil.WindowsTrashInfo, display_name: string}]]
+  local meta = internal_entry[FIELD_META] --[[@as {stat: uv.fs_stat.result, trash_info: oil.WindowsTrashInfo, display_name: string}]]
   local trash_info = meta and meta.trash_info
   if not trash_info then
     -- This is a subpath in the trash
@@ -349,7 +349,7 @@ end
 M.perform_action = function(action, cb)
   if action.type == 'delete' then
     local entry = assert(cache.get_entry_by_url(action.url))
-    local meta = entry[FIELD_META] --[[@as {stat: uv_fs_t, trash_info: oil.WindowsTrashInfo, display_name: string}]]
+    local meta = entry[FIELD_META] --[[@as {stat: uv.fs_stat.result, trash_info: oil.WindowsTrashInfo, display_name: string}]]
     local trash_info = meta and meta.trash_info
 
     purge(trash_info, cb)
@@ -365,7 +365,7 @@ M.perform_action = function(action, cb)
       assert(dest_path)
       dest_path = fs.posix_to_os_path(dest_path)
       local entry = assert(cache.get_entry_by_url(action.src_url))
-      local meta = entry[FIELD_META] --[[@as {stat: uv_fs_t, trash_info: oil.WindowsTrashInfo, display_name: string}]]
+      local meta = entry[FIELD_META] --[[@as {stat: uv.fs_stat.result, trash_info: oil.WindowsTrashInfo, display_name: string}]]
       local trash_info = meta and meta.trash_info
       fs.recursive_move(action.entry_type, trash_info.trash_file, dest_path, function(err)
         if err then
@@ -389,7 +389,7 @@ M.perform_action = function(action, cb)
       assert(dest_path)
       dest_path = fs.posix_to_os_path(dest_path)
       local entry = assert(cache.get_entry_by_url(action.src_url))
-      local meta = entry[FIELD_META] --[[@as {stat: uv_fs_t, trash_info: oil.WindowsTrashInfo, display_name: string}]]
+      local meta = entry[FIELD_META] --[[@as {stat: uv.fs_stat.result, trash_info: oil.WindowsTrashInfo, display_name: string}]]
       local trash_info = meta and meta.trash_info
       fs.recursive_copy(action.entry_type, trash_info.trash_file, dest_path, cb)
     else

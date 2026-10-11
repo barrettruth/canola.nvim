@@ -7,7 +7,7 @@ local M = {}
 ---@field parsed_name nil|string
 ---@field meta nil|table
 
----@alias oil.EntryType uv.aliases.fs_types
+---@alias oil.EntryType 'file'|'directory'|'link'|'fifo'|'socket'|'char'|'block'|'unknown'
 ---@alias oil.HlRange { [1]: string, [2]: integer, [3]: integer } A tuple of highlight group name, col_start, col_end
 ---@alias oil.HlTuple { [1]: string, [2]: string } A tuple of text, highlight group
 ---@alias oil.HlRangeTuple { [1]: string, [2]: oil.HlRange[] } A tuple of text, internal highlights
@@ -1333,7 +1333,7 @@ M.setup = function(opts)
   local config = require('oil.config')
 
   config.setup(opts)
-  require('oil.migration').warn_if_github_source()
+  require('oil.migration').warn_if_github_source_async()
   set_colors()
   local callback = function(args)
     local util = require('oil.util')

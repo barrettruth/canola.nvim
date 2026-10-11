@@ -151,7 +151,7 @@ end
 ---@field info_file string
 ---@field original_path string
 ---@field deletion_date number
----@field stat uv.aliases.fs_stat_table
+---@field stat uv.fs_stat.result
 
 ---@param info_file string
 ---@param cb fun(err?: string, info?: oil.TrashInfo)
@@ -515,7 +515,7 @@ local function write_info_file(path, info_path, cb)
       assert(fd)
       local deletion_date = vim.fn.strftime('%Y-%m-%dT%H:%M:%S')
       local contents = string.format('[Trash Info]\nPath=%s\nDeletionDate=%s', path, deletion_date)
-      uv.fs_write(fd, contents, function(write_err)
+      uv.fs_write(fd, contents, 0, function(write_err)
         uv.fs_close(fd, function(close_err)
           cb(write_err or close_err)
         end)

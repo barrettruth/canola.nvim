@@ -174,24 +174,28 @@ M.perform_action = function(action, cb)
     local fullpath = trash_dir .. path
     fs.recursive_delete(action.entry_type, fullpath, cb)
   elseif action.type == 'move' or action.type == 'copy' then
-    local src_adapter = assert(config.get_adapter_by_scheme(action.src_url))
-    local dest_adapter = assert(config.get_adapter_by_scheme(action.dest_url))
     local _, src_path = util.parse_url(action.src_url)
     local _, dest_path = util.parse_url(action.dest_url)
-    assert(src_path and dest_path)
+    if not src_path or not dest_path then
+      return cb('Invalid source or destination URL')
+    end
+    local src_adapter = assert(config.get_adapter_by_scheme(action.src_url))
+    local dest_adapter = assert(config.get_adapter_by_scheme(action.dest_url))
+    local src = src_path
+    local dest = dest_path
     if src_adapter.name == 'files' then
-      dest_path = trash_dir .. dest_path
+      dest = trash_dir .. dest
     elseif dest_adapter.name == 'files' then
-      src_path = trash_dir .. src_path
+      src = trash_dir .. src
     else
-      dest_path = trash_dir .. dest_path
-      src_path = trash_dir .. src_path
+      dest = trash_dir .. dest
+      src = trash_dir .. src
     end
 
     if action.type == 'move' then
-      fs.recursive_move(action.entry_type, src_path, dest_path, cb)
+      fs.recursive_move(action.entry_type, src, dest, cb)
     else
-      fs.recursive_copy(action.entry_type, src_path, dest_path, cb)
+      fs.recursive_copy(action.entry_type, src, dest, cb)
     end
   else
     cb(string.format('Bad action type: %s', action.type))
