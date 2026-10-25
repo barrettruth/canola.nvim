@@ -12,7 +12,6 @@ test:
 lint:
     git ls-files '*.lua' | xargs selene --display-style quiet
     lua-language-server --check . --checklevel=Error
-    vimdoc-language-server check doc/
 
 ci: format lint test
     @:

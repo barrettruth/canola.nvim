@@ -27,7 +27,6 @@
             pkgs.stylua
             pkgs.selene
             pkgs.lua-language-server
-            pkgs.vimdoc-language-server
             pkgs.just
             (pkgs.luajit.withPackages (ps: [
               ps.busted
