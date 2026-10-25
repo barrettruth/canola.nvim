@@ -28,7 +28,6 @@
             pkgs.selene
             pkgs.neovim
             pkgs.lua-language-server
-            pkgs.vimdoc-language-server
             (pkgs.luajit.withPackages (ps: [
               ps.busted
               ps.nlua
