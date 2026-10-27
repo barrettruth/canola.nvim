@@ -4,7 +4,7 @@
 [133 upstream issues and PRs triaged](doc/upstream.md). Drop-in replacement —
 zero config changes needed.
 
-<video src="https://forge.barrettruth.com/attachments/187fc9bd-ec03-4884-8f64-4cf6e8b40cac" poster="https://forge.barrettruth.com/attachments/fade6a9e-adbe-4d42-8cde-53aed9618da3" controls preload="metadata" muted playsinline width="100%"></video>
+https://github.com/user-attachments/assets/a1864956-ad7e-49c4-a7f9-e0ec8799da83
 
 ## Installation
 
@@ -13,7 +13,7 @@ identical — same module, same config, same keymaps, same
 `require('oil').setup(opts)`.
 
 ```lua
-{ 'https://forge.barrettruth.com/barrettruth/canola.nvim', opts = {} }
+{ 'https://github.com/barrettruth/canola.nvim', opts = {} }
 ```
 
 ## Quick Start
@@ -48,7 +48,7 @@ See `:help canola` for full documentation.
 - (Optionally) an icon provider:
   [mini.icons](https://github.com/echasnovski/mini.nvim/blob/main/readmes/mini-icons.md),
   [nvim-web-devicons](https://github.com/nvim-tree/nvim-web-devicons), or
-  [nonicons.nvim](https://forge.barrettruth.com/barrettruth/nonicons.nvim)
+  nonicons.nvim
 
 ## Similar Projects
 

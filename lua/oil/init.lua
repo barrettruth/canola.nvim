@@ -1333,7 +1333,6 @@ M.setup = function(opts)
   local config = require('oil.config')
 
   config.setup(opts)
-  require('oil.migration').warn_if_github_source_async()
   set_colors()
   local callback = function(args)
     local util = require('oil.util')
