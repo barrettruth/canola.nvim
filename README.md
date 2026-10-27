@@ -27,7 +27,7 @@ https://github.com/user-attachments/assets/e17fb611-acd9-464e-8a7e-c2a63d4e51a2
 - (Optional) an icon provider:
   [mini.icons](https://github.com/echasnovski/mini.nvim/blob/main/readmes/mini-icons.md),
   [nvim-web-devicons](https://github.com/nvim-tree/nvim-web-devicons), or
-  nonicons.nvim
+  [nonicons.nvim](https://github.com/barrettruth/nonicons.nvim)
 
 ## Installation
 
