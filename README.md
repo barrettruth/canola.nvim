@@ -16,6 +16,10 @@ identical — same module, same config, same keymaps, same
 { 'https://github.com/barrettruth/canola.nvim', opts = {} }
 ```
 
+The [`canola`](https://github.com/barrettruth/canola.nvim/tree/canola) branch
+has a redesigned configuration. It is not a drop-in replacement for oil.nvim. To
+use it, set `branch = 'canola'` and read `:help canola-migration`.
+
 ## Quick Start
 
 Put canola on a parent-directory key when you want a vinegar-style entry point.
