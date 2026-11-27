@@ -139,12 +139,18 @@ M.open_preview = function(opts, callback)
           return finish()
         end
       else
-        local disable_ev = { filename = normalized_url, result = false }
-        vim.api.nvim_exec_autocmds(
-          'User',
-          { pattern = 'CanolaPreviewDisable', modeline = false, data = disable_ev }
-        )
-        if disable_ev.result then
+        local disabled = false
+        vim.api.nvim_exec_autocmds('User', {
+          pattern = 'CanolaPreviewDisable',
+          modeline = false,
+          data = {
+            filename = normalized_url,
+            disable = function()
+              disabled = true
+            end,
+          },
+        })
+        if disabled then
           filebufnr = vim.api.nvim_create_buf(false, true)
           vim.bo[filebufnr].bufhidden = 'wipe'
           vim.bo[filebufnr].buftype = 'nofile'
