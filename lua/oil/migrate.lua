@@ -532,7 +532,7 @@ M.generate = function()
   pattern = "CanolaPreviewDisable",
   callback = function(args)
     if args.data.filename:match("%.pdf$") then
-      args.data.result = true
+      args.data.disable()
     end
   end,
 })]],
@@ -719,7 +719,7 @@ M.print = function()
         '  pattern = "CanolaPreviewDisable",',
         '  callback = function(args)',
         '    if args.data.filename:match("%.pdf$") then',
-        '      args.data.result = true',
+        '      args.data.disable()',
         '    end',
         '  end,',
         '})',
